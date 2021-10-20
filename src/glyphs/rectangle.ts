@@ -1,0 +1,35 @@
+import { Annotation } from "../annotations/annotation";
+import { Chart } from "../charts/chart";
+import * as d3 from "d3";
+import { GlyphConfig } from "./glyph-config";
+import { generateId } from "../utilities/id-generation";
+import { bind } from "./bind";
+import { GlyphModifier } from "./glyph-modifier";
+
+/**
+ * An interface that holds the parameters for rendering rectangle glyphs.
+ */
+export interface RectangleConfig<
+  A extends Annotation = Annotation,
+  C extends Chart<any> = Chart
+> extends GlyphConfig<A, C> {}
+
+/**
+ * This renders a list of Annotation objects in a target chart as rectangles.
+ * @param chart The target Chart.
+ * @param ann The list of Annotation objects to be rendered.
+ * @param config The parameters for configuring the style of the lines.
+ */
+export function rectangle<
+  A extends Annotation = Annotation,
+  C extends Chart<any> = Chart
+>(config: RectangleConfig<A, C>): d3.Selection<SVGGElement, string, any, any> {
+  let selector = config.selector || generateId("soda-rect-glyph");
+  let internalSelector = selector + "-internal";
+
+  let binding = bind<A, C, SVGRectElement>(selector, "rect", config);
+
+  let modifier = new GlyphModifier(internalSelector, binding.merge, config);
+  config.chart.addGlyphModifier(modifier);
+  return binding.g;
+}

@@ -1,0 +1,12 @@
+*.js
+!*.json
+!*.config.js
+*.js.map
+build/
+dist/
+node_modules/
+.DS_Store
+.DS_Store/
+*.swp
+*~
+.idea/

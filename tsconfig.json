@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "declaration": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "module": "CommonJS",
+    "sourceMap": true,
+    "target": "es6"
+  },
+  "compileOnSave": true,
+  "exclude": ["dist",
+        "node_modules",
+        "examples",
+        "docs",
+        "tests"
+  ]
+}
