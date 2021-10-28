@@ -85,22 +85,36 @@ export class GlyphModifier<
       ((d: AnnotationDatum<A, C>) => d.c.xScale(d.a.x2) - d.c.xScale(d.a.x));
     this.height =
       glyphConfig.height || ((d: AnnotationDatum<A, C>) => d.c.rowHeight - 4);
+    this.strokeWidth = glyphConfig.strokeWidth;
+    this.strokeColor = glyphConfig.strokeColor;
+    this.strokeOpacity = glyphConfig.strokeOpacity;
+    this.strokeDashArray = glyphConfig.strokeDashArray;
+    this.strokeDashOffset = glyphConfig.strokeDashOffset;
+    this.strokeLineCap = glyphConfig.strokeLineCap;
+    this.strokeLineJoin = glyphConfig.strokeLineJoin;
+    this.strokeLineCap = glyphConfig.strokeLineCap;
     this.fillColor = glyphConfig.fillColor;
     this.fillOpacity = glyphConfig.fillOpacity;
-    this.strokeColor = glyphConfig.strokeColor;
   }
 
   initialize(): void {
     this.setId();
     this.setClass();
+    this.setStrokeWidth();
     this.setStrokeColor();
+    this.setStrokeOpacity();
+    this.setStrokeDashArray();
+    this.setStrokeDashOffset();
+    this.setStrokeLineCap();
+    this.setStrokeLineJoin();
     this.setFillColor();
+    this.setFillOpacity();
     this.zoom();
   }
 
   zoom(): void {
     this.setX();
-    this.sedWidth();
+    this.setWidth();
     this.setY();
     this.setHeight();
   }
@@ -167,7 +181,7 @@ export class GlyphModifier<
     this.setAttr("y", this.y);
   }
 
-  sedWidth(): void {
+  setWidth(): void {
     this.setAttr("width", this.width);
   }
 
@@ -183,7 +197,31 @@ export class GlyphModifier<
     this.setStyle("stroke", this.strokeColor);
   }
 
+  setStrokeOpacity(): void {
+    this.setStyle("stroke-opacity", this.strokeOpacity);
+  }
+
+  setStrokeDashArray(): void {
+    this.setStyle("stroke-dash-array", this.strokeDashArray);
+  }
+
+  setStrokeDashOffset(): void {
+    this.setStyle("stroke-dash-offset", this.strokeDashOffset);
+  }
+
+  setStrokeLineCap(): void {
+    this.setStyle("stroke-linecap", this.strokeLineCap);
+  }
+
+  setStrokeLineJoin(): void {
+    this.setStyle("stroke-linejoin", this.strokeLineJoin);
+  }
+
   setFillColor(): void {
     this.setStyle("fill", this.fillColor);
+  }
+
+  setFillOpacity(): void {
+    this.setStyle("opacity", this.fillOpacity);
   }
 }
