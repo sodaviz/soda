@@ -9,10 +9,7 @@ export * from "./plots/heatmap";
 /**
  * @internal
  */
-export interface YScaleConfig<
-  A extends PlotAnnotation = PlotAnnotation,
-  C extends Chart<any> = Chart
-> {
+export interface YScaleConfig<A extends PlotAnnotation, C extends Chart<any>> {
   chart: C;
   annotations: A[];
   binSpan?: number;
@@ -27,10 +24,7 @@ export interface YScaleConfig<
  * @param map
  * @param config
  */
-export function setYScales<
-  A extends PlotAnnotation = PlotAnnotation,
-  C extends Chart<any> = Chart
->(
+export function setYScales<A extends PlotAnnotation, C extends Chart<any>>(
   map: Map<string, d3.ScaleLinear<number, number>>,
   config: YScaleConfig<A, C>
 ): void {

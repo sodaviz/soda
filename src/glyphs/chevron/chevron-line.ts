@@ -11,15 +11,10 @@ import { ChevronGlyphConfig } from "../chevron";
 /**
  * An interface that holds the parameters for rendering and configuring a chevron line glyph.
  */
-export interface ChevronLineConfig<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
-> extends ChevronGlyphConfig<A, C> {}
+export interface ChevronLineConfig<A extends Annotation, C extends Chart<any>>
+  extends ChevronGlyphConfig<A, C> {}
 
-export function chevronLine<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
->(
+export function chevronLine<A extends Annotation, C extends Chart<any>>(
   config: ChevronLineConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-chevron-line-glyph");
@@ -51,24 +46,24 @@ export function chevronLine<
     bindTarget: outerBinding.g,
   });
 
-  let patternModifier = new ChevronPatternModifier(
-    patternSelector,
-    patternBinding.merge,
-    {
-      ...config,
-      selector: patternSelector,
-    }
-  );
-
-  let rectModifier = new GlyphModifier(rectangleSelector, rectBinding.merge, {
+  let patternModifier = new ChevronPatternModifier({
     ...config,
-    selector: rectangleSelector,
-    fillColor: (d) => `url(#${d.a.id})`,
+    selector: patternSelector,
+    selection: patternBinding.merge,
   });
 
-  let lineModifier = new LineModifier(lineSelector, lineBinding.merge, {
+  let rectModifier = new GlyphModifier({
+    ...config,
+    selector: rectangleSelector,
+    selection: rectBinding.merge,
+    fillColor: (d) => `url(#${d.a.id})`,
+    strokeColor: "none",
+  });
+
+  let lineModifier = new LineModifier({
     ...config,
     selector: lineSelector,
+    selection: lineBinding.merge,
   });
 
   config.chart.addGlyphModifier(patternModifier);

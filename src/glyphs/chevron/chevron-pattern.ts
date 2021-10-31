@@ -3,6 +3,7 @@ import { Chart } from "../../charts/chart";
 import {
   GlyphCallback,
   GlyphModifier,
+  GlyphModifierConfig,
   GlyphProperty,
   resolveValue,
 } from "../glyph-modifier";
@@ -19,8 +20,8 @@ import { ChevronGlyphConfig } from "../chevron";
  * @param orientation
  */
 export function buildChevronPatternPathDFn<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
+  A extends Annotation,
+  C extends Chart<any>
 >(
   height: GlyphProperty<A, C, number>,
   chevronHeight: GlyphProperty<A, C, number>,
@@ -57,6 +58,35 @@ export function buildChevronPatternPathDFn<
   };
 }
 
+export function defaultChevronPatternModifierInitialize<
+  A extends Annotation,
+  C extends Chart<any>
+>(this: ChevronPatternModifier<A, C>) {
+  this.setId();
+  this.setClass();
+  this.setAttr("patternUnits", "userSpaceOnUse");
+
+  this.selection
+    .append("rect")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", (d) => resolveValue(this.width, d))
+    .attr("height", (d) => resolveValue(this.height, d));
+
+  this.selection
+    .append("path")
+    .style("stroke-linejoin", "miter")
+    .attr("d", (d) => resolveValue(this.pathD, d));
+
+  this.setFillColor();
+  this.setFillOpacity();
+  this.setChevronFillColor();
+  this.setChevronFillOpacity();
+  this.setChevronStrokeColor();
+  this.setChevronStrokeOpacity();
+  this.zoom();
+}
+
 /**
  * @internal
  * @param a
@@ -64,8 +94,8 @@ export function buildChevronPatternPathDFn<
  * @param orientation
  */
 export function buildChevronPatternXFn<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
+  A extends Annotation,
+  C extends Chart<any>
 >(orientation: GlyphProperty<A, C, Orientation>): GlyphCallback<A, C, number> {
   return (d) => {
     let orientationValue = resolveValue(orientation, d);
@@ -84,19 +114,32 @@ export function buildChevronPatternXFn<
  * An interface that defines the common parameters for rendering chevron glyphs.
  */
 export interface ChevronPatternConfig<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
+  A extends Annotation,
+  C extends Chart<any>
 > extends ChevronGlyphConfig<A, C> {
   /**
    * The semantic query width at which the chevron patterns will be disabled. At this point, they will look like
    * regular rectangles or lines.
    */
   disableAt?: number;
+  /**
+   *
+   */
+  initializeFn?: (this: ChevronPatternModifier<A, C>) => void;
+  /**
+   *
+   */
+  zoomFn?: (this: ChevronPatternModifier<A, C>) => void;
 }
 
+export type ChevronPatternModifierConfig<
+  A extends Annotation,
+  C extends Chart<any>
+> = GlyphModifierConfig<A, C> & ChevronPatternConfig<A, C>;
+
 export class ChevronPatternModifier<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
+  A extends Annotation,
+  C extends Chart<any>
 > extends GlyphModifier<A, C> {
   orientation: GlyphProperty<A, C, Orientation>;
   /**
@@ -129,12 +172,8 @@ export class ChevronPatternModifier<
   pathD: GlyphProperty<A, C, string>;
   disableAt: number;
 
-  constructor(
-    selector: string,
-    selection: d3.Selection<any, AnnotationDatum<A, C>, any, any>,
-    config: ChevronPatternConfig<A, C>
-  ) {
-    super(selector, selection, config);
+  constructor(config: ChevronPatternModifierConfig<A, C>) {
+    super(config);
     this.orientation = config.orientation || Orientation.Forward;
     this.x = config.x || buildChevronPatternXFn(this.orientation);
     this.height =
@@ -169,33 +208,9 @@ export class ChevronPatternModifier<
       this.chevronWidth,
       this.orientation
     );
-  }
 
-  initialize(): void {
-    this.setId();
-    this.setClass();
-    this.setAttr("patternUnits", "userSpaceOnUse");
-
-    this.selection
-      .append("rect")
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("width", (d) => resolveValue(this.width, d))
-      .attr("height", (d) => resolveValue(this.height, d));
-
-    this.selection
-      .append("path")
-      .style("stroke-linejoin", "miter")
-      .attr("d", (d) => resolveValue(this.pathD, d));
-
-    this.setFillColor();
-    this.setFillOpacity();
-    this.setChevronFillColor();
-    this.setChevronFillOpacity();
-    this.setChevronStrokeColor();
-    this.setChevronStrokeOpacity();
-
-    this.zoom();
+    this.initializeFn =
+      config.initializeFn || defaultChevronPatternModifierInitialize;
   }
 
   setFillColor(): void {

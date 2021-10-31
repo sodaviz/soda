@@ -4,7 +4,10 @@ import { AnnotationGraph } from "./annotation-graph";
 /**
  * @internal
  */
-const DEFAULT_VERTEX_SORT = (verts: string[], graph: AnnotationGraph) => {
+const DEFAULT_VERTEX_SORT = (
+  verts: string[],
+  graph: AnnotationGraph<Annotation>
+) => {
   // the default vertex sort function; it just sorts by annotation width
   verts.sort((v1: string, v2: string) => {
     if (graph.getAnnotationFromId(v1).w > graph.getAnnotationFromId(v2).w) {

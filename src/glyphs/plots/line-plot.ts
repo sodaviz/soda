@@ -5,7 +5,11 @@ import { GlyphConfig } from "../glyph-config";
 import { generateId } from "../../utilities/id-generation";
 import { AnnotationDatum, bind } from "../bind";
 import { setYScales } from "../plots";
-import { GlyphModifier, GlyphProperty } from "../glyph-modifier";
+import {
+  GlyphModifier,
+  GlyphModifierConfig,
+  GlyphProperty,
+} from "../glyph-modifier";
 
 /**
  * @internal
@@ -15,10 +19,7 @@ const linePlotScaleMap: Map<string, d3.ScaleLinear<number, number>> = new Map();
 /**
  * @internal
  */
-export const defaultLineFn = <
-  P extends PlotAnnotation,
-  C extends Chart<any> = Chart
->(
+export const defaultLineFn = <P extends PlotAnnotation, C extends Chart<any>>(
   d: AnnotationDatum<P, C>
 ) => {
   let yScale = linePlotScaleMap.get(d.a.id);
@@ -36,25 +37,31 @@ export const defaultLineFn = <
   return buffer.toString();
 };
 
+export function defaultLinePlotModifierZoom<
+  P extends PlotAnnotation,
+  C extends Chart<any>
+>(this: LinePlotModifier<P, C>) {
+  this.setD();
+}
+
+export type LinePlotModifierConfig<
+  P extends PlotAnnotation,
+  C extends Chart<any>
+> = GlyphModifierConfig<P, C> & LinePlotConfig<P, C>;
+
 export class LinePlotModifier<
-  P extends PlotAnnotation = PlotAnnotation,
-  C extends Chart<any> = Chart
+  P extends PlotAnnotation,
+  C extends Chart<any>
 > extends GlyphModifier<P, C> {
   pathData?: GlyphProperty<P, C, string>;
 
-  constructor(
-    selector: string,
-    selection: d3.Selection<any, AnnotationDatum<P, C>, any, any>,
-    config: LinePlotConfig<P, C>
-  ) {
-    super(selector, selection, config);
+  constructor(config: LinePlotModifierConfig<P, C>) {
+    super(config);
     this.pathData = config.pathData || defaultLineFn;
     this.strokeColor = "black";
     this.fillColor = "none";
-  }
 
-  zoom(): void {
-    this.setD();
+    this.zoomFn = config.zoomFn || defaultLinePlotModifierZoom;
   }
 
   setD(): void {
@@ -65,10 +72,8 @@ export class LinePlotModifier<
 /**
  * An interface that holds the parameters to style a line plot.
  */
-export interface LinePlotConfig<
-  P extends PlotAnnotation,
-  C extends Chart<any> = Chart
-> extends GlyphConfig<P, C> {
+export interface LinePlotConfig<P extends PlotAnnotation, C extends Chart<any>>
+  extends GlyphConfig<P, C> {
   /**
    * A callback that returns a string that defines the line's SVG path
    */
@@ -79,6 +84,14 @@ export interface LinePlotConfig<
    * is supplied.
    */
   binSpan?: number;
+  /**
+   *
+   */
+  initializeFn?: (this: LinePlotModifier<P, C>) => void;
+  /**
+   *
+   */
+  zoomFn?: (this: LinePlotModifier<P, C>) => void;
 }
 
 /**
@@ -87,10 +100,9 @@ export interface LinePlotConfig<
  * @param ann The PlotAnnotations to be rendered.
  * @param config The parameters for configuring the styling of the plot.
  */
-export function linePlot<
-  P extends PlotAnnotation,
-  C extends Chart<any> = Chart
->(config: LinePlotConfig<P, C>): d3.Selection<SVGGElement, string, any, any> {
+export function linePlot<P extends PlotAnnotation, C extends Chart<any>>(
+  config: LinePlotConfig<P, C>
+): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-line-plot-glyph");
   let internalSelector = selector + "-internal";
 
@@ -105,7 +117,11 @@ export function linePlot<
 
   let binding = bind<P, C, SVGPathElement>(selector, "path", config);
 
-  let modifier = new LinePlotModifier(internalSelector, binding.merge, config);
+  let modifier = new LinePlotModifier({
+    ...config,
+    selector: internalSelector,
+    selection: binding.merge,
+  });
   config.chart.addGlyphModifier(modifier);
 
   return binding.g;

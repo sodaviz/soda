@@ -13,15 +13,12 @@ import { ChevronGlyphConfig } from "../chevron";
  * An interface that holds the parameters for rendering and configuring a chevron rectangle glyph.
  */
 export interface ChevronRectangleConfig<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
+  A extends Annotation,
+  C extends Chart<any>
 > extends ChevronGlyphConfig<A, C>,
     RectangleConfig<A, C> {}
 
-export function chevronRectangle<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
->(
+export function chevronRectangle<A extends Annotation, C extends Chart<any>>(
   config: ChevronRectangleConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-chevron-rect-glyph");
@@ -47,18 +44,16 @@ export function chevronRectangle<
     bindTarget: outerBinding.g,
   });
 
-  let patternModifier = new ChevronPatternModifier(
-    patternSelector,
-    patternBinding.merge,
-    {
-      ...config,
-      selector: patternSelector,
-    }
-  );
+  let patternModifier = new ChevronPatternModifier({
+    ...config,
+    selector: patternSelector,
+    selection: patternBinding.merge,
+  });
 
-  let rectModifier = new GlyphModifier(rectSelector, rectBinding.merge, {
+  let rectModifier = new GlyphModifier({
     ...config,
     selector: rectSelector,
+    selection: rectBinding.merge,
     fillColor: (d) => `url(#${d.a.id})`,
     strokeColor: config.strokeColor || "black",
   });

@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import { BindTarget } from "./bind";
 import { Annotation } from "../annotations/annotation";
 import { Chart } from "../charts/chart";
-import { GlyphProperty } from "./glyph-modifier";
+import { GlyphModifier, GlyphProperty } from "./glyph-modifier";
 
 export interface GlyphConfig<
   A extends Annotation,
@@ -111,4 +111,12 @@ export interface GlyphConfig<
    * @param c
    */
   fillOpacity?: GlyphProperty<A, C, number>;
+  /**
+   *
+   */
+  initializeFn?: (this: any) => void;
+  /**
+   *
+   */
+  zoomFn?: (this: any) => void;
 }

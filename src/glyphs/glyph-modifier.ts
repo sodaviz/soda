@@ -43,61 +43,64 @@ export function resolveValue<A extends Annotation, C extends Chart<any>, V>(
   return property;
 }
 
+export interface GlyphModifierConfig<A extends Annotation, C extends Chart<any>>
+  extends GlyphConfig<A, C> {
+  selector: string;
+  selection: d3.Selection<any, AnnotationDatum<A, C>, any, any>;
+}
+
 // TypeScript allows declaration merging, which essentially combines multiple declarations into a single definition
 // In this case, we're using it to let GlyphModifier easily inherit the properties in GlyphConfig.
 /**
  *
  */
-export interface GlyphModifier<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
-> extends GlyphConfig<A, C> {}
+export interface GlyphModifier<A extends Annotation, C extends Chart<any>>
+  extends GlyphConfig<A, C> {}
 
 /**
  *
  */
-export class GlyphModifier<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
-> {
+export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
   selector: string;
   selection: d3.Selection<any, AnnotationDatum<A, C>, any, any>;
   y: GlyphProperty<A, C, number>;
   x: GlyphProperty<A, C, number>;
   width: GlyphProperty<A, C, number>;
   height: GlyphProperty<A, C, number>;
+  initializeFn: (this: any) => void;
+  zoomFn: (this: any) => void;
 
-  constructor(
-    selector: string,
-    selection: d3.Selection<any, AnnotationDatum<A, C>, any, any>,
-    glyphConfig: GlyphConfig<A, C>
-  ) {
-    this.selector = selector;
-    this.selection = selection;
-    this.chart = glyphConfig.chart;
-    this.annotations = glyphConfig.annotations;
-    this.x = glyphConfig.x || ((d: AnnotationDatum<A, C>) => d.c.xScale(d.a.x));
+  constructor(config: GlyphModifierConfig<A, C>) {
+    this.selector = config.selector;
+    this.selection = config.selection;
+    this.chart = config.chart;
+    this.annotations = config.annotations;
+    this.x = config.x || ((d: AnnotationDatum<A, C>) => d.c.xScale(d.a.x));
     this.y =
-      glyphConfig.y ||
-      ((d: AnnotationDatum<A, C>) => d.a.y * d.c.rowHeight + 2);
+      config.y || ((d: AnnotationDatum<A, C>) => d.a.y * d.c.rowHeight + 2);
     this.width =
-      glyphConfig.width ||
+      config.width ||
       ((d: AnnotationDatum<A, C>) => d.c.xScale(d.a.x2) - d.c.xScale(d.a.x));
     this.height =
-      glyphConfig.height || ((d: AnnotationDatum<A, C>) => d.c.rowHeight - 4);
-    this.strokeWidth = glyphConfig.strokeWidth;
-    this.strokeColor = glyphConfig.strokeColor;
-    this.strokeOpacity = glyphConfig.strokeOpacity;
-    this.strokeDashArray = glyphConfig.strokeDashArray;
-    this.strokeDashOffset = glyphConfig.strokeDashOffset;
-    this.strokeLineCap = glyphConfig.strokeLineCap;
-    this.strokeLineJoin = glyphConfig.strokeLineJoin;
-    this.strokeLineCap = glyphConfig.strokeLineCap;
-    this.fillColor = glyphConfig.fillColor;
-    this.fillOpacity = glyphConfig.fillOpacity;
+      config.height || ((d: AnnotationDatum<A, C>) => d.c.rowHeight - 4);
+    this.strokeWidth = config.strokeWidth;
+    this.strokeColor = config.strokeColor || "black";
+    this.strokeOpacity = config.strokeOpacity;
+    this.strokeDashArray = config.strokeDashArray;
+    this.strokeDashOffset = config.strokeDashOffset;
+    this.strokeLineCap = config.strokeLineCap;
+    this.strokeLineJoin = config.strokeLineJoin;
+    this.strokeLineCap = config.strokeLineCap;
+    this.fillColor = config.fillColor;
+    this.fillOpacity = config.fillOpacity;
+
+    this.initializeFn = config.initializeFn || GlyphModifier.defaultInitialize;
+    this.zoomFn = config.zoomFn || GlyphModifier.defaultZoom;
   }
 
-  initialize(): void {
+  static defaultInitialize<A extends Annotation, C extends Chart<any>>(
+    this: GlyphModifier<A, C>
+  ) {
     this.setId();
     this.setClass();
     this.setStrokeWidth();
@@ -112,11 +115,21 @@ export class GlyphModifier<
     this.zoom();
   }
 
-  zoom(): void {
+  static defaultZoom<A extends Annotation, C extends Chart<any>>(
+    this: GlyphModifier<A, C>
+  ) {
     this.setX();
     this.setWidth();
     this.setY();
     this.setHeight();
+  }
+
+  initialize(): void {
+    this.initializeFn();
+  }
+
+  zoom(): void {
+    this.zoomFn();
   }
 
   setAttr(

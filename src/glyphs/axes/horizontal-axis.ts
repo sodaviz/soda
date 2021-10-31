@@ -4,8 +4,13 @@ import { Annotation } from "../../annotations/annotation";
 import { AxisType, getAxis } from "../axes";
 import { GlyphConfig } from "../glyph-config";
 import { generateId } from "../../utilities/id-generation";
-import { AnnotationDatum, bind } from "../bind";
-import { GlyphModifier, GlyphProperty, resolveValue } from "../glyph-modifier";
+import { bind } from "../bind";
+import {
+  GlyphModifier,
+  GlyphModifierConfig,
+  GlyphProperty,
+  resolveValue,
+} from "../glyph-modifier";
 
 /**
  * @internal
@@ -34,9 +39,53 @@ export function getHorizontalAxisAnnotation(
   });
 }
 
+export function defaultHorizontalAxisInitialize<
+  A extends Annotation,
+  C extends Chart<any>
+>(this: HorizontalAxisModifier<A, C>): void {
+  this.setId();
+  this.zoom();
+}
+
+export function defaultHorizontalAxisZoom<
+  A extends Annotation,
+  C extends Chart<any>
+>(this: HorizontalAxisModifier<A, C>): void {
+  this.selection
+    .attr("transform", (d) => `translate(1, ${resolveValue(this.y, d)})`)
+    .each((d, i, nodes) => {
+      let xScale = d3
+        .scaleLinear()
+        .domain(resolveValue(this.domain, d))
+        .range(resolveValue(this.range, d));
+
+      let axis = getAxis(xScale, this.axisType);
+
+      axis
+        .ticks(resolveValue(this.ticks, d))
+        .tickSizeOuter(resolveValue(this.tickSizeOuter, d));
+
+      d3.select(nodes[i]).call(axis);
+
+      horizontalAxisScaleMap.set(d.a.id, xScale);
+      horizontalAxisAxisMap.set(d.a.id, axis);
+
+      if (this.scaleToBinHeight) {
+        let gBound = nodes[i].getBBox();
+        let k = this.chart.rowHeight / gBound.height;
+        d3.select(nodes[i]).attr("transform", `scale(1, ${k})`);
+      }
+    });
+}
+
+export type HorizontalAxisModifierConfig<
+  A extends Annotation,
+  C extends Chart<any>
+> = GlyphModifierConfig<A, C> & HorizontalAxisConfig<A, C>;
+
 export class HorizontalAxisModifier<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
+  A extends Annotation,
+  C extends Chart<any>
 > extends GlyphModifier<A, C> {
   domain: GlyphProperty<A, C, [number, number]>;
   range: GlyphProperty<A, C, [number, number]>;
@@ -45,12 +94,8 @@ export class HorizontalAxisModifier<
   axisType: AxisType.Bottom | AxisType.Top;
   scaleToBinHeight: boolean;
 
-  constructor(
-    selector: string,
-    selection: d3.Selection<any, AnnotationDatum<A, C>, any, any>,
-    config: HorizontalAxisConfig<A, C>
-  ) {
-    super(selector, selection, config);
+  constructor(config: HorizontalAxisModifierConfig<A, C>) {
+    super(config);
     if (config.fixed) {
       this.domain =
         config.domain ||
@@ -65,39 +110,9 @@ export class HorizontalAxisModifier<
     this.tickSizeOuter = config.tickSizeOuter || 6;
     this.axisType = config.axisType || AxisType.Bottom;
     this.scaleToBinHeight = config.scaleToBinHeight || false;
-  }
 
-  initialize(): void {
-    this.setId();
-    this.zoom();
-  }
-
-  zoom(): void {
-    this.selection
-      .attr("transform", (d) => `translate(1, ${resolveValue(this.y, d)})`)
-      .each((d, i, nodes) => {
-        let xScale = d3
-          .scaleLinear()
-          .domain(resolveValue(this.domain, d))
-          .range(resolveValue(this.range, d));
-
-        let axis = getAxis(xScale, this.axisType);
-
-        axis
-          .ticks(resolveValue(this.ticks, d))
-          .tickSizeOuter(resolveValue(this.tickSizeOuter, d));
-
-        d3.select(nodes[i]).call(axis);
-
-        horizontalAxisScaleMap.set(d.a.id, xScale);
-        horizontalAxisAxisMap.set(d.a.id, axis);
-
-        if (this.scaleToBinHeight) {
-          let gBound = nodes[i].getBBox();
-          let k = this.chart.rowHeight / gBound.height;
-          d3.select(nodes[i]).attr("transform", `scale(1, ${k})`);
-        }
-      });
+    this.initializeFn = defaultHorizontalAxisInitialize;
+    this.zoomFn = defaultHorizontalAxisZoom;
   }
 }
 
@@ -105,8 +120,8 @@ export class HorizontalAxisModifier<
  * An interface that holds the parameters to style a horizontal axis.
  */
 export interface HorizontalAxisConfig<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
+  A extends Annotation,
+  C extends Chart<any>
 > extends GlyphConfig<A, C> {
   domain?: GlyphProperty<A, C, [number, number]>;
   range?: GlyphProperty<A, C, [number, number]>;
@@ -116,6 +131,14 @@ export interface HorizontalAxisConfig<
   scaleToBinHeight?: boolean;
   fixed?: boolean;
   fixedRange?: GlyphProperty<A, C, [number, number]>;
+  /**
+   *
+   */
+  initializeFn?: (this: HorizontalAxisModifier<A, C>) => void;
+  /**
+   *
+   */
+  zoomFn?: (this: HorizontalAxisModifier<A, C>) => void;
 }
 
 /**
@@ -124,10 +147,7 @@ export interface HorizontalAxisConfig<
  * @param ann The Annotations to be rendered.
  * @param config The parameters for configuring the styling of the axes.
  */
-export function horizontalAxis<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
->(
+export function horizontalAxis<A extends Annotation, C extends Chart<any>>(
   config: HorizontalAxisConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-horizontal-axis-glyph");
@@ -135,11 +155,12 @@ export function horizontalAxis<
 
   let binding = bind<A, C, SVGGElement>(selector, "g", config);
 
-  let modifier = new HorizontalAxisModifier(
-    internalSelector,
-    binding.merge,
-    config
-  );
+  let modifier = new HorizontalAxisModifier({
+    selector: internalSelector,
+    selection: binding.merge,
+    ...config,
+  });
+
   config.chart.addGlyphModifier(modifier);
 
   return binding.g;
