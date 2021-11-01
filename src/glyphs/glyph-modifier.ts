@@ -43,69 +43,92 @@ export function resolveValue<A extends Annotation, C extends Chart<any>, V>(
   return property;
 }
 
+export interface GlyphModifierConfig<A extends Annotation, C extends Chart<any>>
+  extends GlyphConfig<A, C> {
+  selector: string;
+  selection: d3.Selection<any, AnnotationDatum<A, C>, any, any>;
+}
+
 // TypeScript allows declaration merging, which essentially combines multiple declarations into a single definition
 // In this case, we're using it to let GlyphModifier easily inherit the properties in GlyphConfig.
 /**
  *
  */
-export interface GlyphModifier<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
-> extends GlyphConfig<A, C> {}
+export interface GlyphModifier<A extends Annotation, C extends Chart<any>>
+  extends GlyphConfig<A, C> {}
 
 /**
  *
  */
-export class GlyphModifier<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
-> {
+export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
   selector: string;
   selection: d3.Selection<any, AnnotationDatum<A, C>, any, any>;
   y: GlyphProperty<A, C, number>;
   x: GlyphProperty<A, C, number>;
   width: GlyphProperty<A, C, number>;
   height: GlyphProperty<A, C, number>;
+  initializeFn: (this: any) => void;
+  zoomFn: (this: any) => void;
 
-  constructor(
-    selector: string,
-    selection: d3.Selection<any, AnnotationDatum<A, C>, any, any>,
-    glyphConfig: GlyphConfig<A, C>
-  ) {
-    this.selector = selector;
-    this.selection = selection;
-    this.chart = glyphConfig.chart;
-    this.annotations = glyphConfig.annotations;
-    this.x = glyphConfig.x || ((d: AnnotationDatum<A, C>) => d.c.xScale(d.a.x));
+  constructor(config: GlyphModifierConfig<A, C>) {
+    this.selector = config.selector;
+    this.selection = config.selection;
+    this.chart = config.chart;
+    this.annotations = config.annotations;
+    this.x = config.x || ((d: AnnotationDatum<A, C>) => d.c.xScale(d.a.x));
     this.y =
-      glyphConfig.y ||
-      ((d: AnnotationDatum<A, C>) => d.a.y * d.c.rowHeight + 2);
+      config.y || ((d: AnnotationDatum<A, C>) => d.a.y * d.c.rowHeight + 2);
     this.width =
-      glyphConfig.width ||
+      config.width ||
       ((d: AnnotationDatum<A, C>) => d.c.xScale(d.a.x2) - d.c.xScale(d.a.x));
     this.height =
-      glyphConfig.height || ((d: AnnotationDatum<A, C>) => d.c.rowHeight - 4);
-    this.fillColor = glyphConfig.fillColor;
-    this.fillOpacity = glyphConfig.fillOpacity;
-    this.strokeColor = glyphConfig.strokeColor;
+      config.height || ((d: AnnotationDatum<A, C>) => d.c.rowHeight - 4);
+    this.strokeWidth = config.strokeWidth;
+    this.strokeColor = config.strokeColor || "black";
+    this.strokeOpacity = config.strokeOpacity;
+    this.strokeDashArray = config.strokeDashArray;
+    this.strokeDashOffset = config.strokeDashOffset;
+    this.strokeLineCap = config.strokeLineCap;
+    this.strokeLineJoin = config.strokeLineJoin;
+    this.strokeLineCap = config.strokeLineCap;
+    this.fillColor = config.fillColor;
+    this.fillOpacity = config.fillOpacity;
+
+    this.initializeFn = config.initializeFn || this.defaultInitialize;
+    this.zoomFn = config.zoomFn || this.defaultZoom;
   }
 
   initialize(): void {
-    this.setId();
-    this.setClass();
-    this.setStrokeColor();
-    this.setFillColor();
-    this.zoom();
+    this.initializeFn();
   }
 
   zoom(): void {
-    this.setX();
-    this.sedWidth();
-    this.setY();
-    this.setHeight();
+    this.zoomFn();
   }
 
-  setAttr(
+  defaultInitialize() {
+    this.applyId();
+    this.applyClass();
+    this.applyStrokeWidth();
+    this.applyStrokeColor();
+    this.applyStrokeOpacity();
+    this.applyStrokeDashArray();
+    this.applyStrokeDashOffset();
+    this.applyStrokeLineCap();
+    this.applyStrokeLineJoin();
+    this.applyFillColor();
+    this.applyFillOpacity();
+    this.zoom();
+  }
+
+  defaultZoom() {
+    this.applyX();
+    this.applyWidth();
+    this.applyY();
+    this.applyHeight();
+  }
+
+  applyAttr(
     attr: string,
     value:
       | GlyphCallback<A, C, string | number | boolean | null>
@@ -131,7 +154,7 @@ export class GlyphModifier<
     }
   }
 
-  setStyle(
+  applyStyle(
     style: string,
     value:
       | GlyphCallback<A, C, string | number | boolean | null>
@@ -141,7 +164,7 @@ export class GlyphModifier<
       | null
       | undefined
   ): void {
-    // Same story here as described above in setAttr()
+    // Same story here as described above in applyAttr()
     if (typeof value === "function") {
       this.selection.style(style, value);
     } else if (value === null) {
@@ -151,39 +174,63 @@ export class GlyphModifier<
     }
   }
 
-  setId(): void {
+  applyId(): void {
     this.selection.attr("id", (d) => d.a.id);
   }
 
-  setClass(): void {
+  applyClass(): void {
     this.selection.attr("class", this.selector);
   }
 
-  setX(): void {
-    this.setAttr("x", this.x);
+  applyX(): void {
+    this.applyAttr("x", this.x);
   }
 
-  setY(): void {
-    this.setAttr("y", this.y);
+  applyY(): void {
+    this.applyAttr("y", this.y);
   }
 
-  sedWidth(): void {
-    this.setAttr("width", this.width);
+  applyWidth(): void {
+    this.applyAttr("width", this.width);
   }
 
-  setHeight(): void {
-    this.setAttr("height", this.height);
+  applyHeight(): void {
+    this.applyAttr("height", this.height);
   }
 
-  setStrokeWidth(): void {
-    this.setStyle("stroke-width", this.strokeWidth);
+  applyStrokeWidth(): void {
+    this.applyStyle("stroke-width", this.strokeWidth);
   }
 
-  setStrokeColor(): void {
-    this.setStyle("stroke", this.strokeColor);
+  applyStrokeColor(): void {
+    this.applyStyle("stroke", this.strokeColor);
   }
 
-  setFillColor(): void {
-    this.setStyle("fill", this.fillColor);
+  applyStrokeOpacity(): void {
+    this.applyStyle("stroke-opacity", this.strokeOpacity);
+  }
+
+  applyStrokeDashArray(): void {
+    this.applyStyle("stroke-dasharray", this.strokeDashArray);
+  }
+
+  applyStrokeDashOffset(): void {
+    this.applyStyle("stroke-dashoffset", this.strokeDashOffset);
+  }
+
+  applyStrokeLineCap(): void {
+    this.applyStyle("stroke-linecap", this.strokeLineCap);
+  }
+
+  applyStrokeLineJoin(): void {
+    this.applyStyle("stroke-linejoin", this.strokeLineJoin);
+  }
+
+  applyFillColor(): void {
+    this.applyStyle("fill", this.fillColor);
+  }
+
+  applyFillOpacity(): void {
+    this.applyStyle("opacity", this.fillOpacity);
   }
 }

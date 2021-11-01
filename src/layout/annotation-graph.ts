@@ -17,7 +17,7 @@ function annotationsOverlap(
  * adjacency.
  * @internal
  */
-export class AnnotationGraph<A extends Annotation = Annotation> {
+export class AnnotationGraph<A extends Annotation> {
   /**
    * This maps from Annotation id's to Annotation objects
    */
@@ -91,7 +91,7 @@ export class AnnotationGraph<A extends Annotation = Annotation> {
  * adjacency.
  * @internal
  */
-export class AnnotationArrayGraph<A extends Annotation = Annotation> {
+export class AnnotationArrayGraph<A extends Annotation> {
   /**
    * A list of the Annotation objects in this graph.
    */

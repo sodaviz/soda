@@ -3,8 +3,12 @@ import { Chart } from "../charts/chart";
 import * as d3 from "d3";
 import { GlyphConfig } from "./glyph-config";
 import { generateId } from "../utilities/id-generation";
-import { AnnotationDatum, bind } from "./bind";
-import { GlyphModifier, GlyphProperty } from "./glyph-modifier";
+import { bind } from "./bind";
+import {
+  GlyphModifier,
+  GlyphModifierConfig,
+  GlyphProperty,
+} from "./glyph-modifier";
 
 const textMap: Map<string, string[]> = new Map();
 const thresholdMap: Map<string, number[]> = new Map();
@@ -64,10 +68,7 @@ function getTextSize(text: string): number {
  * @internal
  * @param config
  */
-function addToTextMaps<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
->(config: {
+function addToTextMaps<A extends Annotation, C extends Chart<any>>(config: {
   annotations: A[];
   chart: C;
   textFn: (a: A, c: C) => string[];
@@ -83,10 +84,8 @@ function addToTextMaps<
   }
 }
 
-export interface TextConfig<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
-> extends GlyphConfig<A, C> {
+export interface TextConfig<A extends Annotation, C extends Chart<any>>
+  extends GlyphConfig<A, C> {
   textAnchor?: GlyphProperty<A, C, string>;
   alignmentBaseline?: GlyphProperty<A, C, string>;
   /**
@@ -97,49 +96,60 @@ export interface TextConfig<
    * @param c
    */
   textFn: (a: A, c: C) => string[];
+  /**
+   *
+   */
+  initializeFn?: (this: TextModifier<A, C>) => void;
+  /**
+   *
+   */
+  zoomFn?: (this: TextModifier<A, C>) => void;
 }
 
+export type TextModifierConfig<
+  A extends Annotation,
+  C extends Chart<any>
+> = GlyphModifierConfig<A, C> & TextConfig<A, C>;
+
 export class TextModifier<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
+  A extends Annotation,
+  C extends Chart<any>
 > extends GlyphModifier<A, C> {
   textAnchor: GlyphProperty<A, C, string>;
   alignmentBaseline: GlyphProperty<A, C, string>;
 
-  constructor(
-    selector: string,
-    selection: d3.Selection<any, AnnotationDatum<A, C>, any, any>,
-    config: TextConfig<A, C>
-  ) {
-    super(selector, selection, config);
+  constructor(config: TextModifierConfig<A, C>) {
+    super(config);
     addToTextMaps(config);
 
+    this.strokeColor = config.strokeColor || "none";
     this.textAnchor = config.textAnchor || "left";
     this.alignmentBaseline = config.alignmentBaseline || "hanging";
   }
-  initialize(): void {
-    super.initialize();
-    this.setTextAnchor();
-    this.setAlignmentBaseline();
-    this.setText();
+
+  defaultInitialize(): void {
+    super.defaultInitialize();
+    this.applyTextAnchor();
+    this.applyAlignmentBaseline();
+    this.applyText();
   }
 
-  setText(): void {
+  defaultZoom(): void {
+    this.applyX();
+    this.applyY();
+    this.applyText();
+  }
+
+  applyText(): void {
     this.selection.text((d) => selectText(d.a, d.c));
   }
 
-  setTextAnchor(): void {
-    this.setStyle("text-anchor", this.textAnchor);
+  applyTextAnchor(): void {
+    this.applyStyle("text-anchor", this.textAnchor);
   }
 
-  setAlignmentBaseline(): void {
-    this.setStyle("alignment-baseline", this.alignmentBaseline);
-  }
-
-  zoom(): void {
-    this.setX();
-    this.setY();
-    this.setText();
+  applyAlignmentBaseline(): void {
+    this.applyStyle("alignment-baseline", this.alignmentBaseline);
   }
 }
 
@@ -150,16 +160,19 @@ export class TextModifier<
  * @param ann The list of Annotation objects to be rendered.
  * @param config The parameters for configuring the style of the lines.
  */
-export function text<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
->(config: TextConfig<A, C>): d3.Selection<SVGGElement, string, any, any> {
+export function text<A extends Annotation, C extends Chart<any>>(
+  config: TextConfig<A, C>
+): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-text-glyph");
   let internalSelector = selector + "-internal";
 
   let binding = bind<A, C, SVGTextElement>(selector, "text", config);
 
-  let modifier = new TextModifier(internalSelector, binding.merge, config);
+  let modifier = new TextModifier({
+    ...config,
+    selector: internalSelector,
+    selection: binding.merge,
+  });
   config.chart.addGlyphModifier(modifier);
 
   return binding.g;

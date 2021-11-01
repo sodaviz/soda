@@ -3,32 +3,41 @@ import { Chart } from "../../charts/chart";
 import * as d3 from "d3";
 import { generateId } from "../../utilities/id-generation";
 import { GlyphConfig } from "../glyph-config";
-import { AnnotationDatum, bind } from "../bind";
-import { GlyphModifier } from "../glyph-modifier";
+import { bind } from "../bind";
+import { GlyphModifier, GlyphModifierConfig } from "../glyph-modifier";
 
 /**
  * An interface that holds the parameters to style a bar plot.
  * @internal
  */
-export interface HeatmapConfig<
-  P extends PlotAnnotation = PlotAnnotation,
-  C extends Chart<any> = Chart
-> extends GlyphConfig<P, C> {}
+export interface HeatmapConfig<P extends PlotAnnotation, C extends Chart<any>>
+  extends GlyphConfig<P, C> {
+  /**
+   *
+   */
+  initializeFn?: (this: HeatmapModifier<P, C>) => void;
+  /**
+   *
+   */
+  zoomFn?: (this: HeatmapModifier<P, C>) => void;
+}
+
+export type HeatmapModifierConfig<
+  P extends PlotAnnotation,
+  C extends Chart<any>
+> = GlyphModifierConfig<P, C> & HeatmapConfig<P, C>;
 
 export class HeatmapModifier<
-  P extends PlotAnnotation = PlotAnnotation,
-  C extends Chart<any> = Chart
+  P extends PlotAnnotation,
+  C extends Chart<any>
 > extends GlyphModifier<P, C> {
-  constructor(
-    selector: string,
-    selection: d3.Selection<any, AnnotationDatum<P, C>, any, any>,
-    config: HeatmapConfig<P, C>
-  ) {
-    super(selector, selection, config);
+  constructor(config: HeatmapModifierConfig<P, C>) {
+    super(config);
+    this.strokeColor = config.strokeColor || "none";
   }
 
-  initialize(): void {
-    this.setId();
+  defaultInitialize() {
+    super.defaultInitialize();
     let colorScale = d3.scaleSequential(d3.interpolatePRGn).domain([0, 100]);
     this.selection
       .selectAll("rect")
@@ -39,7 +48,7 @@ export class HeatmapModifier<
     this.zoom();
   }
 
-  zoom(): void {
+  defaultZoom() {
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
         .selectAll<SVGRectElement, [number, number]>("rect")
@@ -62,16 +71,19 @@ export class HeatmapModifier<
  * @param ann The PlotAnnotations to be rendered.
  * @param config The parameters for configuring the styling of the plot.
  */
-export function heatmap<
-  P extends PlotAnnotation = PlotAnnotation,
-  C extends Chart<any> = Chart
->(config: HeatmapConfig<P, C>): d3.Selection<SVGGElement, string, any, any> {
+export function heatmap<P extends PlotAnnotation, C extends Chart<any>>(
+  config: HeatmapConfig<P, C>
+): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-heatmap-glyph");
   let internalSelector = selector + "-internal";
 
   let binding = bind<P, C, SVGRectElement>(selector, "g", config);
 
-  let modifier = new HeatmapModifier(internalSelector, binding.merge, config);
+  let modifier = new HeatmapModifier({
+    ...config,
+    selector: internalSelector,
+    selection: binding.merge,
+  });
   config.chart.addGlyphModifier(modifier);
 
   return binding.g;

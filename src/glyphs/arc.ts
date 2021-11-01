@@ -3,10 +3,11 @@ import { Chart } from "../charts/chart";
 import * as d3 from "d3";
 import { GlyphConfig } from "./glyph-config";
 import { generateId } from "../utilities/id-generation";
-import { AnnotationDatum, bind } from "./bind";
+import { bind } from "./bind";
 import {
   GlyphCallback,
   GlyphModifier,
+  GlyphModifierConfig,
   GlyphProperty,
   resolveValue,
 } from "./glyph-modifier";
@@ -18,10 +19,7 @@ import {
  * @param y
  * @param h
  */
-export function buildArcPathDFn<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
->(
+export function buildArcPathDFn<A extends Annotation, C extends Chart<any>>(
   x: GlyphProperty<A, C, number>,
   w: GlyphProperty<A, C, number>,
   y: GlyphProperty<A, C, number>,
@@ -38,36 +36,47 @@ export function buildArcPathDFn<
   };
 }
 
+export type ArcModifierConfig<
+  A extends Annotation,
+  C extends Chart<any>
+> = GlyphModifierConfig<A, C> & ArcConfig<A, C>;
+
 export class ArcModifier<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
+  A extends Annotation,
+  C extends Chart<any>
 > extends GlyphModifier<A, C> {
   d: GlyphProperty<A, C, string | null>;
-  constructor(
-    selector: string,
-    selection: d3.Selection<any, AnnotationDatum<A, C>, any, any>,
-    config: ArcConfig<A, C>
-  ) {
-    super(selector, selection, config);
+
+  constructor(config: ArcModifierConfig<A, C>) {
+    super(config);
     this.y = (d) => d.c.rowHeight * (d.a.y + 1);
     this.d = buildArcPathDFn(this.x, this.width, this.y, this.height);
-    this.strokeColor = "black";
+    this.fillColor = config.fillColor || "none";
   }
-  zoom(): void {
+
+  defaultZoom(): void {
     this.setD();
   }
+
   setD(): void {
-    this.setAttr("d", this.d);
+    this.applyAttr("d", this.d);
   }
 }
 
 /**
  * An interface that holds the parameters for rendering arc glyphs.
  */
-export interface ArcConfig<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
-> extends GlyphConfig<A, C> {}
+export interface ArcConfig<A extends Annotation, C extends Chart<any>>
+  extends GlyphConfig<A, C> {
+  /**
+   *
+   */
+  initializeFn?: (this: ArcModifier<A, C>) => void;
+  /**
+   *
+   */
+  zoomFn?: (this: ArcModifier<A, C>) => void;
+}
 
 /**
  * This renders a list of Annotation objects in a target chart as arcs.
@@ -75,16 +84,20 @@ export interface ArcConfig<
  * @param ann The list of Annotation objects to be rendered.
  * @param config The parameters for configuring the style of the lines.
  */
-export function arc<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
->(config: ArcConfig<A, C>): d3.Selection<SVGGElement, string, any, any> {
+export function arc<A extends Annotation, C extends Chart<any>>(
+  config: ArcConfig<A, C>
+): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-arc-glyph");
   let internalSelector = selector + "-internal";
 
   let binding = bind<A, C, SVGPathElement>(selector, "path", config);
 
-  let modifier = new ArcModifier(internalSelector, binding.merge, config);
+  let modifier = new ArcModifier({
+    ...config,
+    selector: internalSelector,
+    selection: binding.merge,
+  });
+
   config.chart.addGlyphModifier(modifier);
 
   return binding.g;

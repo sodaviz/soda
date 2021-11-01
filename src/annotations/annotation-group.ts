@@ -1,6 +1,6 @@
 import { Annotation, AnnotationConfig } from "./annotation";
 
-export interface AnnotationConfigWithGroup<A extends Annotation = Annotation>
+export interface AnnotationConfigWithGroup<A extends Annotation>
   extends AnnotationConfig {
   /**
    * A list of Annotations to initially fill an AnnotationGroup with.
@@ -14,7 +14,7 @@ function hasGroup<A extends Annotation>(
   return (<AnnotationConfigWithGroup<A>>config).group != undefined;
 }
 
-export type AnnotationGroupConfig<A extends Annotation = Annotation> =
+export type AnnotationGroupConfig<A extends Annotation> =
   | AnnotationConfigWithGroup<A>
   | AnnotationConfig;
 
@@ -24,9 +24,7 @@ export type AnnotationGroupConfig<A extends Annotation = Annotation> =
  * when the setY() method is called on the AnnotationGroup.
  * @typeParam A The type of annotation that will live in this group.
  */
-export class AnnotationGroup<
-  A extends Annotation = Annotation
-> extends Annotation {
+export class AnnotationGroup<A extends Annotation> extends Annotation {
   /**
    * The group of Annotations that live in this object.
    */

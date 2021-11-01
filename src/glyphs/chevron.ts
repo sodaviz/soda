@@ -7,10 +7,8 @@ import { Orientation } from "../annotations/oriented-annotation";
 export * from "./chevron/chevron-line";
 export * from "./chevron/chevron-rectangle";
 
-export interface ChevronGlyphConfig<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
-> extends GlyphConfig<A, C> {
+export interface ChevronGlyphConfig<A extends Annotation, C extends Chart<any>>
+  extends GlyphConfig<A, C> {
   /**
    * A callback function that returns an Orientation. The Orientation is used to determine which direction the
    * chevron glyph will point towards.

@@ -4,8 +4,13 @@ import { Annotation } from "../../annotations/annotation";
 import { AxisType, getAxis } from "../axes";
 import { GlyphConfig } from "../glyph-config";
 import { generateId } from "../../utilities/id-generation";
-import { AnnotationDatum, bind } from "../bind";
-import { GlyphModifier, GlyphProperty, resolveValue } from "../glyph-modifier";
+import { bind } from "../bind";
+import {
+  GlyphModifier,
+  GlyphModifierConfig,
+  GlyphProperty,
+  resolveValue,
+} from "../glyph-modifier";
 
 /**
  * An interface that holds the parameters to style a vertical axis.
@@ -24,7 +29,20 @@ export interface VerticalAxisConfig<A extends Annotation, C extends Chart<any>>
    * function is supplied.
    */
   binSpan?: number;
+  /**
+   *
+   */
+  initializeFn?: (this: VerticalAxisModifier<A, C>) => void;
+  /**
+   *
+   */
+  zoomFn?: (this: VerticalAxisModifier<A, C>) => void;
 }
+
+export type VerticalAxisModifierConfig<
+  A extends Annotation,
+  C extends Chart<any>
+> = GlyphModifierConfig<A, C> & VerticalAxisConfig<A, C>;
 
 export class VerticalAxisModifier<
   A extends Annotation,
@@ -38,12 +56,9 @@ export class VerticalAxisModifier<
   axisType: AxisType.Left | AxisType.Right;
   fixed: boolean;
 
-  constructor(
-    selector: string,
-    selection: d3.Selection<any, AnnotationDatum<A, C>, any, any>,
-    config: VerticalAxisConfig<A, C>
-  ) {
-    super(selector, selection, config);
+  constructor(config: VerticalAxisModifierConfig<A, C>) {
+    super(config);
+    this.strokeColor = config.strokeColor || "none";
     this.domain = config.domain || [0, 100];
     this.binSpan = config.binSpan || 1;
     this.range = config.range || [0, config.chart.rowHeight * this.binSpan];
@@ -53,8 +68,12 @@ export class VerticalAxisModifier<
     this.fixed = config.fixed || false;
   }
 
-  initialize(): void {
-    this.setId();
+  defaultInitialize(): void {
+    super.defaultInitialize();
+    this.renderAxis();
+  }
+
+  defaultZoom(): void {
     this.renderAxis();
   }
 
@@ -80,12 +99,6 @@ export class VerticalAxisModifier<
         d3.select(nodes[i]).call(axis);
       });
   }
-
-  zoom(): void {
-    if (!this.fixed) {
-      this.renderAxis();
-    }
-  }
 }
 
 /**
@@ -104,11 +117,11 @@ export function verticalAxis<A extends Annotation, C extends Chart<any>>(
 
   let binding = bind<A, C, SVGGElement>(selector, "g", config);
 
-  let modifier = new VerticalAxisModifier(
-    internalSelector,
-    binding.merge,
-    config
-  );
+  let modifier = new VerticalAxisModifier({
+    selector: internalSelector,
+    selection: binding.merge,
+    ...config,
+  });
   config.chart.addGlyphModifier(modifier);
 
   return binding.g;

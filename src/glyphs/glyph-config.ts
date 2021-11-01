@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import { BindTarget } from "./bind";
 import { Annotation } from "../annotations/annotation";
 import { Chart } from "../charts/chart";
-import { GlyphProperty } from "./glyph-modifier";
+import { GlyphModifier, GlyphProperty } from "./glyph-modifier";
 
 export interface GlyphConfig<
   A extends Annotation,
@@ -60,17 +60,17 @@ export interface GlyphConfig<
    */
   strokeWidth?: GlyphProperty<A, C, number>;
   /**
-   * A callback to define the opacity of the border around the glyph.
-   * @param a
-   * @param c
-   */
-  strokeOpacity?: GlyphProperty<A, C, number>;
-  /**
    * A callback to define the color of the border around the glyph.
    * @param a
    * @param c
    */
   strokeColor?: GlyphProperty<A, C, string>;
+  /**
+   * A callback to define the opacity of the border around the glyph.
+   * @param a
+   * @param c
+   */
+  strokeOpacity?: GlyphProperty<A, C, number>;
   /**
    * A callback to define the stroke dash array of the glyph.
    * See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dasharray
@@ -100,15 +100,23 @@ export interface GlyphConfig<
    */
   strokeLineJoin?: GlyphProperty<A, C, string>;
   /**
+   * A callback to define the fill color of the glyph.
+   * @param a
+   * @param c
+   */
+  fillColor?: GlyphProperty<A, C, string>;
+  /**
    * A callback to define the fill opacity of the glyph.
    * @param a
    * @param c
    */
   fillOpacity?: GlyphProperty<A, C, number>;
   /**
-   * A callback to define the fill color of the glyph.
-   * @param a
-   * @param c
+   *
    */
-  fillColor?: GlyphProperty<A, C, string>;
+  initializeFn?: (this: any) => void;
+  /**
+   *
+   */
+  zoomFn?: (this: any) => void;
 }

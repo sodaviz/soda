@@ -3,6 +3,7 @@ import { Chart } from "../../charts/chart";
 import {
   GlyphCallback,
   GlyphModifier,
+  GlyphModifierConfig,
   GlyphProperty,
   resolveValue,
 } from "../glyph-modifier";
@@ -19,8 +20,8 @@ import { ChevronGlyphConfig } from "../chevron";
  * @param orientation
  */
 export function buildChevronPatternPathDFn<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
+  A extends Annotation,
+  C extends Chart<any>
 >(
   height: GlyphProperty<A, C, number>,
   chevronHeight: GlyphProperty<A, C, number>,
@@ -64,8 +65,8 @@ export function buildChevronPatternPathDFn<
  * @param orientation
  */
 export function buildChevronPatternXFn<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
+  A extends Annotation,
+  C extends Chart<any>
 >(orientation: GlyphProperty<A, C, Orientation>): GlyphCallback<A, C, number> {
   return (d) => {
     let orientationValue = resolveValue(orientation, d);
@@ -84,19 +85,32 @@ export function buildChevronPatternXFn<
  * An interface that defines the common parameters for rendering chevron glyphs.
  */
 export interface ChevronPatternConfig<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
+  A extends Annotation,
+  C extends Chart<any>
 > extends ChevronGlyphConfig<A, C> {
   /**
    * The semantic query width at which the chevron patterns will be disabled. At this point, they will look like
    * regular rectangles or lines.
    */
   disableAt?: number;
+  /**
+   *
+   */
+  initializeFn?: (this: ChevronPatternModifier<A, C>) => void;
+  /**
+   *
+   */
+  zoomFn?: (this: ChevronPatternModifier<A, C>) => void;
 }
 
+export type ChevronPatternModifierConfig<
+  A extends Annotation,
+  C extends Chart<any>
+> = GlyphModifierConfig<A, C> & ChevronPatternConfig<A, C>;
+
 export class ChevronPatternModifier<
-  A extends Annotation = Annotation,
-  C extends Chart<any> = Chart
+  A extends Annotation,
+  C extends Chart<any>
 > extends GlyphModifier<A, C> {
   orientation: GlyphProperty<A, C, Orientation>;
   /**
@@ -129,12 +143,8 @@ export class ChevronPatternModifier<
   pathD: GlyphProperty<A, C, string>;
   disableAt: number;
 
-  constructor(
-    selector: string,
-    selection: d3.Selection<any, AnnotationDatum<A, C>, any, any>,
-    config: ChevronPatternConfig<A, C>
-  ) {
-    super(selector, selection, config);
+  constructor(config: ChevronPatternModifierConfig<A, C>) {
+    super(config);
     this.orientation = config.orientation || Orientation.Forward;
     this.x = config.x || buildChevronPatternXFn(this.orientation);
     this.height =
@@ -171,10 +181,10 @@ export class ChevronPatternModifier<
     );
   }
 
-  initialize(): void {
-    this.setId();
-    this.setClass();
-    this.setAttr("patternUnits", "userSpaceOnUse");
+  defaultInitialize() {
+    this.applyId();
+    this.applyClass();
+    this.applyAttr("patternUnits", "userSpaceOnUse");
 
     this.selection
       .append("rect")
@@ -188,17 +198,16 @@ export class ChevronPatternModifier<
       .style("stroke-linejoin", "miter")
       .attr("d", (d) => resolveValue(this.pathD, d));
 
-    this.setFillColor();
-    this.setFillOpacity();
-    this.setChevronFillColor();
-    this.setChevronFillOpacity();
-    this.setChevronStrokeColor();
-    this.setChevronStrokeOpacity();
-
+    this.applyFillColor();
+    this.applyFillOpacity();
+    this.applyChevronFillColor();
+    this.applyChevronFillOpacity();
+    this.applyChevronStrokeColor();
+    this.applyChevronStrokeOpacity();
     this.zoom();
   }
 
-  setFillColor(): void {
+  applyFillColor(): void {
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
         .selectAll("rect")
@@ -206,7 +215,7 @@ export class ChevronPatternModifier<
     });
   }
 
-  setFillOpacity(): void {
+  applyFillOpacity(): void {
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
         .selectAll("rect")
@@ -214,7 +223,7 @@ export class ChevronPatternModifier<
     });
   }
 
-  setChevronStrokeColor(): void {
+  applyChevronStrokeColor(): void {
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
         .selectAll("path")
@@ -222,7 +231,7 @@ export class ChevronPatternModifier<
     });
   }
 
-  setChevronStrokeOpacity(): void {
+  applyChevronStrokeOpacity(): void {
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
         .selectAll("path")
@@ -230,7 +239,7 @@ export class ChevronPatternModifier<
     });
   }
 
-  setChevronFillColor(): void {
+  applyChevronFillColor(): void {
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
         .selectAll("path")
@@ -238,7 +247,7 @@ export class ChevronPatternModifier<
     });
   }
 
-  setChevronFillOpacity(): void {
+  applyChevronFillOpacity(): void {
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
         .selectAll("path")
