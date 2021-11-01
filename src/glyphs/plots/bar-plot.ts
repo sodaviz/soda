@@ -26,37 +26,6 @@ export const defaultBarHeightFn = <P extends PlotAnnotation>(
   return yScale(point[1]);
 };
 
-export function defaultBarPlotModifierInitialize<
-  P extends PlotAnnotation,
-  C extends Chart<any>
->(this: BarPlotModifier<P, C>) {
-  this.setId();
-  this.selection
-    .selectAll("rect")
-    .data((d) => d.a.points)
-    .enter()
-    .append("rect")
-    .attr("fill", "green");
-  this.zoom();
-}
-
-export function defaultBarPlotModifierZoom<
-  P extends PlotAnnotation,
-  C extends Chart<any>
->(this: BarPlotModifier<P, C>) {
-  this.selection.each((d, i, nodes) => {
-    d3.select(nodes[i])
-      .selectAll<SVGRectElement, [number, number]>("rect")
-      .attr("x", (point) => d.c.xScale(point[0]))
-      .attr(
-        "y",
-        (point) => d.c.rowHeight * (d.a.y + 1) - this.barHeightFn(d.a, point)
-      )
-      .attr("width", 5)
-      .attr("height", (point) => this.barHeightFn(d.a, point));
-  });
-}
-
 export type BarPlotModifierConfig<
   P extends PlotAnnotation,
   C extends Chart<any>
@@ -70,10 +39,33 @@ export class BarPlotModifier<
 
   constructor(config: BarPlotModifierConfig<P, C>) {
     super(config);
+    this.strokeColor = config.strokeColor || "none";
     this.barHeightFn = config.barHeightFn || defaultBarHeightFn;
+  }
 
-    this.initializeFn = config.initializeFn || defaultBarPlotModifierInitialize;
-    this.zoomFn = config.zoomFn || defaultBarPlotModifierZoom;
+  defaultInitialize() {
+    super.defaultInitialize();
+    this.selection
+      .selectAll("rect")
+      .data((d) => d.a.points)
+      .enter()
+      .append("rect")
+      .attr("fill", "green");
+    this.zoom();
+  }
+
+  defaultZoom() {
+    this.selection.each((d, i, nodes) => {
+      d3.select(nodes[i])
+        .selectAll<SVGRectElement, [number, number]>("rect")
+        .attr("x", (point) => d.c.xScale(point[0]))
+        .attr(
+          "y",
+          (point) => d.c.rowHeight * (d.a.y + 1) - this.barHeightFn(d.a, point)
+        )
+        .attr("width", 5)
+        .attr("height", (point) => this.barHeightFn(d.a, point));
+    });
   }
 }
 

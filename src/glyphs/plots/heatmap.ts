@@ -6,40 +6,6 @@ import { GlyphConfig } from "../glyph-config";
 import { bind } from "../bind";
 import { GlyphModifier, GlyphModifierConfig } from "../glyph-modifier";
 
-export function defaultHeatmapModifierInitialize<
-  P extends PlotAnnotation,
-  C extends Chart<any>
->(this: HeatmapModifier<P, C>) {
-  this.setId();
-  let colorScale = d3.scaleSequential(d3.interpolatePRGn).domain([0, 100]);
-  this.selection
-    .selectAll("rect")
-    .data((d) => d.a.points)
-    .enter()
-    .append("rect")
-    .attr("fill", (p) => colorScale(p[1]));
-  this.zoom();
-}
-
-export function defaultHeatmapModifierZoom<
-  P extends PlotAnnotation,
-  C extends Chart<any>
->(this: HeatmapModifier<P, C>) {
-  this.selection.each((d, i, nodes) => {
-    d3.select(nodes[i])
-      .selectAll<SVGRectElement, [number, number]>("rect")
-      .attr("x", (p) => this.chart.xScale(p[0]))
-      .attr("y", () => this.chart.rowHeight * d.a.y)
-      .attr(
-        "width",
-        () =>
-          this.chart.xScale(d.a.points[1][0]) -
-          this.chart.xScale(d.a.points[0][0])
-      )
-      .attr("height", () => this.chart.rowHeight);
-  });
-}
-
 /**
  * An interface that holds the parameters to style a bar plot.
  * @internal
@@ -67,9 +33,35 @@ export class HeatmapModifier<
 > extends GlyphModifier<P, C> {
   constructor(config: HeatmapModifierConfig<P, C>) {
     super(config);
+    this.strokeColor = config.strokeColor || "none";
+  }
 
-    this.initializeFn = config.initializeFn || defaultHeatmapModifierInitialize;
-    this.zoomFn = config.zoomFn || defaultHeatmapModifierZoom;
+  defaultInitialize() {
+    super.defaultInitialize();
+    let colorScale = d3.scaleSequential(d3.interpolatePRGn).domain([0, 100]);
+    this.selection
+      .selectAll("rect")
+      .data((d) => d.a.points)
+      .enter()
+      .append("rect")
+      .attr("fill", (p) => colorScale(p[1]));
+    this.zoom();
+  }
+
+  defaultZoom() {
+    this.selection.each((d, i, nodes) => {
+      d3.select(nodes[i])
+        .selectAll<SVGRectElement, [number, number]>("rect")
+        .attr("x", (p) => this.chart.xScale(p[0]))
+        .attr("y", () => this.chart.rowHeight * d.a.y)
+        .attr(
+          "width",
+          () =>
+            this.chart.xScale(d.a.points[1][0]) -
+            this.chart.xScale(d.a.points[0][0])
+        )
+        .attr("height", () => this.chart.rowHeight);
+    });
   }
 }
 

@@ -46,24 +46,6 @@ export function selectText(a: Annotation, c: Chart): string {
   return "";
 }
 
-export function defaultTextModifierInitialize<
-  A extends Annotation,
-  C extends Chart<any>
->(this: TextModifier<A, C>): void {
-  this.setTextAnchor();
-  this.setAlignmentBaseline();
-  this.setText();
-}
-
-export function defaultTextModifierZoom<
-  A extends Annotation,
-  C extends Chart<any>
->(this: TextModifier<A, C>): void {
-  this.setX();
-  this.setY();
-  this.setText();
-}
-
 /**
  * @internal
  * @param text
@@ -140,23 +122,34 @@ export class TextModifier<
     super(config);
     addToTextMaps(config);
 
+    this.strokeColor = config.strokeColor || "none";
     this.textAnchor = config.textAnchor || "left";
     this.alignmentBaseline = config.alignmentBaseline || "hanging";
-
-    this.initializeFn = defaultTextModifierInitialize;
-    this.zoomFn = defaultTextModifierZoom;
   }
 
-  setText(): void {
+  defaultInitialize(): void {
+    super.defaultInitialize();
+    this.applyTextAnchor();
+    this.applyAlignmentBaseline();
+    this.applyText();
+  }
+
+  defaultZoom(): void {
+    this.applyX();
+    this.applyY();
+    this.applyText();
+  }
+
+  applyText(): void {
     this.selection.text((d) => selectText(d.a, d.c));
   }
 
-  setTextAnchor(): void {
-    this.setStyle("text-anchor", this.textAnchor);
+  applyTextAnchor(): void {
+    this.applyStyle("text-anchor", this.textAnchor);
   }
 
-  setAlignmentBaseline(): void {
-    this.setStyle("alignment-baseline", this.alignmentBaseline);
+  applyAlignmentBaseline(): void {
+    this.applyStyle("alignment-baseline", this.alignmentBaseline);
   }
 }
 

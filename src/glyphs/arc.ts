@@ -36,13 +36,6 @@ export function buildArcPathDFn<A extends Annotation, C extends Chart<any>>(
   };
 }
 
-export function defaultArcModifierZoom<
-  A extends Annotation,
-  C extends Chart<any>
->(this: ArcModifier<A, C>) {
-  this.setD();
-}
-
 export type ArcModifierConfig<
   A extends Annotation,
   C extends Chart<any>
@@ -52,7 +45,6 @@ export class ArcModifier<
   A extends Annotation,
   C extends Chart<any>
 > extends GlyphModifier<A, C> {
-  zoomFn: (this: ArcModifier<A, C>) => void;
   d: GlyphProperty<A, C, string | null>;
 
   constructor(config: ArcModifierConfig<A, C>) {
@@ -60,11 +52,14 @@ export class ArcModifier<
     this.y = (d) => d.c.rowHeight * (d.a.y + 1);
     this.d = buildArcPathDFn(this.x, this.width, this.y, this.height);
     this.fillColor = config.fillColor || "none";
-    this.zoomFn = config.zoomFn || defaultArcModifierZoom;
+  }
+
+  defaultZoom(): void {
+    this.setD();
   }
 
   setD(): void {
-    this.setAttr("d", this.d);
+    this.applyAttr("d", this.d);
   }
 }
 

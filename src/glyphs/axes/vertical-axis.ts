@@ -12,21 +12,6 @@ import {
   resolveValue,
 } from "../glyph-modifier";
 
-export function defaultVerticalAxisInitialize<
-  A extends Annotation,
-  C extends Chart<any>
->(this: VerticalAxisModifier<A, C>): void {
-  this.setId();
-  this.renderAxis();
-}
-
-export function defaultVerticalAxisZoom<
-  A extends Annotation,
-  C extends Chart<any>
->(this: VerticalAxisModifier<A, C>): void {
-  this.renderAxis();
-}
-
 /**
  * An interface that holds the parameters to style a vertical axis.
  */
@@ -73,6 +58,7 @@ export class VerticalAxisModifier<
 
   constructor(config: VerticalAxisModifierConfig<A, C>) {
     super(config);
+    this.strokeColor = config.strokeColor || "none";
     this.domain = config.domain || [0, 100];
     this.binSpan = config.binSpan || 1;
     this.range = config.range || [0, config.chart.rowHeight * this.binSpan];
@@ -80,9 +66,15 @@ export class VerticalAxisModifier<
     this.tickSizeOuter = config.tickSizeOuter || 6;
     this.axisType = config.axisType || AxisType.Right;
     this.fixed = config.fixed || false;
+  }
 
-    this.initializeFn = defaultVerticalAxisInitialize;
-    this.zoomFn = defaultVerticalAxisZoom;
+  defaultInitialize(): void {
+    super.defaultInitialize();
+    this.renderAxis();
+  }
+
+  defaultZoom(): void {
+    this.renderAxis();
   }
 
   renderAxis(): void {

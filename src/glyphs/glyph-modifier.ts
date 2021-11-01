@@ -94,34 +94,8 @@ export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
     this.fillColor = config.fillColor;
     this.fillOpacity = config.fillOpacity;
 
-    this.initializeFn = config.initializeFn || GlyphModifier.defaultInitialize;
-    this.zoomFn = config.zoomFn || GlyphModifier.defaultZoom;
-  }
-
-  static defaultInitialize<A extends Annotation, C extends Chart<any>>(
-    this: GlyphModifier<A, C>
-  ) {
-    this.setId();
-    this.setClass();
-    this.setStrokeWidth();
-    this.setStrokeColor();
-    this.setStrokeOpacity();
-    this.setStrokeDashArray();
-    this.setStrokeDashOffset();
-    this.setStrokeLineCap();
-    this.setStrokeLineJoin();
-    this.setFillColor();
-    this.setFillOpacity();
-    this.zoom();
-  }
-
-  static defaultZoom<A extends Annotation, C extends Chart<any>>(
-    this: GlyphModifier<A, C>
-  ) {
-    this.setX();
-    this.setWidth();
-    this.setY();
-    this.setHeight();
+    this.initializeFn = config.initializeFn || this.defaultInitialize;
+    this.zoomFn = config.zoomFn || this.defaultZoom;
   }
 
   initialize(): void {
@@ -132,7 +106,29 @@ export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
     this.zoomFn();
   }
 
-  setAttr(
+  defaultInitialize() {
+    this.applyId();
+    this.applyClass();
+    this.applyStrokeWidth();
+    this.applyStrokeColor();
+    this.applyStrokeOpacity();
+    this.applyStrokeDashArray();
+    this.applyStrokeDashOffset();
+    this.applyStrokeLineCap();
+    this.applyStrokeLineJoin();
+    this.applyFillColor();
+    this.applyFillOpacity();
+    this.zoom();
+  }
+
+  defaultZoom() {
+    this.applyX();
+    this.applyWidth();
+    this.applyY();
+    this.applyHeight();
+  }
+
+  applyAttr(
     attr: string,
     value:
       | GlyphCallback<A, C, string | number | boolean | null>
@@ -158,7 +154,7 @@ export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
     }
   }
 
-  setStyle(
+  applyStyle(
     style: string,
     value:
       | GlyphCallback<A, C, string | number | boolean | null>
@@ -168,7 +164,7 @@ export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
       | null
       | undefined
   ): void {
-    // Same story here as described above in setAttr()
+    // Same story here as described above in applyAttr()
     if (typeof value === "function") {
       this.selection.style(style, value);
     } else if (value === null) {
@@ -178,63 +174,63 @@ export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
     }
   }
 
-  setId(): void {
+  applyId(): void {
     this.selection.attr("id", (d) => d.a.id);
   }
 
-  setClass(): void {
+  applyClass(): void {
     this.selection.attr("class", this.selector);
   }
 
-  setX(): void {
-    this.setAttr("x", this.x);
+  applyX(): void {
+    this.applyAttr("x", this.x);
   }
 
-  setY(): void {
-    this.setAttr("y", this.y);
+  applyY(): void {
+    this.applyAttr("y", this.y);
   }
 
-  setWidth(): void {
-    this.setAttr("width", this.width);
+  applyWidth(): void {
+    this.applyAttr("width", this.width);
   }
 
-  setHeight(): void {
-    this.setAttr("height", this.height);
+  applyHeight(): void {
+    this.applyAttr("height", this.height);
   }
 
-  setStrokeWidth(): void {
-    this.setStyle("stroke-width", this.strokeWidth);
+  applyStrokeWidth(): void {
+    this.applyStyle("stroke-width", this.strokeWidth);
   }
 
-  setStrokeColor(): void {
-    this.setStyle("stroke", this.strokeColor);
+  applyStrokeColor(): void {
+    this.applyStyle("stroke", this.strokeColor);
   }
 
-  setStrokeOpacity(): void {
-    this.setStyle("stroke-opacity", this.strokeOpacity);
+  applyStrokeOpacity(): void {
+    this.applyStyle("stroke-opacity", this.strokeOpacity);
   }
 
-  setStrokeDashArray(): void {
-    this.setStyle("stroke-dash-array", this.strokeDashArray);
+  applyStrokeDashArray(): void {
+    this.applyStyle("stroke-dasharray", this.strokeDashArray);
   }
 
-  setStrokeDashOffset(): void {
-    this.setStyle("stroke-dash-offset", this.strokeDashOffset);
+  applyStrokeDashOffset(): void {
+    this.applyStyle("stroke-dashoffset", this.strokeDashOffset);
   }
 
-  setStrokeLineCap(): void {
-    this.setStyle("stroke-linecap", this.strokeLineCap);
+  applyStrokeLineCap(): void {
+    this.applyStyle("stroke-linecap", this.strokeLineCap);
   }
 
-  setStrokeLineJoin(): void {
-    this.setStyle("stroke-linejoin", this.strokeLineJoin);
+  applyStrokeLineJoin(): void {
+    this.applyStyle("stroke-linejoin", this.strokeLineJoin);
   }
 
-  setFillColor(): void {
-    this.setStyle("fill", this.fillColor);
+  applyFillColor(): void {
+    this.applyStyle("fill", this.fillColor);
   }
 
-  setFillOpacity(): void {
-    this.setStyle("opacity", this.fillOpacity);
+  applyFillOpacity(): void {
+    this.applyStyle("opacity", this.fillOpacity);
   }
 }

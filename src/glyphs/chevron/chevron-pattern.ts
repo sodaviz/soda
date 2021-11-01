@@ -58,35 +58,6 @@ export function buildChevronPatternPathDFn<
   };
 }
 
-export function defaultChevronPatternModifierInitialize<
-  A extends Annotation,
-  C extends Chart<any>
->(this: ChevronPatternModifier<A, C>) {
-  this.setId();
-  this.setClass();
-  this.setAttr("patternUnits", "userSpaceOnUse");
-
-  this.selection
-    .append("rect")
-    .attr("x", 0)
-    .attr("y", 0)
-    .attr("width", (d) => resolveValue(this.width, d))
-    .attr("height", (d) => resolveValue(this.height, d));
-
-  this.selection
-    .append("path")
-    .style("stroke-linejoin", "miter")
-    .attr("d", (d) => resolveValue(this.pathD, d));
-
-  this.setFillColor();
-  this.setFillOpacity();
-  this.setChevronFillColor();
-  this.setChevronFillOpacity();
-  this.setChevronStrokeColor();
-  this.setChevronStrokeOpacity();
-  this.zoom();
-}
-
 /**
  * @internal
  * @param a
@@ -208,12 +179,35 @@ export class ChevronPatternModifier<
       this.chevronWidth,
       this.orientation
     );
-
-    this.initializeFn =
-      config.initializeFn || defaultChevronPatternModifierInitialize;
   }
 
-  setFillColor(): void {
+  defaultInitialize() {
+    this.applyId();
+    this.applyClass();
+    this.applyAttr("patternUnits", "userSpaceOnUse");
+
+    this.selection
+      .append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", (d) => resolveValue(this.width, d))
+      .attr("height", (d) => resolveValue(this.height, d));
+
+    this.selection
+      .append("path")
+      .style("stroke-linejoin", "miter")
+      .attr("d", (d) => resolveValue(this.pathD, d));
+
+    this.applyFillColor();
+    this.applyFillOpacity();
+    this.applyChevronFillColor();
+    this.applyChevronFillOpacity();
+    this.applyChevronStrokeColor();
+    this.applyChevronStrokeOpacity();
+    this.zoom();
+  }
+
+  applyFillColor(): void {
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
         .selectAll("rect")
@@ -221,7 +215,7 @@ export class ChevronPatternModifier<
     });
   }
 
-  setFillOpacity(): void {
+  applyFillOpacity(): void {
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
         .selectAll("rect")
@@ -229,7 +223,7 @@ export class ChevronPatternModifier<
     });
   }
 
-  setChevronStrokeColor(): void {
+  applyChevronStrokeColor(): void {
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
         .selectAll("path")
@@ -237,7 +231,7 @@ export class ChevronPatternModifier<
     });
   }
 
-  setChevronStrokeOpacity(): void {
+  applyChevronStrokeOpacity(): void {
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
         .selectAll("path")
@@ -245,7 +239,7 @@ export class ChevronPatternModifier<
     });
   }
 
-  setChevronFillColor(): void {
+  applyChevronFillColor(): void {
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
         .selectAll("path")
@@ -253,7 +247,7 @@ export class ChevronPatternModifier<
     });
   }
 
-  setChevronFillOpacity(): void {
+  applyChevronFillOpacity(): void {
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
         .selectAll("path")

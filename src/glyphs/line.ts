@@ -10,16 +10,6 @@ import {
   GlyphProperty,
 } from "./glyph-modifier";
 
-export function defaultLineModifierZoom<
-  A extends Annotation,
-  C extends Chart<any>
->(this: LineModifier<A, C>) {
-  this.setX1();
-  this.setX2();
-  this.setY1();
-  this.setY2();
-}
-
 /**
  * An interface that holds the parameters for rendering generic line glyphs.
  */
@@ -92,7 +82,6 @@ export class LineModifier<
    * @param c
    */
   y2: GlyphProperty<A, C, number>;
-  zoomFn: (this: LineModifier<A, C>) => void;
 
   public constructor(config: LineModifierConfig<A, C>) {
     super(config);
@@ -106,24 +95,29 @@ export class LineModifier<
       config.y ||
       ((d: AnnotationDatum<A, C>) => (d.a.row + 0.5) * d.c.rowHeight);
     this.y2 = config.y2 || this.y1;
-    this.strokeColor = config.strokeColor || "black";
-    this.zoomFn = config.zoomFn || defaultLineModifierZoom;
   }
 
-  setX1(): void {
-    this.setAttr("x1", this.x1);
+  defaultZoom() {
+    this.applyX1();
+    this.applyX2();
+    this.applyY1();
+    this.applyY2();
   }
 
-  setX2(): void {
-    this.setAttr("x2", this.x2);
+  applyX1(): void {
+    this.applyAttr("x1", this.x1);
   }
 
-  setY1(): void {
-    this.setAttr("y1", this.y1);
+  applyX2(): void {
+    this.applyAttr("x2", this.x2);
   }
 
-  setY2(): void {
-    this.setAttr("y2", this.y2);
+  applyY1(): void {
+    this.applyAttr("y1", this.y1);
+  }
+
+  applyY2(): void {
+    this.applyAttr("y2", this.y2);
   }
 }
 

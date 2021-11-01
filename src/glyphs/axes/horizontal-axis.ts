@@ -39,45 +39,6 @@ export function getHorizontalAxisAnnotation(
   });
 }
 
-export function defaultHorizontalAxisInitialize<
-  A extends Annotation,
-  C extends Chart<any>
->(this: HorizontalAxisModifier<A, C>): void {
-  this.setId();
-  this.zoom();
-}
-
-export function defaultHorizontalAxisZoom<
-  A extends Annotation,
-  C extends Chart<any>
->(this: HorizontalAxisModifier<A, C>): void {
-  this.selection
-    .attr("transform", (d) => `translate(1, ${resolveValue(this.y, d)})`)
-    .each((d, i, nodes) => {
-      let xScale = d3
-        .scaleLinear()
-        .domain(resolveValue(this.domain, d))
-        .range(resolveValue(this.range, d));
-
-      let axis = getAxis(xScale, this.axisType);
-
-      axis
-        .ticks(resolveValue(this.ticks, d))
-        .tickSizeOuter(resolveValue(this.tickSizeOuter, d));
-
-      d3.select(nodes[i]).call(axis);
-
-      horizontalAxisScaleMap.set(d.a.id, xScale);
-      horizontalAxisAxisMap.set(d.a.id, axis);
-
-      if (this.scaleToBinHeight) {
-        let gBound = nodes[i].getBBox();
-        let k = this.chart.rowHeight / gBound.height;
-        d3.select(nodes[i]).attr("transform", `scale(1, ${k})`);
-      }
-    });
-}
-
 export type HorizontalAxisModifierConfig<
   A extends Annotation,
   C extends Chart<any>
@@ -106,13 +67,39 @@ export class HorizontalAxisModifier<
       this.range =
         config.range || ((d) => [d.c.xScale(d.a.x), d.c.xScale(d.a.x + d.a.w)]);
     }
+    this.strokeColor = config.strokeColor || "none";
     this.ticks = config.ticks || 5;
     this.tickSizeOuter = config.tickSizeOuter || 6;
     this.axisType = config.axisType || AxisType.Bottom;
     this.scaleToBinHeight = config.scaleToBinHeight || false;
+  }
 
-    this.initializeFn = defaultHorizontalAxisInitialize;
-    this.zoomFn = defaultHorizontalAxisZoom;
+  defaultZoom(): void {
+    this.selection
+      .attr("transform", (d) => `translate(1, ${resolveValue(this.y, d)})`)
+      .each((d, i, nodes) => {
+        let xScale = d3
+          .scaleLinear()
+          .domain(resolveValue(this.domain, d))
+          .range(resolveValue(this.range, d));
+
+        let axis = getAxis(xScale, this.axisType);
+
+        axis
+          .ticks(resolveValue(this.ticks, d))
+          .tickSizeOuter(resolveValue(this.tickSizeOuter, d));
+
+        d3.select(nodes[i]).call(axis);
+
+        horizontalAxisScaleMap.set(d.a.id, xScale);
+        horizontalAxisAxisMap.set(d.a.id, axis);
+
+        if (this.scaleToBinHeight) {
+          let gBound = nodes[i].getBBox();
+          let k = this.chart.rowHeight / gBound.height;
+          d3.select(nodes[i]).attr("transform", `scale(1, ${k})`);
+        }
+      });
   }
 }
 

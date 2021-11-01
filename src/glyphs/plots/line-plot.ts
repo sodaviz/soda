@@ -37,13 +37,6 @@ export const defaultLineFn = <P extends PlotAnnotation, C extends Chart<any>>(
   return buffer.toString();
 };
 
-export function defaultLinePlotModifierZoom<
-  P extends PlotAnnotation,
-  C extends Chart<any>
->(this: LinePlotModifier<P, C>) {
-  this.setD();
-}
-
 export type LinePlotModifierConfig<
   P extends PlotAnnotation,
   C extends Chart<any>
@@ -60,12 +53,14 @@ export class LinePlotModifier<
     this.pathData = config.pathData || defaultLineFn;
     this.strokeColor = "black";
     this.fillColor = "none";
-
-    this.zoomFn = config.zoomFn || defaultLinePlotModifierZoom;
   }
 
-  setD(): void {
-    this.setAttr("d", this.pathData);
+  defaultZoom() {
+    this.applyD();
+  }
+
+  applyD(): void {
+    this.applyAttr("d", this.pathData);
   }
 }
 
