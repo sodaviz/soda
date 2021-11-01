@@ -407,6 +407,7 @@ export class Chart<P extends RenderParams = RenderParams> {
     } else {
       this.padSelection = d3.create("svg:svg").style("vertical-align", "top");
     }
+    this.padSelection.attr("xmlns", "http://www.w3.org/2000/svg");
     this.xScale = buildPlaceholderXScale(this);
     this.xScaleBase = this.xScale;
     this._transform = cloneDeep(d3.zoomIdentity);
