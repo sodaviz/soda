@@ -8,6 +8,7 @@ export {
   AnnotationGroup,
   AnnotationGroupConfig,
 } from "./annotations/annotation-group";
+export { BedAnnotation } from "./annotations/bed-annotation";
 export {
   PlotAnnotation,
   PlotAnnotationConfig,

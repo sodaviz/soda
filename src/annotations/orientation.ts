@@ -19,3 +19,15 @@ export enum Orientation {
    */
   Unoriented = ".",
 }
+
+export function parseOrientation(str: string): Orientation {
+  if (str == "+") {
+    return Orientation.Forward;
+  } else if (str == "-") {
+    return Orientation.Reverse;
+  } else if (str == ".") {
+    return Orientation.Unoriented;
+  } else {
+    return Orientation.Unknown;
+  }
+}
