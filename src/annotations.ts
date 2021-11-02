@@ -1,8 +1,5 @@
 export { Annotation, AnnotationConfig } from "./annotations/annotation";
-export {
-  Orientation,
-  OrientedAnnotation,
-} from "./annotations/oriented-annotation";
+export { Orientation } from "./annotations/orientation";
 export {
   SequenceAnnotation,
   SequenceAnnotationConfig,
