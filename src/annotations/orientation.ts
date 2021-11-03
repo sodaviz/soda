@@ -1,5 +1,3 @@
-import { Annotation } from "./annotation";
-
 /**
  * A simple enum to define strand orientation.
  */
@@ -22,13 +20,14 @@ export enum Orientation {
   Unoriented = ".",
 }
 
-/**
- * An interface to define an Annotation that has a semantic orientation. This is most likely going to indicate
- * whether the Annotation is on the forward or reverse strand in a chromosome.
- */
-export interface OrientedAnnotation extends Annotation {
-  /**
-   * The orientation.
-   */
-  orientation: Orientation;
+export function parseOrientation(str: string): Orientation {
+  if (str == "+") {
+    return Orientation.Forward;
+  } else if (str == "-") {
+    return Orientation.Reverse;
+  } else if (str == ".") {
+    return Orientation.Unoriented;
+  } else {
+    return Orientation.Unknown;
+  }
 }

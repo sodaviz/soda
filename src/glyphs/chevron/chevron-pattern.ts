@@ -7,7 +7,7 @@ import {
   GlyphProperty,
   resolveValue,
 } from "../glyph-modifier";
-import { Orientation } from "../../annotations/oriented-annotation";
+import { Orientation } from "../../annotations/orientation";
 import * as d3 from "d3";
 import { AnnotationDatum } from "../bind";
 import { ChevronGlyphConfig } from "../chevron";
