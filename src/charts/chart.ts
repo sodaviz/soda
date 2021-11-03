@@ -81,7 +81,7 @@ export interface Transform extends d3.ZoomTransform {
 }
 
 /**
- * This describes the parameters for configuring a Chart.
+ * This describes the parameters for configuring and initializing a Chart.
  */
 export interface ChartConfig<P extends RenderParams = RenderParams> {
   /**
@@ -156,7 +156,7 @@ export interface ChartConfig<P extends RenderParams = RenderParams> {
 }
 
 /**
- * This defines the parameters for rendering glyphs in a Chart.
+ * This defines the parameters for a call to a Chart's rendering method.
  */
 export interface RenderParams {
   /**
@@ -464,6 +464,9 @@ export class Chart<P extends RenderParams = RenderParams> {
     }
   }
 
+  /*
+   * A getter for the rowStripeSelection property. This serves as a null guard.
+   */
   get rowStripeRectSelection() {
     if (this._rowStripeRectSelection == undefined) {
       console.error("_rowStripeRectSelection is not defined on", this);
@@ -472,6 +475,9 @@ export class Chart<P extends RenderParams = RenderParams> {
     return this._rowStripeRectSelection;
   }
 
+  /*
+   * A getter for the rowStripePatternSelection property. This serves as a null guard.
+   */
   get rowStripePatternSelection() {
     if (this._rowStripePatternSelection == undefined) {
       console.error("_rowStripePatternSelection is not defined on", this);
@@ -480,6 +486,9 @@ export class Chart<P extends RenderParams = RenderParams> {
     return this._rowStripePatternSelection;
   }
 
+  /**
+   * This initializes the DOM elements that form the row stripes in the Chart, if enabled.
+   */
   public setRowStripes() {
     this._rowStripePatternSelection = this.defSelection
       .append("pattern")
@@ -503,6 +512,9 @@ export class Chart<P extends RenderParams = RenderParams> {
     this.fitRowStripes();
   }
 
+  /**
+   * This automatically sets the dimensions of the row stripe DOM elements.
+   */
   public fitRowStripes() {
     if (!this.rowStripes) {
       return;
@@ -521,10 +533,16 @@ export class Chart<P extends RenderParams = RenderParams> {
       .attr("width", this.viewportWidth);
   }
 
+  /**
+   * This fits the Chart's SVG padding based off of the rowCount, rowHeight and padSize properties.
+   */
   public fitPad(): void {
     this.padHeight = this.rowCount * this.rowHeight + 2 * this.padSize;
   }
 
+  /**
+   * This fits the Chart's SVG viewport based off of the Chart's pad size.
+   */
   public fitViewport(): void {
     this.viewportWidth = this.calculatePadWidth() - 2 * this.padSize;
     this.viewportHeight = this.calculatePadHeight() - 2 * this.padSize;
@@ -537,7 +555,8 @@ export class Chart<P extends RenderParams = RenderParams> {
   }
 
   /**
-   * Get the string selector to the container that the Chart lives in.
+   * A getter for the Chart's selector property. The selector should be able to uniquely select the Chart's DOM
+   * container.
    */
   get selector(): string {
     if (this._selector == undefined) {
@@ -608,22 +627,21 @@ export class Chart<P extends RenderParams = RenderParams> {
   }
 
   /**
-   * This returns the Chart's DOM container's width in pixels.
+   * This calculates and returns the Chart's DOM container's width in pixels.
    */
   public getContainerWidth(): number {
     return this.calculateContainerDimensions().width;
   }
 
   /**
-   * This returns the Chart's DOM container's height in pixels.
+   * This calculates and returns the Chart's DOM container's height in pixels.
    */
   public getContainerHeight(): number {
     return this.calculateContainerDimensions().height;
   }
 
   /**
-   * This figures out the Chart's DOM container's dimensions and sets the Chart's viewport SVG to fill those
-   * dimensions.
+   * This calculates the Chart's DOM container's dimensions and sets the Chart's SVG pad to fill those dimensions.
    */
   public setToContainerDimensions(): void {
     let dims = this.calculateContainerDimensions();
@@ -632,7 +650,7 @@ export class Chart<P extends RenderParams = RenderParams> {
   }
 
   /**
-   * This gets the width of the Chart's DOM container and sets the Chart's SVG viewport to a square with that width.
+   * This calculates the width of the Chart's DOM container and sets the Chart's SVG pad to a square with that width.
    */
   public squareToContainerWidth(): void {
     let dims = this.calculateContainerDimensions();
@@ -642,34 +660,12 @@ export class Chart<P extends RenderParams = RenderParams> {
   }
 
   /**
-   * This gets the height of the Chart's DOM container and sets the Chart's SVG viewport to a square with that height.
+   * This calculates the height of the Chart's DOM container and sets the Chart's SVG pad to a square with that height.
    */
   public squareToContainerHeight(): void {
     let dims = this.calculateContainerDimensions();
     this.padWidth = dims.height;
     this.padHeight = dims.height;
-    this.fitViewport();
-  }
-
-  /**
-   * This gets the width of the viewport and sets the viewport height to match it. This will update the internal
-   * height and width properties.
-   */
-  public squareToViewportWidth(): void {
-    const width = this.calculateViewportWidth();
-    this.padHeight = width + 2 * this.padSize;
-    this.padWidth = width + 2 * this.padSize;
-    this.fitViewport();
-  }
-
-  /**
-   * This gets the height of the viewport and sets the viewport width to match it. This will update the internal
-   * height and width properties.
-   */
-  public squareToViewportHeight(): void {
-    const height = this.calculateViewportHeight();
-    this.padHeight = height + 2 * this.padSize;
-    this.padWidth = height + 2 * this.padSize;
     this.fitViewport();
   }
 
@@ -686,42 +682,62 @@ export class Chart<P extends RenderParams = RenderParams> {
   }
 
   /**
-   * This returns the width of the SVG viewport in pixels.
+   * This calculates and returns the width of the SVG viewport in pixels.
    */
   public calculatePadWidth(): number {
     return this.calculatePadDimensions().width;
   }
 
   /**
-   * This returns the width of the SVG viewport in pixels.
+   * This calculates and returns the width of the SVG viewport in pixels.
    */
   public calculatePadHeight(): number {
     return this.calculatePadDimensions().height;
   }
 
+  /**
+   * Setter for the padHeight property. This actually adjusts the height attribute on the viewport DOM element.
+   * @param height
+   */
   set padHeight(height: number) {
     this._padHeight = height;
     this.padSelection.attr("height", height);
   }
 
+  /**
+   * Getter for the padHeight property.
+   */
   get padHeight() {
     return this._padHeight;
   }
 
+  /**
+   * Setter for the padWidth property. This actually adjusts the height attribute on the viewport DOM element.
+   * @param width
+   */
   set padWidth(width: number) {
     this._padWidth = width;
     this.padSelection.attr("width", width);
   }
 
+  /**
+   * Getter for the padWidth property.
+   */
   get padWidth() {
     return this._padWidth;
   }
 
+  /**
+   * Getter for the renderStart property.
+   */
   get renderStart() {
     this._renderStart = this.xScale.invert(0);
     return this._renderStart;
   }
 
+  /**
+   * Getter for the renderEnd property
+   */
   get renderEnd() {
     this._renderEnd = this.xScale.invert(this.viewportWidth);
     return this._renderEnd;
@@ -739,44 +755,53 @@ export class Chart<P extends RenderParams = RenderParams> {
   }
 
   /**
-   * This checks the current width of the viewport in the DOM (as opposed to the property set internally in the
-   * Chart) and returns it.
+   * This calculates the current width of the viewport in the DOM and returns it.
    */
   public calculateViewportWidth(): number {
     return this.calculateViewportDimensions().width;
   }
 
   /**
-   * This checks the current height of the viewport in the DOM (as opposed to the property set internally in the
-   * Chart) and returns it.
+   * This checks the current height of the viewport in the DOM and returns it.
    */
   public calculateViewportHeight(): number {
     return this.calculateViewportDimensions().height;
   }
 
+  /**
+   * Setter for the viewportHeight property. This actually adjusts the height property on the viewport DOM element.
+   * @param height
+   */
   set viewportHeight(height: number) {
     this._viewportHeight = height;
     this.viewportSelection.attr("height", height);
   }
 
+  /**
+   * Getter for the viewportHeight property.
+   */
   get viewportHeight(): number {
     return this._viewportHeight;
   }
 
+  /**
+   * Setter for the viewportWidth property. This actually adjusts the width property on the viewport DOM element.
+   * @param width
+   */
   set viewportWidth(width: number) {
     this._viewportWidth = width;
     this.viewportSelection.attr("width", width);
   }
 
+  /**
+   * Getter for the viewportWidth property.
+   */
   get viewportWidth() {
     return this._viewportWidth;
   }
 
   /**
-   * This configures the SVG viewport to appropriately handle browser zoom events. It is called in the
-   * constructor, and in the TrackChart's resize() method. Currently, most of what this does is prevent zooming with
-   * the scroll wheel unless the ctrl key is pressed, and re-applies the scale and translate extents. Eventually,
-   * this should end up being parameterized to be a bit more user-configurable.
+   * This configures the chart's viewport to appropriately handle browser zoom events.
    */
   public configureZoom(): void {
     const self = this;
@@ -800,6 +825,9 @@ export class Chart<P extends RenderParams = RenderParams> {
       .on("dblclick.zoom", null);
   }
 
+  /**
+   * This disables zooming on the Chart.
+   */
   public disableZoom(): void {
     this.viewportSelection
       .call(
@@ -813,16 +841,26 @@ export class Chart<P extends RenderParams = RenderParams> {
       .on("dblclick.zoom", null);
   }
 
+  /**
+   * Setter for the transform property.
+   * @param transform
+   */
   set transform(transform: Transform) {
     this.padSelection.node().__zoom = transform;
     this._transform = transform;
   }
 
+  /**
+   * Getter for the transform property. This also updates the internal transform on the Chart's pad DOM element.
+   */
   get transform() {
     this._transform = this.padSelection.node().__zoom;
     return this._transform;
   }
 
+  /**
+   * Reset the Chart's transform to the zoom identity (no translation, no zoom).
+   */
   public resetTransform(): void {
     let transform = this.transform;
     transform.x = 0;
@@ -831,9 +869,7 @@ export class Chart<P extends RenderParams = RenderParams> {
   }
 
   /**
-   * This takes the provided query arguments and sets the d3 scale to map between the provided semantic range and
-   * the TrackChart's actual SVG viewport coordinate space. If there is a ZoomController assigned to the TrackChart, it
-   * will set the ZoomController's scale instead.
+   * This initializes an x translation scale based off of the provided arguments and the dimensions of the Chart.
    * @param start
    * @param end
    */
@@ -849,11 +885,21 @@ export class Chart<P extends RenderParams = RenderParams> {
     this.xScale = this.xScaleBase;
   }
 
+  /**
+   * This rescales the Chart's x translation scale. If a transform argument is provided, it will use that.
+   * Otherwise, it will use the Chart's internal transform object.
+   * @param transformArg
+   */
   public rescaleXScale(transformArg?: Transform): void {
     let transform = transformArg || this.transform;
     this.xScale = transform.rescaleX(this.xScaleBase);
   }
 
+  /**
+   * This adds a GlyphModifier to the Chart.
+   * @param modifier
+   * @param initialize
+   */
   public addGlyphModifier<A extends Annotation, C extends Chart<any>>(
     modifier: GlyphModifier<A, C>,
     initialize = true
@@ -870,6 +916,10 @@ export class Chart<P extends RenderParams = RenderParams> {
     this.glyphModifiers.push(modifier);
   }
 
+  /**
+   * This applies each of the Chart's GlyphModifier.zoom() methods, resulting in each of the glyphs in the Chart
+   * being appropriately redrawn for the current zoom level.
+   */
   public applyGlyphModifiers(): void {
     for (const modifier of this.glyphModifiers) {
       modifier.zoom();
@@ -877,7 +927,7 @@ export class Chart<P extends RenderParams = RenderParams> {
   }
 
   /**
-   * This is the handler method that will be called when the SVG viewport receives a browser zoom event.
+   * This is the handler method that will be called when the Chart's viewport receives a browser zoom event.
    */
   public zoom(): void {
     let transform;
@@ -891,6 +941,10 @@ export class Chart<P extends RenderParams = RenderParams> {
     this.alertObservers();
   }
 
+  /**
+   * This configures the Chart to respond to browser resize events. The default resize behavior is for the Chart to
+   * maintain the current semantic view range, either stretching or shrinking the current view.
+   */
   public configureResize(): void {
     if (this._containerSelection == undefined) {
       console.warn(
@@ -913,10 +967,8 @@ export class Chart<P extends RenderParams = RenderParams> {
   }
 
   /**
-   * This resizes the TrackChart to fit the size of its container. This will be called by a ResizeController if
-   * one is assigned to the TrackChart. The default behavior is for the TrackChart to fill its container,
-   * reconfigure the zoom settings to match the new size, and then re-render the glyphs to appropriately fit in
-   * the new dimensions.
+   * This resizes the Chart. If the Chart has resizing enabled, this is called automatically when a browser zoom
+   * event occurs.
    */
   public resize(): void {
     let view = this.getSemanticViewRange();
@@ -936,6 +988,9 @@ export class Chart<P extends RenderParams = RenderParams> {
     }
   }
 
+  /**
+   * Getter for the Chart's most recently used RenderParams.
+   */
   get renderParams() {
     if (this._renderParams == undefined) {
       console.error("_renderParams is not defined on", this);
@@ -944,14 +999,16 @@ export class Chart<P extends RenderParams = RenderParams> {
     return this._renderParams;
   }
 
+  /**
+   * Setter for the renderParms property.
+   * @param params
+   */
   set renderParams(params: P) {
     this._renderParams = params;
   }
 
   /**
-   * This method just stores the render parameters on the Chart and calls preRender(), inRender(), and postRender().
-   * This is set up this way since preRender() and postRender() will often have common implementations, but
-   * inRender() generally will not.
+   * This method stores the render parameters on the Chart and calls preRender(), inRender(), and postRender().
    * @param params
    */
   public render(params: P): void {
@@ -961,6 +1018,10 @@ export class Chart<P extends RenderParams = RenderParams> {
     this.postRender(params);
   }
 
+  /**
+   * A utility function to attempt to infer a semantic range on RenderParams when no range is explicitly supplied.
+   * @param params
+   */
   static inferRenderRange<P extends RenderParams>(params: P): [number, number] {
     let start, end;
     if (params.start == undefined || params.end == undefined) {
@@ -983,6 +1044,11 @@ export class Chart<P extends RenderParams = RenderParams> {
     return [params.start || start || 0, params.end || end || 0];
   }
 
+  /**
+   * The default preRender() implementation.
+   * @param params
+   * @param chart
+   */
   static preRender<P extends RenderParams = RenderParams>(
     params: P,
     chart: Chart<P>
@@ -1026,6 +1092,11 @@ export class Chart<P extends RenderParams = RenderParams> {
     }
   }
 
+  /**
+   * The default inRender() implementation.
+   * @param params
+   * @param chart
+   */
   static inRender<P extends RenderParams = RenderParams>(
     params: P,
     chart: Chart<P>
@@ -1039,6 +1110,11 @@ export class Chart<P extends RenderParams = RenderParams> {
     }
   }
 
+  /**
+   * The default postRender() implementation.
+   * @param params
+   * @param chart
+   */
   static postRender<P extends RenderParams = RenderParams>(
     params: P,
     chart: Chart<P>
