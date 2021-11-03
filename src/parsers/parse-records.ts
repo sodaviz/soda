@@ -7,8 +7,11 @@ export function parseRecordsFromString<A extends Annotation>(
 ): A[] {
   let annotations: A[] = [];
   let records = recordString.split(recordSeparator);
+  let emptyRegex = /^\s*$/;
   for (const record of records) {
-    annotations.push(parseFn(record));
+    if (!emptyRegex.exec(record)) {
+      annotations.push(parseFn(record));
+    }
   }
   return annotations;
 }
