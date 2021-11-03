@@ -1,6 +1,9 @@
 import { Annotation, AnnotationConfig } from "./annotation";
 import { Orientation } from "./orientation";
 
+/**
+ * @internal
+ */
 export type Bed3Record = Omit<
   BedRecord,
   | "name"
@@ -14,8 +17,19 @@ export type Bed3Record = Omit<
   | "blockStarts"
 >;
 
+/**
+ * A type that defines the parameters to initialize a Bed3Annotation.
+ */
 export type Bed3AnnotationConfig = Bed3Record & AnnotationConfig;
+
+/**
+ * @internal
+ */
 export interface Bed3Annotation extends Bed3Record {}
+
+/**
+ * An annotation object to represent BED annotations explicitly constrained in the BED3 format.
+ */
 export class Bed3Annotation extends Annotation {
   constructor(config: Bed3AnnotationConfig) {
     super(config);
@@ -23,14 +37,28 @@ export class Bed3Annotation extends Annotation {
   }
 }
 
+/**
+ * @internal
+ */
 export type Bed6Record = Bed3Record & {
   name: string;
   score: number;
   strand: Orientation;
 };
 
+/**
+ * A type that defines the parameters to initialize a Bed6Annotation.
+ */
 export type Bed6AnnotationConfig = Bed6Record & AnnotationConfig;
+
+/**
+ * @internal
+ */
 export interface Bed6Annotation extends Bed6Record {}
+
+/**
+ * An annotation object to represent BED annotations explicitly constrained in the BED6 format.
+ */
 export class Bed6Annotation extends Bed3Annotation {
   constructor(config: Bed6AnnotationConfig) {
     super(config);
@@ -40,14 +68,28 @@ export class Bed6Annotation extends Bed3Annotation {
   }
 }
 
+/**
+ * @internal
+ */
 export type Bed9Record = Bed6Record & {
   thickStart: number;
   thickEnd: number;
   itemRgb: string;
 };
 
+/**
+ * A type that defines the parameters to initialize a Bed9Annotation.
+ */
 export type Bed9AnnotationConfig = Bed9Record & AnnotationConfig;
+
+/**
+ * @internal
+ */
 export interface Bed9Annotation extends Bed9Record {}
+
+/**
+ * An annotation object to represent BED annotations explicitly constrained in the BED9 format.
+ */
 export class Bed9Annotation extends Bed6Annotation {
   constructor(config: Bed9AnnotationConfig) {
     super(config);
@@ -58,7 +100,7 @@ export class Bed9Annotation extends Bed6Annotation {
 }
 
 /**
- * A type that describes BED12 records.
+ * @internal
  */
 export type Bed12Record = Bed9Record & {
   blockCount: number;
@@ -66,9 +108,19 @@ export type Bed12Record = Bed9Record & {
   blockStarts: number[];
 };
 
+/**
+ * A type that defines the parameters to initialize a Bed12Annotation.
+ */
 export type Bed12AnnotationConfig = Bed12Record & AnnotationConfig;
+
+/**
+ * @internal
+ */
 export interface Bed12Annotation extends Bed12Record {}
 
+/**
+ * An annotation object to represent BED annotations explicitly constrained in the BED12 format.
+ */
 export class Bed12Annotation extends Bed9Annotation {
   constructor(config: Bed12AnnotationConfig) {
     super(config);
@@ -79,7 +131,7 @@ export class Bed12Annotation extends Bed9Annotation {
 }
 
 /**
- * An interface that describes BED records.
+ * An interface that describes BED records. For more information, see https://genome.ucsc.edu/FAQ/FAQformat.html#format1
  */
 export interface BedRecord {
   /**
@@ -117,8 +169,8 @@ export interface BedRecord {
    */
   thickEnd?: number;
   /**
-   * A BED9 field BED field that defines the color of the feature. It is an RGB string, ie. (<0-256>, <0-256>,
-   * <0-256>).
+   * A BED9 field BED field that defines the color of the feature. It is an RGB string, e.g. (0, 1,
+   * 256).
    */
   itemRgb?: string;
   /**
@@ -138,7 +190,14 @@ export interface BedRecord {
   blockStarts?: number[];
 }
 
+/**
+ * A type that defines the parameters to initialize a BedAnnotation.
+ */
 export type BedAnnotationConfig = AnnotationConfig & BedRecord;
+
+/**
+ * @internal
+ */
 export interface BedAnnotation extends BedRecord {}
 
 /**
