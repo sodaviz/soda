@@ -1,13 +1,12 @@
 import { generateId } from "../utilities/id-generation";
 
 /**
- * A base interface that defines every property available in an AnnotationConfig. This interface is extended and
- * narrowed into valid configs by other interfaces.
+ * An interface that defines the initialization parameters for an Annotation object. For everything to work as
+ * expected, you should supply the start property and one of either end or width.
  */
 export interface AnnotationConfig {
   /**
-   * A unique identifier for an Annotation object. Currently, it is up to users to make sure that this field is
-   * uniquely assigned. SODA may not behave as intended if two distinct Annotations have the same id.
+   * A unique identifier for an Annotation object.
    */
   id?: string;
   /**
@@ -25,8 +24,8 @@ export interface AnnotationConfig {
    */
   width?: number;
   /**
-   * The y position of the annotation. This rarely has semantic meaning, and is probably used to prevent
-   * horizontal overlap or preserve clarity in the visualization.
+   * This describes which horizontal row the Annotation will be rendered in a Chart, assuming that the y-positioning
+   * is not overwritten during a call to the glyph rendering API.
    */
   row?: number;
   /**
@@ -36,84 +35,80 @@ export interface AnnotationConfig {
   suppressWarnings?: boolean;
 }
 
-export interface AnnotationConfigWithStart extends AnnotationConfig {
-  /**
-   * The start position of the annotation in semantic coordinates (generally a position on a chromosome in base
-   * pairs).
-   */
+/**
+ * @internal
+ */
+interface AnnotationConfigWithStart extends AnnotationConfig {
   start: number;
 }
 
-export interface AnnotationConfigWithEnd extends AnnotationConfig {
-  /**
-   * The end position of the annotation in semantic coordinates (generally a position on a chromosome in base
-   * pairs).
-   */
+/**
+ * @internal
+ */
+interface AnnotationConfigWithEnd extends AnnotationConfig {
   end: number;
 }
 
-export interface AnnotationConfigWithWidth extends AnnotationConfig {
-  /**
-   * The width of the annotation in semantic coordinates.
-   */
+/**
+ * @internal
+ */
+interface AnnotationConfigWithWidth extends AnnotationConfig {
   width: number;
 }
 
+/**
+ * @internal
+ * @param config
+ */
 function hasStart(
   config: AnnotationConfig
 ): config is AnnotationConfigWithStart {
   return config.start != undefined;
 }
 
+/**
+ * @internal
+ * @param config
+ */
 function hasWidth(
   config: AnnotationConfig
 ): config is AnnotationConfigWithWidth {
   return config.width != undefined;
 }
 
+/**
+ * @internal
+ * @param config
+ */
 function hasEnd(config: AnnotationConfig): config is AnnotationConfigWithEnd {
   return config.end != undefined;
 }
 
 /**
- * :trst-class:`Annotation` objects are the main data structure used by SODA to store information about alignments. In
- * many cases, this should be sufficient to store the information to represent a single glyph in a visualization. If
- * more information is needed, the Annotation class should be extended.
+ * An interface that serves to easily let the Annotation class inherit the properties in AnnotationConfig via
+ * declaration merging. See https://www.typescriptlang.org/docs/handbook/declaration-merging.html for more info.
+ * @internal
+ */
+export interface Annotation extends AnnotationConfig {}
+
+/**
+ * Annotation objects are the main data structure used by SODA to store annotation data.
  */
 export class Annotation {
-  /**
-   * A unique identifier for an Annotation object. Currently, it is up to users to make sure that this field is
-   * uniquely assigned. SODA may not behave as intended if two distinct Annotations have the same id.
-   */
+  // these properties shouldn't need to be inline documented since Annotation extends AnnotationConfig with
+  // declaration merging
+  // they are, however, redefined here to narrow them out of being optional
   id: string;
-  /**
-   * The start position of the annotation in semantic coordinates (generally a position on a chromosome in base
-   * pairs).
-   */
-  _start: number;
-  /**
-   * The end position of the annotation in semantic coordinates (generally a position on a chromosome in base
-   * pairs).
-   */
-  _end: number;
-  /**
-   * The width of the annotation in semantic coordinates.
-   */
-  _width: number;
-  /**
-   * The y position of the annotation. This rarely has semantic meaning, and is probably used to prevent
-   * horizontal overlap or preserve clarity in the visualization.
-   */
-  _row: number;
-  /**
-   * This flag determines whether or not warnings about coordinate properties will be printed to the console.
-   */
+  start: number;
+  end: number;
+  width: number;
+  row: number;
   suppressWarnings: boolean = false;
 
   constructor(config: AnnotationConfig) {
     this.id = config.id || generateId("soda-ann");
     if (hasStart(config)) {
-      this._start = config.start;
+      this.start = config.start;
     } else {
       if (!this.suppressWarnings) {
         console.warn(
@@ -124,16 +119,16 @@ export class Annotation {
           "set with start: 0"
         );
       }
-      this._start = 0;
+      this.start = 0;
     }
-    this._row = config.row || 0;
+    this.row = config.row || 0;
 
     if (hasWidth(config)) {
-      this._width = config.width;
-      this._end = this._start + this._width;
+      this.width = config.width;
+      this.end = this.start + this.width;
     } else if (hasEnd(config)) {
-      this._end = config.end;
-      this._width = this._end - this._start;
+      this.end = config.end;
+      this.width = this.end - this.start;
     } else {
       if (!this.suppressWarnings) {
         console.warn(
@@ -144,72 +139,64 @@ export class Annotation {
           "set with end: 0 and width: 0"
         );
       }
-      this._end = 0;
-      this._width = 0;
+      this.end = 0;
+      this.width = 0;
     }
   }
 
-  get start() {
-    return this._start;
-  }
-
-  set start(start: number) {
-    this._start = start;
-  }
-
-  get end() {
-    return this._end;
-  }
-
-  set end(end: number) {
-    this._end = end;
-  }
-
-  get width() {
-    return this._width;
-  }
-
-  set width(width: number) {
-    this._width = width;
-  }
-
-  get row() {
-    return this._row;
-  }
-
-  set row(row: number) {
-    this._row = row;
-  }
-
+  /**
+   * A convenience getter that returns the start property.
+   */
   get x() {
-    return this._start;
+    return this.start;
   }
 
+  /**
+   * A convenience setter that sets the start property.
+   */
   set x(x: number) {
-    this._start = x;
+    this.start = x;
   }
 
+  /**
+   * A convenience getter that returns the end property.
+   */
   get x2() {
-    return this._end;
+    return this.end;
   }
 
+  /**
+   * A convenience setter that sets the end property.
+   */
   set x2(x: number) {
-    this._end = x;
+    this.end = x;
   }
 
+  /**
+   * A convenience getter that returns the width property.
+   */
   get w() {
-    return this._width;
+    return this.width;
   }
 
+  /**
+   * A convenience setter that sets the width property.
+   */
   set w(w: number) {
-    this._width = w;
+    this.width = w;
   }
 
+  /**
+   * A convenience getter that returns the row property.
+   */
   get y() {
-    return this._row;
+    return this.row;
   }
 
+  /**
+   * A convenience setter that sets the row property.
+   */
   set y(y: number) {
-    this._row = y;
+    this.row = y;
   }
 }

@@ -1,5 +1,8 @@
 import { Annotation, AnnotationConfig } from "./annotation";
 
+/**
+ * An interface that extends AnnotationConfig for initializing AnnotationGroups.
+ */
 export interface AnnotationConfigWithGroup<A extends Annotation>
   extends AnnotationConfig {
   /**
@@ -8,20 +11,25 @@ export interface AnnotationConfigWithGroup<A extends Annotation>
   group: A[];
 }
 
+/**
+ * @internal
+ * @param config
+ */
 function hasGroup<A extends Annotation>(
   config: AnnotationConfig
 ): config is AnnotationConfigWithGroup<A> {
   return (<AnnotationConfigWithGroup<A>>config).group != undefined;
 }
 
+/**
+ * A type that is simply the union of AnnotationConfig and AnnotationConfigWithGroup.
+ */
 export type AnnotationGroupConfig<A extends Annotation> =
   | AnnotationConfigWithGroup<A>
   | AnnotationConfig;
 
 /**
- * An Annotation class that contains a group of Annotations. Mostly, this is used to maintain the group of
- * Annotations at the same vertical position--all Annotations in the group will be set to the same y coordinate
- * when the setY() method is called on the AnnotationGroup.
+ * An Annotation class that contains a group of Annotations.
  * @typeParam A The type of annotation that will live in this group.
  */
 export class AnnotationGroup<A extends Annotation> extends Annotation {
@@ -58,22 +66,15 @@ export class AnnotationGroup<A extends Annotation> extends Annotation {
     this.group.push(ann);
   }
 
-  get row() {
-    return this._row;
-  }
-
-  set row(row: number) {
-    this._row = row;
-    for (const ann of this.group) {
-      ann.row = row;
-    }
-  }
-
+  /**
+   * A convenience setter that sets the row property. It also sets the row property on every member of the group
+   * property.
+   * @param y
+   */
   set y(y: number) {
     this.row = y;
-  }
-
-  get y() {
-    return this._row;
+    for (const ann of this.group) {
+      ann.row = y;
+    }
   }
 }
