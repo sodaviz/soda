@@ -7,25 +7,16 @@ import { bind } from "./bind";
 import { GlyphModifier } from "./glyph-modifier";
 
 /**
- * An interface that holds the parameters for rendering rectangle glyphs.
+ * An interface that defines the parameters for a call to the rectangle rendering function.
  */
 export interface RectangleConfig<A extends Annotation, C extends Chart<any>>
   extends GlyphConfig<A, C> {
-  // /**
-  //  *
-  //  */
-  // initializeFn?: (this: RectangleModifier<A, C>) => void;
-  // /**
-  //  *
-  //  */
-  // zoomFn?: (this: RectangleModifier<A, C>) => void;
+  // this doesn't have any implementation yet, but it might someday
 }
 
 /**
- * This renders a list of Annotation objects in a target chart as rectangles.
- * @param chart The target Chart.
- * @param ann The list of Annotation objects to be rendered.
- * @param config The parameters for configuring the style of the lines.
+ * This renders a list of Annotation objects as rectangles in a Chart.
+ * @param config
  */
 export function rectangle<A extends Annotation, C extends Chart<any>>(
   config: RectangleConfig<A, C>

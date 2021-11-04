@@ -7,6 +7,7 @@ export * from "./plots/line-plot";
 export * from "./plots/heatmap";
 
 /**
+ * This defines the parameters for a call to the setYScales function.
  * @internal
  */
 export interface YScaleConfig<A extends PlotAnnotation, C extends Chart<any>> {
@@ -20,6 +21,7 @@ export interface YScaleConfig<A extends PlotAnnotation, C extends Chart<any>> {
 }
 
 /**
+ * This is a helper function for setting up and storing d3 scales that are used when rendering plot glyphs
  * @internal
  * @param map
  * @param config

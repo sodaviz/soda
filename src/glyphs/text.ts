@@ -14,6 +14,7 @@ const textMap: Map<string, string[]> = new Map();
 const thresholdMap: Map<string, number[]> = new Map();
 
 /**
+ * A helper function that decides what text to render in a text glyph given the Chart's zoom level.
  * @internal
  * @param a
  * @param c
@@ -47,6 +48,7 @@ export function selectText(a: Annotation, c: Chart): string {
 }
 
 /**
+ * A utility function that gets the computed size of a string when rendered in the browser.
  * @internal
  * @param text
  */
@@ -65,6 +67,7 @@ function getTextSize(text: string): number {
 }
 
 /**
+ * A utility function that maps the multiple levels of text detail to Annotations for later use.
  * @internal
  * @param config
  */
@@ -84,33 +87,38 @@ function addToTextMaps<A extends Annotation, C extends Chart<any>>(config: {
   }
 }
 
+/**
+ * An interface that defines the parameters for a call to the text rendering function.
+ */
 export interface TextConfig<A extends Annotation, C extends Chart<any>>
   extends GlyphConfig<A, C> {
   textAnchor?: GlyphProperty<A, C, string>;
   alignmentBaseline?: GlyphProperty<A, C, string>;
   /**
    * A callback to extract a list of text to display from the represented Annotation object. It is a list of text
-   * because TextGlyphs can display varying length text depending on how much room is available in the
-   * target Chart's SVG viewport.
+   * because TextGlyphs can display varying length text depending on how much room is available at the Chart's
+   * current zoom level.
    * @param a
    * @param c
    */
   textFn: (a: A, c: C) => string[];
-  /**
-   *
-   */
   initializeFn?: (this: TextModifier<A, C>) => void;
-  /**
-   *
-   */
   zoomFn?: (this: TextModifier<A, C>) => void;
 }
 
+/**
+ * An interface that defines the parameters to instantiate a TextModifier.
+ * @internal
+ */
 export type TextModifierConfig<
   A extends Annotation,
   C extends Chart<any>
 > = GlyphModifierConfig<A, C> & TextConfig<A, C>;
 
+/**
+ * A class that manages the styling and positioning of a group of text glyphs.
+ * @internal
+ */
 export class TextModifier<
   A extends Annotation,
   C extends Chart<any>
@@ -154,11 +162,8 @@ export class TextModifier<
 }
 
 /**
- * This renders a list of Annotation objects in a target chart as text glyphs. These are most likely to be used as
- * labels that will be affixed next to another glyph.
- * @param chart The target Chart.
- * @param ann The list of Annotation objects to be rendered.
- * @param config The parameters for configuring the style of the lines.
+ * This renders a list of Annotation objects as text in a Chart.
+ * @param config
  */
 export function text<A extends Annotation, C extends Chart<any>>(
   config: TextConfig<A, C>

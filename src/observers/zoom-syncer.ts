@@ -10,6 +10,8 @@ export class ZoomSyncer extends ChartObserver {
   }
 
   /**
+   * The ZoomZyncer alert method synchronizes all of the Transforms on each of the Charts is is observing and
+   * fires the zooming functionality.
    * @param caller
    */
   public alert(caller: Chart<any>): void {

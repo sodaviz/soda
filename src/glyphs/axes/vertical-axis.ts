@@ -13,15 +13,35 @@ import {
 } from "../glyph-modifier";
 
 /**
- * An interface that holds the parameters to style a vertical axis.
+ * An interface that defines the parameters for a call to the verticalAxis rendering function.
  */
 export interface VerticalAxisConfig<A extends Annotation, C extends Chart<any>>
   extends GlyphConfig<A, C> {
+  /**
+   * This defines the domain of the D3 scale used to create the axis glyph.
+   */
   domain?: GlyphProperty<A, C, [number, number]>;
+  /**
+   * This defines the range of the D3 scale used to create the axis glyph.
+   */
   range?: GlyphProperty<A, C, [number, number]>;
+  /**
+   * This defines the tick property that will be passed to D3's axis.ticks function. For more information, see
+   * https://github.com/d3/d3-axis#axis_ticks
+   */
   ticks?: GlyphProperty<A, C, number>;
+  /**
+   * This defines the tick property that will be passed to D3's axis.tickSizeOuter function. For more information, see
+   * https://github.com/d3/d3-axis#axis_tickSizeOuter
+   */
   tickSizeOuter?: GlyphProperty<A, C, number>;
+  /**
+   * This determines whether the ticks and labels will be placed on the left or the right of the axis.
+   */
   axisType?: AxisType.Left | AxisType.Right;
+  /**
+   * If this is set to true, the axis glyph will not translate or scale during zoom events.
+   */
   fixed?: boolean;
   /**
    * The number of bins that the axis will span. This defaults to 1, which forces the axis to fit into one row. If
@@ -29,21 +49,23 @@ export interface VerticalAxisConfig<A extends Annotation, C extends Chart<any>>
    * function is supplied.
    */
   binSpan?: number;
-  /**
-   *
-   */
   initializeFn?: (this: VerticalAxisModifier<A, C>) => void;
-  /**
-   *
-   */
   zoomFn?: (this: VerticalAxisModifier<A, C>) => void;
 }
 
+/**
+ * An interface that defines the parameters for instantiating a VerticalAxisModifier.
+ * @internal
+ */
 export type VerticalAxisModifierConfig<
   A extends Annotation,
   C extends Chart<any>
 > = GlyphModifierConfig<A, C> & VerticalAxisConfig<A, C>;
 
+/**
+ * A class that manages the styling and positioning of a group of vertical axis glyphs.
+ * @internal
+ */
 export class VerticalAxisModifier<
   A extends Annotation,
   C extends Chart<any>
@@ -68,16 +90,7 @@ export class VerticalAxisModifier<
     this.fixed = config.fixed || false;
   }
 
-  defaultInitialize(): void {
-    super.defaultInitialize();
-    this.renderAxis();
-  }
-
   defaultZoom(): void {
-    this.renderAxis();
-  }
-
-  renderAxis(): void {
     this.selection
       .attr(
         "transform",

@@ -23,8 +23,7 @@ function getClickList<A extends Annotation>(ann: A): Function[] {
 }
 
 /**
- * A simple interface to provide a common pattern for defining behavior that should be executed when a SODA glyph is
- * clicked by a user.
+ * An interface that defines the parameters for a call to the clickBehavior function.
  */
 export interface ClickConfig<A extends Annotation, C extends Chart<any>> {
   /**
@@ -39,8 +38,7 @@ export interface ClickConfig<A extends Annotation, C extends Chart<any>> {
 }
 
 /**
- * Add a click behavior to a list of glyphs.
- * @param ann
+ * This applies click interactions to a list of Annotations.
  * @param config
  */
 export function clickBehavior<A extends Annotation, C extends Chart<any>>(
@@ -60,6 +58,7 @@ export function clickBehavior<A extends Annotation, C extends Chart<any>>(
  * A generic function that is actually routed to the click event on a SODA glyph. When called, it will retrieve the
  * list of click behaviors associated with that glyph, and run the callback function for each behavior.
  * @param datum
+ * @internal
  */
 function click<A extends Annotation, C extends Chart<any>>(
   datum: AnnotationDatum<A, C>

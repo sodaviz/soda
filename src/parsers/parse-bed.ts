@@ -8,6 +8,11 @@ import {
 import { parseOrientation } from "../annotations/orientation";
 import { generateId } from "../utilities/id-generation";
 
+/**
+ * A utility function to parse a general BED record. There are no guarantees about which fields end up being present
+ * in the resulting BED objects.
+ * @param record
+ */
 export function parseBedRecord(record: string): BedAnnotation {
   let splitRecord = record.split(/\s+/);
 
@@ -41,6 +46,11 @@ export function parseBedRecord(record: string): BedAnnotation {
   });
 }
 
+/**
+ * A utility function to explicitly parse BED3 records. The resulting objects will only have the first three fields
+ * of the BED format.
+ * @param record
+ */
 export function parseBed3Record(record: string): Bed3Annotation {
   let splitRecord = record.split(/\s+/);
 
@@ -57,6 +67,11 @@ export function parseBed3Record(record: string): Bed3Annotation {
   });
 }
 
+/**
+ * A utility function to explicitly parse BED6 records. The resulting objects will only have the first six fields
+ * of the BED format.
+ * @param record
+ */
 export function parseBed6Record(record: string): Bed6Annotation {
   let splitRecord = record.split(/\s+/);
 
@@ -76,6 +91,11 @@ export function parseBed6Record(record: string): Bed6Annotation {
   });
 }
 
+/**
+ * A utility function to explicitly parse BED9 records. The resulting objects will only have the first nine fields
+ * of the BED format.
+ * @param record
+ */
 export function parseBed9Record(record: string): Bed9Annotation {
   let splitRecord = record.split(/\s+/);
 
@@ -98,6 +118,11 @@ export function parseBed9Record(record: string): Bed9Annotation {
   });
 }
 
+/**
+ * A utility function to explicitly parse BED12 records. The resulting objects will have all twelve fields of the
+ * BED format.
+ * @param record
+ */
 export function parseBed12Record(record: string): Bed12Annotation {
   let splitRecord = record.split(/\s+/);
 

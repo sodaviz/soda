@@ -26,11 +26,19 @@ export const defaultBarHeightFn = <P extends PlotAnnotation>(
   return yScale(point[1]);
 };
 
+/**
+ * An interface that defines the parameters for instantiating a BarPlotModifier.
+ * @internal
+ */
 export type BarPlotModifierConfig<
   P extends PlotAnnotation,
   C extends Chart<any>
 > = GlyphModifierConfig<P, C> & BarPlotConfig<P, C>;
 
+/**
+ * A class that manages the styling and positioning of a group of bar plot glyphs.
+ * @internal
+ */
 export class BarPlotModifier<
   P extends PlotAnnotation,
   C extends Chart<any>
@@ -70,7 +78,7 @@ export class BarPlotModifier<
 }
 
 /**
- * An interface that holds the parameters to style a bar plot.
+ * An interface that defines the parameters for a call to the barPlot rendering function.
  */
 export interface BarPlotConfig<P extends PlotAnnotation, C extends Chart<any>>
   extends GlyphConfig<P, C> {
@@ -81,21 +89,13 @@ export interface BarPlotConfig<P extends PlotAnnotation, C extends Chart<any>>
    */
   binSpan?: number;
   barHeightFn?: (ann: P, point: [number, number]) => number;
-  /**
-   *
-   */
   initializeFn?: (this: BarPlotModifier<P, C>) => void;
-  /**
-   *
-   */
   zoomFn?: (this: BarPlotModifier<P, C>) => void;
 }
 
 /**
- * This renders PlotAnnotations as a bar plot.
- * @param chart The Chart in which we will render the plot.
- * @param ann The PlotAnnotations to be rendered.
- * @param config The parameters for configuring the styling of the plot.
+ * This renders PlotAnnotations as bar plots in a Chart.
+ * @param config.
  */
 export function barPlot<P extends PlotAnnotation, C extends Chart<any>>(
   config: BarPlotConfig<P, C>

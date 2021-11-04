@@ -7,26 +7,28 @@ import { bind } from "../bind";
 import { GlyphModifier, GlyphModifierConfig } from "../glyph-modifier";
 
 /**
- * An interface that holds the parameters to style a bar plot.
+ * An interface that defines the parameters for a call to the heatmap rendering function.
  * @internal
  */
 export interface HeatmapConfig<P extends PlotAnnotation, C extends Chart<any>>
   extends GlyphConfig<P, C> {
-  /**
-   *
-   */
   initializeFn?: (this: HeatmapModifier<P, C>) => void;
-  /**
-   *
-   */
   zoomFn?: (this: HeatmapModifier<P, C>) => void;
 }
 
+/**
+ * An interface that defines the parameters for instantiating a HeatmapModifier.
+ * @internal
+ */
 export type HeatmapModifierConfig<
   P extends PlotAnnotation,
   C extends Chart<any>
 > = GlyphModifierConfig<P, C> & HeatmapConfig<P, C>;
 
+/**
+ * A class that manages the styling and positioning of a group of heatmap glyphs.
+ * @internal
+ */
 export class HeatmapModifier<
   P extends PlotAnnotation,
   C extends Chart<any>
@@ -66,10 +68,8 @@ export class HeatmapModifier<
 }
 
 /**
- * This renders PlotAnnotations as a heatmap.
- * @param chart The Chart in which we will render the plot.
- * @param ann The PlotAnnotations to be rendered.
- * @param config The parameters for configuring the styling of the plot.
+ * This renders PlotAnnotations as heatmaps in a Chart.
+ * @param config
  */
 export function heatmap<P extends PlotAnnotation, C extends Chart<any>>(
   config: HeatmapConfig<P, C>

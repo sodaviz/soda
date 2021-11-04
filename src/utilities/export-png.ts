@@ -2,12 +2,29 @@ import * as d3 from "d3";
 import { Chart } from "../charts/chart";
 import { saveAs } from "file-saver";
 
+/**
+ * An interface that defines the parameters for a call to the exportPng function.
+ */
 export interface ExportConfig<C extends Chart<any>> {
+  /**
+   * The Chart to export.
+   */
   chart: C;
+  /**
+   * The filename for the exported PNG.
+   */
   filename?: string;
+  /**
+   * The pixel ratio of the rendered PNG. Using a number larger than 1 will over-render the PNG, making it larger.
+   * Using smaller numbers currently has strange behavior, and it's not recommended.
+   */
   pixelRatio?: number;
 }
 
+/**
+ * Save the current view in a chart as a PNG image.
+ * @param config
+ */
 export function exportPng<C extends Chart<any>>(config: ExportConfig<C>): void {
   let filename = config.filename || "soda-chart.png";
   let pixelRatio = config.pixelRatio || window.devicePixelRatio || 1;

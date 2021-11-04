@@ -9,11 +9,15 @@ import { ChevronPatternModifier } from "./chevron-pattern";
 import { ChevronGlyphConfig } from "../chevron";
 
 /**
- * An interface that holds the parameters for rendering and configuring a chevron line glyph.
+ * An interface that defines the parameters for a call to the chevronLine rendering function.
  */
 export interface ChevronLineConfig<A extends Annotation, C extends Chart<any>>
   extends ChevronGlyphConfig<A, C> {}
 
+/**
+ * This renders Annotations as lines with chevron arrows in a Chart.
+ * @param config
+ */
 export function chevronLine<A extends Annotation, C extends Chart<any>>(
   config: ChevronLineConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {

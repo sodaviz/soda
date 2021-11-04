@@ -9,8 +9,7 @@ import { ChevronPatternModifier } from "./chevron-pattern";
 import { ChevronGlyphConfig } from "../chevron";
 
 /**
- * @internal
- * An interface that holds the parameters for rendering and configuring a chevron rectangle glyph.
+ * An interface that defines the parameters for a call to the chevronRectangle rendering function.
  */
 export interface ChevronRectangleConfig<
   A extends Annotation,
@@ -18,6 +17,10 @@ export interface ChevronRectangleConfig<
 > extends ChevronGlyphConfig<A, C>,
     RectangleConfig<A, C> {}
 
+/**
+ * This renders Annotations as rectangles with chevron arrows in a Chart.
+ * @param config
+ */
 export function chevronRectangle<A extends Annotation, C extends Chart<any>>(
   config: ChevronRectangleConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {

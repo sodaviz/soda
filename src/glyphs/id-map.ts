@@ -55,6 +55,7 @@ export function getAnnotationById(id: string): Annotation {
  * unique string id.
  * @param id
  * @param selection
+ * @internal
  */
 export function mapIdToSelection(
   id: string,
@@ -67,8 +68,8 @@ export function mapIdToSelection(
 }
 
 /**
- * This function produces a reference to D3 Selection that is mapped with the provided string id. It will throw
- * an exception if the id is not in the internal map.
+ * This function produces a reference to the most recent D3 Selection that is mapped with the provided string id. It
+ * will throw an exception if the id is not in the internal map.
  * @param id
  */
 export function getSelectionById(id: string): d3.Selection<any, any, any, any> {
@@ -79,6 +80,11 @@ export function getSelectionById(id: string): d3.Selection<any, any, any, any> {
   return selection;
 }
 
+/**
+ * This function produces a list of references to every D3 Selection that has been mapped with the provided string
+ * id. It will throw an exception if the id is not in the internal map.
+ * @param id
+ */
 export function getSelectionListById(
   id: string
 ): d3.Selection<any, any, any, any>[] {

@@ -35,7 +35,7 @@ function initTooltipDiv(): void {
 }
 
 /**
- * An interface that holds the parameters for configuring a glyph tooltip.
+ * An interface that defines the parameters for a call to the tooltip function.
  */
 export interface TooltipConfig<A extends Annotation, C extends Chart<any>> {
   /**
@@ -43,37 +43,37 @@ export interface TooltipConfig<A extends Annotation, C extends Chart<any>> {
    */
   annotations: A[];
   /**
-   * A callback function to set the tooltip text.
+   * This defines the text for the tooltip.
    * @param a The Annotation object.
    * @param c The Chart that the glyph has been rendered in.
    */
   text: GlyphProperty<A, C, string>;
   /**
-   * A callback function to set the tooltip text color.
+   * This defines the tooltip text color.
    * @param a The Annotation object.
    * @param c The Chart that the glyph has been rendered in.
    */
   textColor?: GlyphProperty<A, C, string>;
   /**
-   * A callback function to set the opacity of the tooltip.
+   * This defines the opacity of the tooltip.
    * @param a The Annotation object.
    * @param c The Chart that the glyph has been rendered in.
    */
   opacity?: GlyphProperty<A, C, number>;
   /**
-   * A callback function to set the background color of the tooltip.
+   * This defines the background color of the tooltip.
    * @param a The Annotation object.
    * @param c The Chart that the glyph has been rendered in.
    */
   backgroundColor?: GlyphProperty<A, C, string>;
   /**
-   * A callback function to set the border radius of the tooltip.
+   * This defines the border radius of the tooltip.
    * @param a The Annotation object.
    * @param c The Chart that the glyph has been rendered in.
    */
   borderRadius?: GlyphProperty<A, C, number>;
   /**
-   * A callback function to set the css padding on of the tooltip.
+   * This defines the CSS padding of the tooltip.
    * @param a The Annotation object.
    * @param c The Chart that the glyph has been rendered in.
    */
@@ -81,10 +81,7 @@ export interface TooltipConfig<A extends Annotation, C extends Chart<any>> {
 }
 
 /**
- * A utility function to actually apply a TooltipConfig to a glyph. It uses the hover plugin to add a hover behavior
- * for the tooltip functionality.
- * @param chart The Chart that the glyph is rendered in.
- * @param ann
+ * This applies tooltip interactions to a list of Annotations.
  * @param config The Annotation whose representative glyph we are binding the tooltip to.
  */
 export function tooltip<A extends Annotation, C extends Chart<any>>(
@@ -108,6 +105,7 @@ export function tooltip<A extends Annotation, C extends Chart<any>>(
  * @param s
  * @param d
  * @param config The config to be applied to the tooltip.
+ * @internal
  */
 export function defaultTooltipMouseover<
   A extends Annotation,
@@ -137,6 +135,7 @@ export function defaultTooltipMouseover<
 /**
  * The default tooltip mouseout callback function. It just moves the tooltip div out of the way, shrinks it, and
  * makes it invisible.
+ * @internal
  */
 export function defaultTooltipMouseout<A extends Annotation>(): void {
   // prettier-ignore

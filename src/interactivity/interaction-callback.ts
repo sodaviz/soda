@@ -9,7 +9,13 @@ import { AnnotationDatum } from "../glyphs/bind";
  */
 export type InteractionCallback<A extends Annotation, C extends Chart<any>> = {
   (
+    /**
+     * A d3 selection to the glyph that the interaction is bound to.
+     */
     s: d3.Selection<any, AnnotationDatum<A, C>, any, any>,
+    /**
+     * The AnnotationDatum bound to the glyph that the interaction is bound to.
+     */
     d: AnnotationDatum<A, C>
   ): void;
 };

@@ -37,11 +37,19 @@ export const defaultLineFn = <P extends PlotAnnotation, C extends Chart<any>>(
   return buffer.toString();
 };
 
+/**
+ * An interface that defines the parameters for instantiating a LinePlotModifier.
+ * @internal
+ */
 export type LinePlotModifierConfig<
   P extends PlotAnnotation,
   C extends Chart<any>
 > = GlyphModifierConfig<P, C> & LinePlotConfig<P, C>;
 
+/**
+ * A class that manages the styling and positioning of a group of line plot glyphs.
+ * @internal
+ */
 export class LinePlotModifier<
   P extends PlotAnnotation,
   C extends Chart<any>
@@ -65,7 +73,7 @@ export class LinePlotModifier<
 }
 
 /**
- * An interface that holds the parameters to style a line plot.
+ * An interface that defines the parameters for a call to the linePlot rendering function.
  */
 export interface LinePlotConfig<P extends PlotAnnotation, C extends Chart<any>>
   extends GlyphConfig<P, C> {
@@ -79,21 +87,13 @@ export interface LinePlotConfig<P extends PlotAnnotation, C extends Chart<any>>
    * is supplied.
    */
   binSpan?: number;
-  /**
-   *
-   */
   initializeFn?: (this: LinePlotModifier<P, C>) => void;
-  /**
-   *
-   */
   zoomFn?: (this: LinePlotModifier<P, C>) => void;
 }
 
 /**
- * This renders PlotAnnotations as a line plot.
- * @param chart The Chart in which we will render the plot.
- * @param ann The PlotAnnotations to be rendered.
- * @param config The parameters for configuring the styling of the plot.
+ * This renders PlotAnnotations as line plots in a Chart.
+ * @param config
  */
 export function linePlot<P extends PlotAnnotation, C extends Chart<any>>(
   config: LinePlotConfig<P, C>

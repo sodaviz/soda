@@ -36,11 +36,19 @@ export function buildArcPathDFn<A extends Annotation, C extends Chart<any>>(
   };
 }
 
+/**
+ * An interface that defines the parameters for instantiating an ArcModifier.
+ * @internal
+ */
 export type ArcModifierConfig<
   A extends Annotation,
   C extends Chart<any>
 > = GlyphModifierConfig<A, C> & ArcConfig<A, C>;
 
+/**
+ * A class that manages the styling and positioning of a group of arc glyphs.
+ * @internal
+ */
 export class ArcModifier<
   A extends Annotation,
   C extends Chart<any>
@@ -64,25 +72,17 @@ export class ArcModifier<
 }
 
 /**
- * An interface that holds the parameters for rendering arc glyphs.
+ * An interface that defines the parameters for a call to the arc rendering function.
  */
 export interface ArcConfig<A extends Annotation, C extends Chart<any>>
   extends GlyphConfig<A, C> {
-  /**
-   *
-   */
   initializeFn?: (this: ArcModifier<A, C>) => void;
-  /**
-   *
-   */
   zoomFn?: (this: ArcModifier<A, C>) => void;
 }
 
 /**
- * This renders a list of Annotation objects in a target chart as arcs.
- * @param chart The target Chart.
- * @param ann The list of Annotation objects to be rendered.
- * @param config The parameters for configuring the style of the lines.
+ * This renders a list of Annotation objects as arcs in a Chart.
+ * @param config
  */
 export function arc<A extends Annotation, C extends Chart<any>>(
   config: ArcConfig<A, C>
