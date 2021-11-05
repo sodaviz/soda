@@ -14,6 +14,9 @@ export enum GenerationPattern {
   Random = "random",
 }
 
+/**
+ * An interface that defines the parameters for a call to the generateAnnotations function.
+ */
 export interface AnnotationGenerationConfig {
   n: number;
   startY?: number;
@@ -24,6 +27,11 @@ export interface AnnotationGenerationConfig {
   generationPattern?: GenerationPattern;
 }
 
+/**
+ * A helper function that creates some Annotation configs.
+ * @internal
+ * @param conf
+ */
 function generateConfigs(conf: AnnotationGenerationConfig): AnnotationConfig[] {
   let confs: AnnotationConfig[] = [];
   if (
@@ -51,6 +59,11 @@ function generateConfigs(conf: AnnotationGenerationConfig): AnnotationConfig[] {
   return confs;
 }
 
+/**
+ * A utility function to generate some uniformly distributed Annotation objects. This is intended for
+ * testing/prototyping/playing around.
+ * @param conf
+ */
 export function generateAnnotations(
   conf: AnnotationGenerationConfig
 ): Annotation[] {
@@ -64,6 +77,11 @@ export function generateAnnotations(
  */
 const DNA_ALPHABET = ["A", "C", "T", "G"];
 
+/**
+ * A utility function to generate some SequenceAnnotation objects. This is intended for testing/prototyping/playing
+ * around.
+ * @param conf
+ */
 export function generateSequenceAnnotations(
   conf: AnnotationGenerationConfig
 ): SequenceAnnotation[] {
@@ -77,6 +95,11 @@ export function generateSequenceAnnotations(
   });
 }
 
+/**
+ * A utility function to generate some PlotAnnotation objects. This is intended for testing/prototyping/playing
+ * around.
+ * @param conf
+ */
 export function generatePlotAnnotations(
   conf: AnnotationGenerationConfig
 ): PlotAnnotation[] {

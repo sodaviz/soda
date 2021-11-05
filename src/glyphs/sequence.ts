@@ -11,35 +11,29 @@ import {
 import { GlyphConfig } from "./glyph-config";
 
 /**
- * @internal
- */
-export const sequenceYFn = <S extends SequenceAnnotation, C extends Chart<any>>(
-  s: S,
-  c: C
-) => (s.y + 1) * c.rowHeight;
-
-/**
- * An interface that holds the parameters for rendering sequence glyphs.
+ * An interface that defines the parameters for a call to sequenc rendering function.
  */
 export interface SequenceConfig<
   S extends SequenceAnnotation,
   C extends Chart<any>
 > extends GlyphConfig<S, C> {
-  /**
-   *
-   */
   initializeFn?: (this: SequenceModifier<S, C>) => void;
-  /**
-   *
-   */
   zoomFn?: (this: SequenceModifier<S, C>) => void;
 }
 
+/**
+ * An interface that defines the parameters to instantiate a SequenceModifier.
+ * @internal
+ */
 export type SequenceModifierConfig<
   S extends SequenceAnnotation,
   C extends Chart<any>
 > = GlyphModifierConfig<S, C> & SequenceConfig<S, C>;
 
+/**
+ * A class that manages the styling and positioning of a group of sequence glyphs.
+ * @internal
+ */
 export class SequenceModifier<
   S extends SequenceAnnotation,
   C extends Chart<any>
@@ -82,11 +76,7 @@ export class SequenceModifier<
   }
 }
 /**
- * An experimental function that renders a list of Annotation objects in a target chart as sequence glyphs. In a
- * sequence glyph, each integer semantic coordinate that the Annotation covers is rendered as a character. This
- * works, but it is very hard on performance.
- * @param chart
- * @param ann
+ * This renders a list of SequenceAnnotation objects as sequence glyphs in a Chart.
  * @param config
  */
 export function sequence<S extends SequenceAnnotation, C extends Chart<any>>(

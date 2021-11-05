@@ -2,6 +2,11 @@ import { Gff3Annotation } from "../annotations/gff3-annotation";
 import { generateId } from "../utilities/id-generation";
 import { Orientation, parseOrientation } from "../annotations/orientation";
 
+/**
+ * A utility function to parse a GFF3 record string. This should work in most cases, but probably does not exactly
+ * meet the GFF3 parsing standards. This function will be hardened and tested much more thoroughly in the future.
+ * @param record
+ */
 export function parseGff3Record(record: string): Gff3Annotation {
   let splitRecord = record.split("\t");
 

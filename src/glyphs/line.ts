@@ -11,76 +11,38 @@ import {
 } from "./glyph-modifier";
 
 /**
- * An interface that holds the parameters for rendering generic line glyphs.
+ * An interface that defines the parameters for a call to the line rendering function.
  */
 export interface LineConfig<A extends Annotation, C extends Chart<any>>
   extends GlyphConfig<A, C> {
-  /**
-   * A callback to define the pixel x1 coordinate of the line glyph.
-   * @param a
-   * @param c
-   */
   x1?: GlyphProperty<A, C, number>;
-  /**
-   * A callback to define the pixel x2 coordinate of the line glyph.
-   * @param a
-   * @param c
-   */
   x2?: GlyphProperty<A, C, number>;
-  /**
-   * A callback to define the pixel y1 coordinate of the line glyph.
-   * @param a
-   * @param c
-   */
   y1?: GlyphProperty<A, C, number>;
-  /**
-   * A callback to define the pixel y2 coordinate of the line glyph.
-   * @param a
-   * @param c
-   */
   y2?: GlyphProperty<A, C, number>;
-  /**
-   *
-   */
   initializeFn?: (this: LineModifier<A, C>) => void;
-  /**
-   *
-   */
   zoomFn?: (this: LineModifier<A, C>) => void;
 }
 
+/**
+ * An interface that defines the parameters to instantiate a LineModifier.
+ * @internal
+ */
 export type LineModifierConfig<
   A extends Annotation,
   C extends Chart<any>
 > = GlyphModifierConfig<A, C> & LineConfig<A, C>;
 
+/**
+ * A class that manges the styling and positioning of a group of line glyphs.
+ * @internal
+ */
 export class LineModifier<
   A extends Annotation,
   C extends Chart<any>
 > extends GlyphModifier<A, C> {
-  /**
-   * A callback to define the pixel x1 coordinate of the line glyph.
-   * @param a
-   * @param c
-   */
   x1: GlyphProperty<A, C, number>;
-  /**
-   * A callback to define the pixel x2 coordinate of the line glyph.
-   * @param a
-   * @param c
-   */
   x2: GlyphProperty<A, C, number>;
-  /**
-   * A callback to define the pixel y1 coordinate of the line glyph.
-   * @param a
-   * @param c
-   */
   y1: GlyphProperty<A, C, number>;
-  /**
-   * A callback to define the pixel y2 coordinate of the line glyph.
-   * @param a
-   * @param c
-   */
   y2: GlyphProperty<A, C, number>;
 
   public constructor(config: LineModifierConfig<A, C>) {
@@ -122,8 +84,8 @@ export class LineModifier<
 }
 
 /**
- * This renders a list of Annotation objects in a target chart as lines.
- * @param config The parameters for configuring the style of the lines.
+ * This renders a list of Annotation objects as lines in a Chart.
+ * @param config
  */
 export function line<A extends Annotation, C extends Chart<any>>(
   config: LineConfig<A, C>

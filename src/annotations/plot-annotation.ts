@@ -2,13 +2,16 @@ import * as d3 from "d3";
 import { Annotation, AnnotationConfig } from "./annotation";
 
 /**
- * A simple interface that holds the arguments for a PlotAnnotation constructor.
+ * An interface that defines the parameters for initializing a PlotAnnotation.
  */
 export interface PlotAnnotationConfig extends AnnotationConfig {
   /**
-   * The point data that will be plotted.
+   * The x values of the plot data.
    */
   xValues?: number[];
+  /**
+   * The y values of the plot data.
+   */
   yValues: number[];
 }
 
@@ -20,8 +23,17 @@ export class PlotAnnotation extends Annotation {
    * The individual data points for the plot.
    */
   points: [number, number][];
+  /**
+   * The minimum y value in the data points.
+   */
   minValue: number;
+  /**
+   * The maximum y value in the data points.
+   */
   maxValue: number;
+  /**
+   * The distance between two consecutive data points.
+   */
   pointWidth: number;
 
   constructor(config: PlotAnnotationConfig) {
@@ -48,6 +60,7 @@ export class PlotAnnotation extends Annotation {
 }
 
 /**
+ * A utility function to get distributed x values across the width of a PlotAnnotation.
  * @internal
  */
 function distributeXValues(

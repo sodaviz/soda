@@ -7,13 +7,7 @@ export {
   HorizontalAxisConfig,
   VerticalAxisConfig,
 } from "./glyphs/axes";
-export {
-  bind,
-  AnnotationDatum,
-  BindConfig,
-  Binding,
-  BindTarget,
-} from "./glyphs/bind";
+export { AnnotationDatum, BindTarget } from "./glyphs/bind";
 export {
   chevronLine,
   chevronRectangle,

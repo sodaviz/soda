@@ -13,6 +13,11 @@ export enum AxisType {
   Right,
 }
 
+/**
+ * A utility function that returns the results of the various d3 axis functions.
+ * @param scale
+ * @param axisType
+ */
 export function getAxis(
   scale: d3.ScaleLinear<number, number>,
   axisType: AxisType

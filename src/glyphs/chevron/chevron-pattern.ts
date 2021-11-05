@@ -60,8 +60,6 @@ export function buildChevronPatternPathDFn<
 
 /**
  * @internal
- * @param a
- * @param c
  * @param orientation
  */
 export function buildChevronPatternXFn<
@@ -82,60 +80,42 @@ export function buildChevronPatternXFn<
 }
 
 /**
- * An interface that defines the common parameters for rendering chevron glyphs.
+ * @internal
  */
 export interface ChevronPatternConfig<
   A extends Annotation,
   C extends Chart<any>
 > extends ChevronGlyphConfig<A, C> {
   /**
-   * The semantic query width at which the chevron patterns will be disabled. At this point, they will look like
+   * The semantic view width at which the chevron patterns will be disabled. Above this point, they will look like
    * regular rectangles or lines.
    */
   disableAt?: number;
-  /**
-   *
-   */
   initializeFn?: (this: ChevronPatternModifier<A, C>) => void;
-  /**
-   *
-   */
   zoomFn?: (this: ChevronPatternModifier<A, C>) => void;
 }
 
+/**
+ * @internal
+ */
 export type ChevronPatternModifierConfig<
   A extends Annotation,
   C extends Chart<any>
 > = GlyphModifierConfig<A, C> & ChevronPatternConfig<A, C>;
 
+/**
+ * @internal
+ */
 export class ChevronPatternModifier<
   A extends Annotation,
   C extends Chart<any>
 > extends GlyphModifier<A, C> {
   orientation: GlyphProperty<A, C, Orientation>;
-  /**
-   * The fill color of the pattern rectangle.
-   */
   fillColor: GlyphProperty<A, C, string>;
-  /**
-   * The fill opacity of the pattern rectangle.
-   */
   fillOpacity: GlyphProperty<A, C, number>;
-  /**
-   * The fill color of the pattern path.
-   */
   chevronFillColor: GlyphProperty<A, C, string>;
-  /**
-   * The fill opacity of the pattern path.
-   */
   chevronFillOpacity: GlyphProperty<A, C, number>;
-  /**
-   * The stroke color of the pattern path.
-   */
   chevronStrokeColor: GlyphProperty<A, C, string>;
-  /**
-   * The stroke opacity of the pattern path.
-   */
   chevronStrokeOpacity: GlyphProperty<A, C, number>;
   chevronSpacing: GlyphProperty<A, C, number>;
   chevronWidth?: GlyphProperty<A, C, number>;

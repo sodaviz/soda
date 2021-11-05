@@ -5,14 +5,14 @@ import { GlyphConfig } from "./glyph-config";
 import { AnnotationDatum } from "./bind";
 
 /**
- *
+ * A type that describes the callback functions used across SODA to define glyph properties dynamically.
  */
 export type GlyphCallback<A extends Annotation, C extends Chart<any>, V> = (
   d: AnnotationDatum<A, C>
 ) => V;
 
 /**
- *
+ * A type that is simply the union of GlyphCallback<A, C, V> and the value V that it returns.
  */
 export type GlyphProperty<A extends Annotation, C extends Chart<any>, V> =
   | GlyphCallback<A, C, V>
@@ -29,7 +29,8 @@ export function isCallback<A extends Annotation, C extends Chart<any>, V>(
 }
 
 /**
- *
+ * A utility function that resolves the value from a GlyphProperty. If the property is a callback function, it will
+ * be called to retrieve the value. Otherwise, it will just return the value.
  * @param property
  * @param d
  */
@@ -43,26 +44,35 @@ export function resolveValue<A extends Annotation, C extends Chart<any>, V>(
   return property;
 }
 
+/**
+ * An interface that defines the parameters to initialize a GlyphModifier.
+ * @internal
+ */
 export interface GlyphModifierConfig<A extends Annotation, C extends Chart<any>>
   extends GlyphConfig<A, C> {
+  /**
+   * A string selector to the glyphs that the modifier manages.
+   */
   selector: string;
+  /**
+   * A D3 selection of the glyphs that the modifier will manage.
+   */
   selection: d3.Selection<any, AnnotationDatum<A, C>, any, any>;
 }
 
 // TypeScript allows declaration merging, which essentially combines multiple declarations into a single definition
 // In this case, we're using it to let GlyphModifier easily inherit the properties in GlyphConfig.
 /**
- *
+ * @internal
  */
 export interface GlyphModifier<A extends Annotation, C extends Chart<any>>
-  extends GlyphConfig<A, C> {}
+  extends GlyphModifierConfig<A, C> {}
 
 /**
- *
+ * The base class that manages the styling and positioning of glyphs.
+ * @internal
  */
 export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
-  selector: string;
-  selection: d3.Selection<any, AnnotationDatum<A, C>, any, any>;
   y: GlyphProperty<A, C, number>;
   x: GlyphProperty<A, C, number>;
   width: GlyphProperty<A, C, number>;
@@ -98,14 +108,24 @@ export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
     this.zoomFn = config.zoomFn || this.defaultZoom;
   }
 
+  /**
+   * This calls the initializeFn property. It should be called after the GlyphModifier has been instantiated.
+   */
   initialize(): void {
     this.initializeFn();
   }
 
+  /**
+   * This calls the zoomFn property. It should be called after a zoom event.
+   */
   zoom(): void {
     this.zoomFn();
   }
 
+  /**
+   * The default initializeFn implementation. It applies pretty much every styling property exposed in GlyphConfig
+   * and then calls zoom().
+   */
   defaultInitialize() {
     this.applyId();
     this.applyClass();
@@ -121,6 +141,9 @@ export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
     this.zoom();
   }
 
+  /**
+   * The default zoomFn implementation. It just applies x, y, width, and height.
+   */
   defaultZoom() {
     this.applyX();
     this.applyWidth();
@@ -128,6 +151,11 @@ export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
     this.applyHeight();
   }
 
+  /**
+   * A helper function that sets an arbitrary attr on a DOM element using a GlyphCallback or a value.
+   * @param attr
+   * @param value
+   */
   applyAttr(
     attr: string,
     value:
@@ -154,6 +182,11 @@ export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
     }
   }
 
+  /**
+   * A helper function that sets an arbitrary style on a DOM element using a GlyphCallback or a value.
+   * @param style
+   * @param value
+   */
   applyStyle(
     style: string,
     value:

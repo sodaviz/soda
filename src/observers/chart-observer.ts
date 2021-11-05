@@ -1,11 +1,18 @@
 import { Chart } from "../charts/chart";
 
+/**
+ * An abstract class for objects that "observe" Charts.
+ */
 export abstract class ChartObserver {
   /**
    * A list of Charts that the Plugin will pay attention to.
    */
   charts: Chart<any>[] = [];
 
+  /**
+   * The method that will be called when the observer is alerted by a Chart.
+   * @param chart
+   */
   public abstract alert(chart: Chart<any>): void;
 
   /**
@@ -22,6 +29,11 @@ export abstract class ChartObserver {
     }
   }
 
+  /**
+   * Add a Chart to the observer.
+   * @param chart
+   * @protected
+   */
   protected addChart(chart: Chart<any>): void {
     this.charts.push(chart);
     chart.observers.push(this);

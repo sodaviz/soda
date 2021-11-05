@@ -27,6 +27,12 @@ const horizontalAxisScaleMap: Map<
   d3.ScaleLinear<number, number>
 > = new Map();
 
+/**
+ * A utility function that returns an Annotation object that is convenient to use for rendering a horizontal axis
+ * that spans a Chart's viewport.
+ * @param chart
+ * @param row
+ */
 export function getHorizontalAxisAnnotation(
   chart: Chart<any>,
   row = 0
@@ -39,11 +45,19 @@ export function getHorizontalAxisAnnotation(
   });
 }
 
+/**
+ * An interface that defines the parameters for instantiating a HorizontalAxisModifier.
+ * @internal
+ */
 export type HorizontalAxisModifierConfig<
   A extends Annotation,
   C extends Chart<any>
 > = GlyphModifierConfig<A, C> & HorizontalAxisConfig<A, C>;
 
+/**
+ * A class that manages the styling and positioning of a group of horizontal axis glyphs.
+ * @internal
+ */
 export class HorizontalAxisModifier<
   A extends Annotation,
   C extends Chart<any>
@@ -104,35 +118,49 @@ export class HorizontalAxisModifier<
 }
 
 /**
- * An interface that holds the parameters to style a horizontal axis.
+ * An interface that defines the parameters for a call to the horizontalAxis rendering function.
  */
 export interface HorizontalAxisConfig<
   A extends Annotation,
   C extends Chart<any>
 > extends GlyphConfig<A, C> {
+  /**
+   * This defines the domain of the D3 scale used to create the axis glyph.
+   */
   domain?: GlyphProperty<A, C, [number, number]>;
+  /**
+   * This defines the range of the D3 scale used to create the axis glyph.
+   */
   range?: GlyphProperty<A, C, [number, number]>;
+  /**
+   * This defines the tick property that will be passed to D3's axis.ticks function. For more information, see
+   * https://github.com/d3/d3-axis#axis_ticks
+   */
   ticks?: GlyphProperty<A, C, number>;
+  /**
+   * This defines the tick property that will be passed to D3's axis.tickSizeOuter function. For more information, see
+   * https://github.com/d3/d3-axis#axis_tickSizeOuter
+   */
   tickSizeOuter?: GlyphProperty<A, C, number>;
+  /**
+   * This determines whether the ticks and labels with be placed on the top or the bottom of the axis.
+   */
   axisType?: AxisType.Bottom | AxisType.Top;
+  /**
+   * If this is set to true, the axis glyph will be forced (by stretching) into the height of a row in the Chart.
+   */
   scaleToBinHeight?: boolean;
+  /**
+   * If this is set to true, the axis glyph will not translate or scale during zoom events.
+   */
   fixed?: boolean;
-  fixedRange?: GlyphProperty<A, C, [number, number]>;
-  /**
-   *
-   */
   initializeFn?: (this: HorizontalAxisModifier<A, C>) => void;
-  /**
-   *
-   */
   zoomFn?: (this: HorizontalAxisModifier<A, C>) => void;
 }
 
 /**
- * This renders Annotations as horizontal axes in a chart.
- * @param chart The Chart in which we will render the axes.
- * @param ann The Annotations to be rendered.
- * @param config The parameters for configuring the styling of the axes.
+ * This renders Annotations as horizontal axes in a Chart.
+ * @param config
  */
 export function horizontalAxis<A extends Annotation, C extends Chart<any>>(
   config: HorizontalAxisConfig<A, C>
