@@ -8,4 +8,4 @@ API
    interfaces
    functions
    enumerations
-   type aliases
+   type-aliases
