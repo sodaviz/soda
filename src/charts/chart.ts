@@ -142,17 +142,17 @@ export interface ChartConfig<P extends RenderParams = RenderParams> {
    * The first rendering callback function.
    * @param params
    */
-  preRender?: (params: P) => void;
+  preRender?: (this: Chart<P>, params: P) => void;
   /**
    * The second rendering callback function.
    * @param params
    */
-  inRender?: (params: P) => void;
+  inRender?: (this: Chart<P>, params: P) => void;
   /**
    * The final rendering callback function.
    * @param params
    */
-  postRender?: (params: P) => void;
+  postRender?: (this: Chart<P>, params: P) => void;
 }
 
 /**
@@ -384,18 +384,40 @@ export class Chart<P extends RenderParams = RenderParams> {
    * The first rendering callback function.
    * @param params
    */
-  preRender: (params: P) => void = (params: P) => Chart.preRender(params, this);
+  readonly preRender: (this: any, params: P) => void = function (
+    this: Chart<P>,
+    params: P
+  ): void {
+    this.applyLayoutAndSetRowCount(params);
+    this.addAxis();
+    this.fitPadHeight();
+    this.fitViewport();
+    this.initializeXScaleFromRenderParams(params);
+  };
   /**
    * The second rendering callback function.
    * @param params
    */
-  inRender: (params: P) => void = (params: P) => Chart.inRender(params, this);
+  readonly inRender: (this: any, params: P) => void = function (
+    this: Chart<P>,
+    params: P
+  ): void {
+    rectangle({
+      chart: this,
+      annotations: params.annotations || [],
+      selector: "soda-rect",
+    });
+  };
   /**
    * The final rendering callback function.
    * @param params
    */
-  postRender: (params: P) => void = (params: P) =>
-    Chart.postRender(params, this);
+  readonly postRender: (this: any, params: P) => void = function (
+    this: Chart<P>,
+    params: P
+  ): void {
+    this.applyGlyphModifiers();
+  };
 
   constructor(config: ChartConfig<P> = {}) {
     this.id = config.id || generateId("soda-chart");
@@ -1111,49 +1133,5 @@ export class Chart<P extends RenderParams = RenderParams> {
       }
     }
     return [params.start || start || 0, params.end || end || 0];
-  }
-
-  /**
-   * The default preRender() implementation.
-   * @param params
-   * @param chart
-   */
-  static preRender<P extends RenderParams = RenderParams>(
-    params: P,
-    chart: Chart<P>
-  ) {
-    chart.applyLayoutAndSetRowCount(params);
-    chart.addAxis();
-    chart.fitPadHeight();
-    chart.fitViewport();
-    chart.initializeXScaleFromRenderParams(params);
-  }
-
-  /**
-   * The default inRender() implementation.
-   * @param params
-   * @param chart
-   */
-  static inRender<P extends RenderParams = RenderParams>(
-    params: P,
-    chart: Chart<P>
-  ) {
-    rectangle({
-      chart,
-      annotations: params.annotations || [],
-      selector: "soda-rect",
-    });
-  }
-
-  /**
-   * The default postRender() implementation.
-   * @param params
-   * @param chart
-   */
-  static postRender<P extends RenderParams = RenderParams>(
-    params: P,
-    chart: Chart<P>
-  ) {
-    chart.applyGlyphModifiers();
   }
 }
