@@ -1055,6 +1055,28 @@ export class Chart<P extends RenderParams = RenderParams> {
   }
 
   /**
+   * Selectively apply the layout as defined in the RenderParams argument and set the rowCount property to an
+   * appropriate value. If a rowCount is defined in the RenderParams, it will not be overwritten. If the
+   * RenderParams are configured such that no layout is applied, rowCount will be set to the max row property of the
+   * Annotations in the RenderParams.
+   * @param params
+   */
+  public applyLayoutAndSetRowCount(params: P): void {
+    if (params.annotations == undefined) {
+      this.rowCount = params.rowCount || 1;
+    } else {
+      if (params.autoLayout || params.layoutFn != undefined) {
+        let layoutFn = params.layoutFn || intervalGraphLayout;
+        this.rowCount = params.rowCount || layoutFn(params.annotations) + 1;
+      } else {
+        this.rowCount =
+          params.rowCount ||
+          Math.max(...params.annotations.map((a) => a.row)) + 1;
+      }
+    }
+  }
+
+  /**
    * This method stores the render parameters on the Chart and calls preRender(), inRender(), and postRender().
    * @param params
    */
@@ -1100,16 +1122,7 @@ export class Chart<P extends RenderParams = RenderParams> {
     params: P,
     chart: Chart<P>
   ) {
-    if (
-      params.annotations != undefined &&
-      (params.autoLayout || params.layoutFn != undefined)
-    ) {
-      let layoutFn = params.layoutFn || intervalGraphLayout;
-      chart.rowCount = params.rowCount || layoutFn(params.annotations) + 1;
-    } else {
-      chart.rowCount = params.rowCount || 1;
-    }
-
+    chart.applyLayoutAndSetRowCount(params);
     chart.addAxis();
     chart.fitPadHeight();
     chart.fitViewport();
@@ -1125,13 +1138,11 @@ export class Chart<P extends RenderParams = RenderParams> {
     params: P,
     chart: Chart<P>
   ) {
-    if (params.annotations != undefined) {
-      rectangle({
-        chart,
-        annotations: params.annotations,
-        selector: "soda-rect",
-      });
-    }
+    rectangle({
+      chart,
+      annotations: params.annotations || [],
+      selector: "soda-rect",
+    });
   }
 
   /**
