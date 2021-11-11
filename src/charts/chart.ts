@@ -536,7 +536,7 @@ export class Chart<P extends RenderParams = RenderParams> {
   /**
    * This fits the Chart's SVG padding based off of the rowCount, rowHeight and padSize properties.
    */
-  public fitPad(): void {
+  public fitPadHeight(): void {
     this.padHeight = this.rowCount * this.rowHeight + 2 * this.padSize;
   }
 
@@ -972,7 +972,7 @@ export class Chart<P extends RenderParams = RenderParams> {
    */
   public resize(): void {
     let view = this.getSemanticViewRange();
-    this.fitPad();
+    this.fitPadHeight();
     this.fitViewport();
     this.resetTransform();
     this.initializeXScale(view.start, view.end);
@@ -1005,6 +1005,26 @@ export class Chart<P extends RenderParams = RenderParams> {
    */
   set renderParams(params: P) {
     this._renderParams = params;
+  }
+
+  /**
+   * If the Chart.axis property is set to true, this adds a horizontal axis to the Chart above the top row.
+   * Alternatively, if the force=true is supplied it will ignore the Chart.axis setting and add an axis anyway.
+   * @param force Override the Chart.axis property setting.
+   */
+  public addAxis(force?: boolean) {
+    if (this.axis || force) {
+      if (this._axisAnn == undefined) {
+        this._axisAnn = getHorizontalAxisAnnotation(this);
+      }
+      horizontalAxis({
+        chart: this,
+        annotations: [this._axisAnn],
+        y: () => -20,
+        fixed: true,
+        bindTarget: BindTarget.Overflow,
+      });
+    }
   }
 
   /**
@@ -1063,19 +1083,8 @@ export class Chart<P extends RenderParams = RenderParams> {
       chart.rowCount = params.rowCount || 1;
     }
 
-    if (chart.axis) {
-      if (chart._axisAnn == undefined) {
-        chart._axisAnn = getHorizontalAxisAnnotation(chart);
-      }
-      horizontalAxis({
-        chart,
-        annotations: [chart._axisAnn],
-        y: () => -20,
-        fixed: true,
-        bindTarget: BindTarget.Overflow,
-      });
-    }
-    chart.padHeight = chart.rowCount * chart.rowHeight + 2 * chart.padSize;
+    chart.addAxis();
+    chart.fitPadHeight();
     chart.fitViewport();
 
     if (params.initializeXScale === undefined || params.initializeXScale) {
