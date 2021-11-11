@@ -869,23 +869,6 @@ export class Chart<P extends RenderParams = RenderParams> {
   }
 
   /**
-   * This initializes an x translation scale based off of the provided arguments and the dimensions of the Chart.
-   * @param start
-   * @param end
-   */
-  public initializeXScale(start: number, end: number): void {
-    this._renderStart = start;
-    this._renderEnd = end;
-
-    this.xScaleBase = d3
-      .scaleLinear()
-      .domain([start, end])
-      .range([0, this.viewportWidth]);
-
-    this.xScale = this.xScaleBase;
-  }
-
-  /**
    * This rescales the Chart's x translation scale. If a transform argument is provided, it will use that.
    * Otherwise, it will use the Chart's internal transform object.
    * @param transformArg
@@ -1028,6 +1011,50 @@ export class Chart<P extends RenderParams = RenderParams> {
   }
 
   /**
+   * This initializes an x translation scale with the provided coordinates and the dimensions of the Chart.
+   * @param start The start coordinate.
+   * @param end The end coordinate.
+   */
+  public initializeXScale(start: number, end: number): void {
+    this._renderStart = start;
+    this._renderEnd = end;
+
+    this.xScaleBase = d3
+      .scaleLinear()
+      .domain([this._renderStart, this._renderEnd])
+      .range([0, this.viewportWidth]);
+
+    this.xScale = this.xScaleBase;
+  }
+
+  /**
+   * This initializes an x translation scale with the provided RenderParams and the dimensions of the Chart.
+   * @param params
+   */
+  public initializeXScaleFromRenderParams(params: P): void {
+    let start = 0;
+    let end = 0;
+    if (params.initializeXScale === undefined || params.initializeXScale) {
+      if (hasRange(params)) {
+        start = params.start;
+        end = params.end;
+      } else {
+        if (hasAnn(params)) {
+          let renderRange = Chart.inferRenderRange(params);
+          start = renderRange[0];
+          end = renderRange[1];
+        } else {
+          console.warn(
+            "no render range provided in call to initializeXScale() on",
+            this
+          );
+        }
+      }
+    }
+    this.initializeXScale(start, end);
+  }
+
+  /**
    * This method stores the render parameters on the Chart and calls preRender(), inRender(), and postRender().
    * @param params
    */
@@ -1086,19 +1113,7 @@ export class Chart<P extends RenderParams = RenderParams> {
     chart.addAxis();
     chart.fitPadHeight();
     chart.fitViewport();
-
-    if (params.initializeXScale === undefined || params.initializeXScale) {
-      if (hasRange(params)) {
-        chart.initializeXScale(params.start, params.end);
-      } else {
-        if (hasAnn(params)) {
-          let renderRange = Chart.inferRenderRange(params);
-          chart.initializeXScale(renderRange[0], renderRange[1]);
-        } else {
-          throw "Invalid RenderParams";
-        }
-      }
-    }
+    chart.initializeXScaleFromRenderParams(params);
   }
 
   /**
