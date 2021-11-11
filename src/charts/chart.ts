@@ -464,7 +464,7 @@ export class Chart<P extends RenderParams = RenderParams> {
     }
   }
 
-  /*
+  /**
    * A getter for the rowStripeSelection property. This serves as a null guard.
    */
   get rowStripeRectSelection() {
@@ -475,7 +475,7 @@ export class Chart<P extends RenderParams = RenderParams> {
     return this._rowStripeRectSelection;
   }
 
-  /*
+  /**
    * A getter for the rowStripePatternSelection property. This serves as a null guard.
    */
   get rowStripePatternSelection() {
