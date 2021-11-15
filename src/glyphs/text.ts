@@ -19,7 +19,7 @@ const thresholdMap: Map<string, number[]> = new Map();
  * @param a
  * @param c
  */
-export function selectText(a: Annotation, c: Chart): string {
+export function selectText(a: Annotation, c: Chart<any>): string {
   let thresholds = thresholdMap.get(a.id);
   if (thresholds === undefined) {
     console.error(
