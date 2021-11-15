@@ -83,7 +83,7 @@ export interface Transform extends d3.ZoomTransform {
 /**
  * This describes the parameters for configuring and initializing a Chart.
  */
-export interface ChartConfig<P extends RenderParams = RenderParams> {
+export interface ChartConfig<P extends RenderParams> {
   /**
    * A unique identifier for the Chart. This will be generated automatically if one isn't provided.
    */
@@ -234,7 +234,7 @@ function hasAnn(params: RenderParams): params is RenderParamsWithAnn {
 /**
  * This is used to render Annotation objects as glyphs in the browser.
  */
-export class Chart<P extends RenderParams = RenderParams> {
+export class Chart<P extends RenderParams> {
   /**
    * A unique identifier for the Chart.
    */
