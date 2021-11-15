@@ -413,8 +413,7 @@ export class Chart<P extends RenderParams = RenderParams> {
    * @param params
    */
   readonly postRender: (this: any, params: P) => void = function (
-    this: Chart<P>,
-    params: P
+    this: Chart<P>
   ): void {
     this.applyGlyphModifiers();
   };
