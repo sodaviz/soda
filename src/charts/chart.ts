@@ -384,7 +384,7 @@ export class Chart<P extends RenderParams> {
    * The first rendering callback function.
    * @param params
    */
-  readonly preRender: (this: any, params: P) => void = function (
+  preRender: (this: any, params: P) => void = function (
     this: Chart<P>,
     params: P
   ): void {
@@ -398,7 +398,7 @@ export class Chart<P extends RenderParams> {
    * The second rendering callback function.
    * @param params
    */
-  readonly inRender: (this: any, params: P) => void = function (
+  inRender: (this: any, params: P) => void = function (
     this: Chart<P>,
     params: P
   ): void {
@@ -412,9 +412,7 @@ export class Chart<P extends RenderParams> {
    * The final rendering callback function.
    * @param params
    */
-  readonly postRender: (this: any, params: P) => void = function (
-    this: Chart<P>
-  ): void {
+  postRender: (this: any, params: P) => void = function (this: Chart<P>): void {
     this.applyGlyphModifiers();
   };
 
