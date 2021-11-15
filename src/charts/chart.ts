@@ -83,7 +83,7 @@ export interface Transform extends d3.ZoomTransform {
 /**
  * This describes the parameters for configuring and initializing a Chart.
  */
-export interface ChartConfig<P extends RenderParams = RenderParams> {
+export interface ChartConfig<P extends RenderParams> {
   /**
    * A unique identifier for the Chart. This will be generated automatically if one isn't provided.
    */
@@ -142,17 +142,17 @@ export interface ChartConfig<P extends RenderParams = RenderParams> {
    * The first rendering callback function.
    * @param params
    */
-  preRender?: (params: P) => void;
+  preRender?: (this: Chart<P>, params: P) => void;
   /**
    * The second rendering callback function.
    * @param params
    */
-  inRender?: (params: P) => void;
+  inRender?: (this: Chart<P>, params: P) => void;
   /**
    * The final rendering callback function.
    * @param params
    */
-  postRender?: (params: P) => void;
+  postRender?: (this: Chart<P>, params: P) => void;
 }
 
 /**
@@ -234,7 +234,7 @@ function hasAnn(params: RenderParams): params is RenderParamsWithAnn {
 /**
  * This is used to render Annotation objects as glyphs in the browser.
  */
-export class Chart<P extends RenderParams = RenderParams> {
+export class Chart<P extends RenderParams> {
   /**
    * A unique identifier for the Chart.
    */
@@ -384,18 +384,39 @@ export class Chart<P extends RenderParams = RenderParams> {
    * The first rendering callback function.
    * @param params
    */
-  preRender: (params: P) => void = (params: P) => Chart.preRender(params, this);
+  readonly preRender: (this: any, params: P) => void = function (
+    this: Chart<P>,
+    params: P
+  ): void {
+    this.applyLayoutAndSetRowCount(params);
+    this.addAxis();
+    this.fitPadHeight();
+    this.fitViewport();
+    this.initializeXScaleFromRenderParams(params);
+  };
   /**
    * The second rendering callback function.
    * @param params
    */
-  inRender: (params: P) => void = (params: P) => Chart.inRender(params, this);
+  readonly inRender: (this: any, params: P) => void = function (
+    this: Chart<P>,
+    params: P
+  ): void {
+    rectangle({
+      chart: this,
+      annotations: params.annotations || [],
+      selector: "soda-rect",
+    });
+  };
   /**
    * The final rendering callback function.
    * @param params
    */
-  postRender: (params: P) => void = (params: P) =>
-    Chart.postRender(params, this);
+  readonly postRender: (this: any, params: P) => void = function (
+    this: Chart<P>
+  ): void {
+    this.applyGlyphModifiers();
+  };
 
   constructor(config: ChartConfig<P> = {}) {
     this.id = config.id || generateId("soda-chart");
@@ -464,7 +485,7 @@ export class Chart<P extends RenderParams = RenderParams> {
     }
   }
 
-  /*
+  /**
    * A getter for the rowStripeSelection property. This serves as a null guard.
    */
   get rowStripeRectSelection() {
@@ -475,7 +496,7 @@ export class Chart<P extends RenderParams = RenderParams> {
     return this._rowStripeRectSelection;
   }
 
-  /*
+  /**
    * A getter for the rowStripePatternSelection property. This serves as a null guard.
    */
   get rowStripePatternSelection() {
@@ -536,7 +557,7 @@ export class Chart<P extends RenderParams = RenderParams> {
   /**
    * This fits the Chart's SVG padding based off of the rowCount, rowHeight and padSize properties.
    */
-  public fitPad(): void {
+  public fitPadHeight(): void {
     this.padHeight = this.rowCount * this.rowHeight + 2 * this.padSize;
   }
 
@@ -869,23 +890,6 @@ export class Chart<P extends RenderParams = RenderParams> {
   }
 
   /**
-   * This initializes an x translation scale based off of the provided arguments and the dimensions of the Chart.
-   * @param start
-   * @param end
-   */
-  public initializeXScale(start: number, end: number): void {
-    this._renderStart = start;
-    this._renderEnd = end;
-
-    this.xScaleBase = d3
-      .scaleLinear()
-      .domain([start, end])
-      .range([0, this.viewportWidth]);
-
-    this.xScale = this.xScaleBase;
-  }
-
-  /**
    * This rescales the Chart's x translation scale. If a transform argument is provided, it will use that.
    * Otherwise, it will use the Chart's internal transform object.
    * @param transformArg
@@ -972,7 +976,7 @@ export class Chart<P extends RenderParams = RenderParams> {
    */
   public resize(): void {
     let view = this.getSemanticViewRange();
-    this.fitPad();
+    this.fitPadHeight();
     this.fitViewport();
     this.resetTransform();
     this.initializeXScale(view.start, view.end);
@@ -1005,6 +1009,92 @@ export class Chart<P extends RenderParams = RenderParams> {
    */
   set renderParams(params: P) {
     this._renderParams = params;
+  }
+
+  /**
+   * If the Chart.axis property is set to true, this adds a horizontal axis to the Chart above the top row.
+   * Alternatively, if the force=true is supplied it will ignore the Chart.axis setting and add an axis anyway.
+   * @param force Override the Chart.axis property setting.
+   */
+  public addAxis(force?: boolean) {
+    if (this.axis || force) {
+      if (this._axisAnn == undefined) {
+        this._axisAnn = getHorizontalAxisAnnotation(this);
+      }
+      horizontalAxis({
+        chart: this,
+        annotations: [this._axisAnn],
+        y: () => -20,
+        fixed: true,
+        bindTarget: BindTarget.Overflow,
+      });
+    }
+  }
+
+  /**
+   * This initializes an x translation scale with the provided coordinates and the dimensions of the Chart.
+   * @param start The start coordinate.
+   * @param end The end coordinate.
+   */
+  public initializeXScale(start: number, end: number): void {
+    this._renderStart = start;
+    this._renderEnd = end;
+
+    this.xScaleBase = d3
+      .scaleLinear()
+      .domain([this._renderStart, this._renderEnd])
+      .range([0, this.viewportWidth]);
+
+    this.xScale = this.xScaleBase;
+  }
+
+  /**
+   * This initializes an x translation scale with the provided RenderParams and the dimensions of the Chart.
+   * @param params
+   */
+  public initializeXScaleFromRenderParams(params: P): void {
+    let start = 0;
+    let end = 0;
+    if (params.initializeXScale === undefined || params.initializeXScale) {
+      if (hasRange(params)) {
+        start = params.start;
+        end = params.end;
+      } else {
+        if (hasAnn(params)) {
+          let renderRange = Chart.inferRenderRange(params);
+          start = renderRange[0];
+          end = renderRange[1];
+        } else {
+          console.warn(
+            "no render range provided in call to initializeXScale() on",
+            this
+          );
+        }
+      }
+    }
+    this.initializeXScale(start, end);
+  }
+
+  /**
+   * Selectively apply the layout as defined in the RenderParams argument and set the rowCount property to an
+   * appropriate value. If a rowCount is defined in the RenderParams, it will not be overwritten. If the
+   * RenderParams are configured such that no layout is applied, rowCount will be set to the max row property of the
+   * Annotations in the RenderParams.
+   * @param params
+   */
+  public applyLayoutAndSetRowCount(params: P): void {
+    if (params.annotations == undefined) {
+      this.rowCount = params.rowCount || 1;
+    } else {
+      if (params.autoLayout || params.layoutFn != undefined) {
+        let layoutFn = params.layoutFn || intervalGraphLayout;
+        this.rowCount = params.rowCount || layoutFn(params.annotations) + 1;
+      } else {
+        this.rowCount =
+          params.rowCount ||
+          Math.max(...params.annotations.map((a) => a.row)) + 1;
+      }
+    }
   }
 
   /**
@@ -1042,83 +1132,5 @@ export class Chart<P extends RenderParams = RenderParams> {
       }
     }
     return [params.start || start || 0, params.end || end || 0];
-  }
-
-  /**
-   * The default preRender() implementation.
-   * @param params
-   * @param chart
-   */
-  static preRender<P extends RenderParams = RenderParams>(
-    params: P,
-    chart: Chart<P>
-  ) {
-    if (
-      params.annotations != undefined &&
-      (params.autoLayout || params.layoutFn != undefined)
-    ) {
-      let layoutFn = params.layoutFn || intervalGraphLayout;
-      chart.rowCount = params.rowCount || layoutFn(params.annotations) + 1;
-    } else {
-      chart.rowCount = params.rowCount || 1;
-    }
-
-    if (chart.axis) {
-      if (chart._axisAnn == undefined) {
-        chart._axisAnn = getHorizontalAxisAnnotation(chart);
-      }
-      horizontalAxis({
-        chart,
-        annotations: [chart._axisAnn],
-        y: () => -20,
-        fixed: true,
-        bindTarget: BindTarget.Overflow,
-      });
-    }
-    chart.padHeight = chart.rowCount * chart.rowHeight + 2 * chart.padSize;
-    chart.fitViewport();
-
-    if (params.initializeXScale === undefined || params.initializeXScale) {
-      if (hasRange(params)) {
-        chart.initializeXScale(params.start, params.end);
-      } else {
-        if (hasAnn(params)) {
-          let renderRange = Chart.inferRenderRange(params);
-          chart.initializeXScale(renderRange[0], renderRange[1]);
-        } else {
-          throw "Invalid RenderParams";
-        }
-      }
-    }
-  }
-
-  /**
-   * The default inRender() implementation.
-   * @param params
-   * @param chart
-   */
-  static inRender<P extends RenderParams = RenderParams>(
-    params: P,
-    chart: Chart<P>
-  ) {
-    if (params.annotations != undefined) {
-      rectangle({
-        chart,
-        annotations: params.annotations,
-        selector: "soda-rect",
-      });
-    }
-  }
-
-  /**
-   * The default postRender() implementation.
-   * @param params
-   * @param chart
-   */
-  static postRender<P extends RenderParams = RenderParams>(
-    params: P,
-    chart: Chart<P>
-  ) {
-    chart.applyGlyphModifiers();
   }
 }
