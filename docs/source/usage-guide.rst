@@ -9,7 +9,7 @@ This is the usage guide for SODA. Here, you will find descriptions of the core f
  - :ref:`guide-introduction` - A brief introduction to SODA
  - :ref:`guide-quickstart` - Where to go if you *really* don't want to read any of the guide
  - :ref:`guide-installation` - What steps you'll need to take to install SODA
- - :ref:`guide-examples` - A set of example SODA applications in tutorial format
+ - :ref:`tutorial` - A set of example SODA applications in tutorial format
 
 .. toctree::
     :maxdepth: 2
@@ -18,4 +18,4 @@ This is the usage guide for SODA. Here, you will find descriptions of the core f
     guide/introduction
     guide/quickstart
     guide/installation
-    guide/examples
+    guide/tutorial
