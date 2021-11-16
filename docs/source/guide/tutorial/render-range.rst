@@ -1,5 +1,32 @@
+.. _tutorial-render-range:
+
 Setting an explicit render range
---------------------------------
+================================
+
+When a Chart's render() method is called, the initial render range can be specified in the RenderParams using the start
+and end properties.
+
+.. code-block:: typescript
+
+    let chart = new soda.Chart({
+      selector: "#soda-chart",
+      axis: true,
+      zoomable: true,
+      resizable: true,
+    });
+
+    let ann: Soda.Annotation = soda.generateAnnotations({
+      n: 10
+    })
+
+    chart.render({
+      annotations: ann,
+      start: 0,
+      end: 2000,
+    })
+
+Live demo
+---------
 
 .. raw:: html
 
@@ -9,3 +36,4 @@ Setting an explicit render range
       on <a href="https://codepen.io">CodePen</a>.</span>
     </p>
     <script async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>
+

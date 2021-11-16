@@ -1,5 +1,34 @@
+.. _tutorial-rendering-annotations:
+
 Rendering Annotations
----------------------
+=====================
+
+Once a Chart has been instantiated, we can render :ref:`Annotation objects<Annotation>` in it by calling the render()
+method. Render() takes a :ref:`RenderParams` object as an argument.
+
+To render glyphs in a Chart, we'll first need to instantiate a list of Annotation objects. We'll cover the creation of
+meaningful Annotation objects later in the tutorial, but for now we'll use the
+:ref:`generateAnnotations utility function<generateAnnotations>` to easily get some Annotation objects to play around
+with. Once we have the Annotations, we'll call render with them in an anonymously defined RenderParams object. By
+default, a Chart will render the Annotations its given as rectangles. Again, we'll go into more detail on defining
+customized render behaviors later in the tutorial.
+
+.. code-block:: typescript
+
+    let chart = new soda.Chart({
+      selector: "#soda-chart"
+    });
+
+    let ann = soda.generateAnnotations({
+      n: 10
+    })
+
+    chart.render({
+      annotations: ann
+    })
+
+Live demo
+---------
 
 .. raw:: html
 

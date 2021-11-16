@@ -1,5 +1,30 @@
-Enabling zoom
--------------
+.. _tutorial-zooming:
+
+Enabling zooming
+================
+
+Charts can optionally be configured to enable realtime zooming and panning. To do this, set the zoomable property to
+true on the ChartConfig. A Chart can be panned by clicking and dragging or zoomed with ctrl + scrolling.
+
+.. code-block:: typescript
+
+    let chart = new soda.Chart({
+      selector: "#soda-chart",
+      axis: true,
+      zoomable: true
+    });
+
+    let ann: Soda.Annotation = soda.generateAnnotations({
+      n: 10
+    })
+
+    chart.render({
+      annotations: ann
+    })
+
+
+Live demo
+---------
 
 .. raw:: html
 

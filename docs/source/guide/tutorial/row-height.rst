@@ -1,5 +1,29 @@
+.. _tutorial-row-height:
+
 Changing the row height
------------------------
+=======================
+
+The height of the rows in a Chart can be controlled by setting the rowHeight property on the ChartConfig.
+
+.. code-block:: typescript
+
+    let chart = new soda.Chart({
+      selector: "#soda-chart",
+      axis: true
+      rowHeight: 20,
+    });
+
+    let ann: Soda.Annotation = soda.generateAnnotations({
+      n: 10
+    })
+
+    chart.render({
+      annotations: ann
+    })
+
+
+Live demo
+---------
 
 .. raw:: html
 

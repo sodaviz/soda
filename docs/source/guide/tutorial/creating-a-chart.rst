@@ -1,12 +1,15 @@
+.. _tutorial-creating-a-chart:
+
 Creating a Chart
-----------------
+================
 
 :ref:`Charts<Chart>` are instantiated with a :ref:`ChartConfig` argument. Every property in a ChartConfig is optional,
 but you'll probably want to at least provide a selector. The selector is a string that is used as a CSS selector to
 locate the DOM element that the Chart will be inserted into during instantiation.
 
 Here, we'll assume our page has a div with the id "soda-chart," and we'll instantiate a Chart that will be inserted
-into that div.
+into that div. We'll call the Chart constructor with an anonymously defined ChartConfig that has the selector property
+set to the string "#soda-chart."
 
 .. code-block:: typescript
 
@@ -14,11 +17,14 @@ into that div.
       selector: "#soda-chart",
     });
 
-Running this code will indeed create a Chart in the selected div, but it will be completely blank. We'll see how to
-start to add visual content to a Chart in the next section.
 
 Live demo
-+++++++++
+---------
+
+.. note::
+
+    Running this code will indeed create a Chart in the selected div, but it will be completely blank. We'll see how to
+    start to add visual content to a Chart in the next section.
 
 .. raw:: html
 

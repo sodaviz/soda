@@ -9,7 +9,7 @@ Tutorial
 
     tutorial/creating-a-chart
     tutorial/rendering-annotations
-    tutorial/axes
+    tutorial/axis
     tutorial/row-height
     tutorial/padding
     tutorial/zooming

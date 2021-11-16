@@ -1,5 +1,36 @@
+.. _tutorial-resizing:
+
 Enabling resizing
------------------
+=================
+
+Charts can be configured to automatically resize themselves to fit into their DOM container. To enable resizing, set the
+resizable property to true in the ChartConfig.
+
+.. code-block:: typescript
+
+    let chart = new soda.Chart({
+      selector: "#soda-chart",
+      axis: true,
+      zoomable: true,
+      resizable: true
+    });
+
+    let ann: Soda.Annotation = soda.generateAnnotations({
+      n: 10
+    })
+
+    chart.render({
+      annotations: ann
+    })
+
+
+Live demo
+---------
+
+.. note::
+
+    To see resizing in action here, you'll want to view this example in CodePen or press the 0.5x or 0.25x button in
+    the embed.
 
 .. raw:: html
 

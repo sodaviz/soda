@@ -1,5 +1,32 @@
+.. _tutorial-row-stripes:
+
 Enabling row stripes
---------------------
+====================
+
+The rows in a Chart can optionally be striped with alternating colors. To enable this, set the rowStripes property to
+true on the ChartConfig.
+
+.. code-block:: typescript
+
+    let chart = new soda.Chart({
+      selector: "#soda-chart",
+      axis: true,
+      zoomable: true,
+      resizable: true,
+      rowStripes: true
+    });
+
+    let ann: Soda.Annotation = soda.generateAnnotations({
+      n: 10
+    })
+
+    chart.render({
+      annotations: ann
+    })
+
+
+Live demo
+---------
 
 .. raw:: html
 

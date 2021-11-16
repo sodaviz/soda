@@ -1,7 +1,30 @@
-.. _tutorial-charts:
+.. _tutorial-padding:
 
 Changing the pad size
----------------------
+=====================
+
+Charts have a configurable white space padding around their viewports that can be controlled by setting the padSize
+property in the ChartConfig.
+
+.. code-block:: typescript
+
+    let chart = new soda.Chart({
+      selector: "#soda-chart",
+      axis: true,
+      padSize: 100
+    });
+
+    let ann: Soda.Annotation = soda.generateAnnotations({
+      n: 10
+    })
+
+    chart.render({
+      annotations: ann
+    })
+
+
+Live demo
+---------
 
 .. raw:: html
 
