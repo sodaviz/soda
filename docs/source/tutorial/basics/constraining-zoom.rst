@@ -1,4 +1,4 @@
-.. _tutorial-zooming:
+.. _tutorial-constraining-zoom:
 
 Constraining the zoom level
 ===========================

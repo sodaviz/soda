@@ -1,4 +1,4 @@
-.. _guide-introduction:
+.. _introduction:
 
 Introduction
 ============

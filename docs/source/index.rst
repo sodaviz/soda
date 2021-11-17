@@ -5,7 +5,19 @@ Welcome to SODA's documentation!
     :maxdepth: 2
     :hidden:
 
-    usage-guide
+    introduction
+    installation
+    tutorial
     api
 
-SODA is an open source library for the visualization of biological annotation.
+This is the documentation for SODA.
+Here, you will find descriptions o
+
+----
+
+**Contents**
+
+ - :ref:`introduction` - A brief introduction to SODA
+ - :ref:`installation` - What steps you'll need to take to install SODA
+ - :ref:`tutorial` - A set of example SODA applications in tutorial format
+ - :ref:`api` - The API reference

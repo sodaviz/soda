@@ -1,5 +1,0 @@
-.. _guide-quickstart:
-
-Quickstart
-==========
-
