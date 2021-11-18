@@ -5,7 +5,7 @@ import { generateId } from "./id-generation";
 /**
  * This defines the parameters for a call to an Annotation aggregration function.
  */
-export interface aggregationConfig<A extends Annotation> {
+export interface AggregationConfig<A extends Annotation> {
   /**
    * The list of Annotations to be aggregated.
    */
@@ -34,7 +34,7 @@ export interface aggregationConfig<A extends Annotation> {
  * @param config
  */
 export function aggregateTransitive<A extends Annotation>(
-  config: aggregationConfig<A>
+  config: AggregationConfig<A>
 ): AnnotationGroup<A>[] {
   let annCopy = config.annotations.slice();
   let groups: AnnotationGroup<A>[] = [];
@@ -70,7 +70,7 @@ export function aggregateTransitive<A extends Annotation>(
  * @param config
  */
 export function aggregateIntransitive<A extends Annotation>(
-  config: aggregationConfig<A>
+  config: AggregationConfig<A>
 ): AnnotationGroup<A>[] {
   let annCopy = config.annotations.slice();
   let groups: AnnotationGroup<A>[] = [];
