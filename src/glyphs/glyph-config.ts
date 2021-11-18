@@ -4,10 +4,7 @@ import { Annotation } from "../annotations/annotation";
 import { Chart } from "../charts/chart";
 import { GlyphProperty } from "./glyph-modifier";
 
-export interface GlyphConfig<
-  A extends Annotation,
-  C extends Chart<any> = Chart
-> {
+export interface GlyphConfig<A extends Annotation, C extends Chart<any>> {
   /**
    * The Chart object in which the glyphs will be rendered.
    */

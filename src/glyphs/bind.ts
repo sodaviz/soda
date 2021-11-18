@@ -7,7 +7,7 @@ import { GlyphConfig } from "./glyph-config";
 /**
  * An interface that simply joins an Annotation object and a Chart is has been rendered in.
  */
-export interface AnnotationDatum<A extends Annotation, C extends Chart> {
+export interface AnnotationDatum<A extends Annotation, C extends Chart<any>> {
   /**
    * The Annotation object.
    */
