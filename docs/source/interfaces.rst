@@ -4,6 +4,7 @@ Interfaces
 .. toctree::
    :maxdepth: 2
 
+   interfaces/AggregationConfig
    interfaces/AnnotationConfig
    interfaces/AnnotationConfigWithGroup
    interfaces/AnnotationDatum

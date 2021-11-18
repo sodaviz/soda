@@ -38,7 +38,7 @@ k
 
 .. container:: content
 
-  
+  The scaling factor described by the Transform.
 
 x
 *
@@ -51,7 +51,7 @@ x
 
 .. container:: content
 
-  
+  The x translation described by the Transform.
 
 y
 *
@@ -64,5 +64,5 @@ y
 
 .. container:: content
 
-  
+  The y translation described by the Transform.
 

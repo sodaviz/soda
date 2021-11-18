@@ -4,12 +4,13 @@ Functions
 .. toctree::
    :maxdepth: 2
 
+   functions/aggregateIntransitive
+   functions/aggregateTransitive
    functions/arc
    functions/barPlot
    functions/chevronLine
    functions/chevronRectangle
    functions/clickBehavior
-   functions/condenseAnnotations
    functions/exportPng
    functions/generateAnnotations
    functions/generateId

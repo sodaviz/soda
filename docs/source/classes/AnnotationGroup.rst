@@ -221,6 +221,16 @@ y
 
  .. code-block:: typescript
 
+    get y(): number
+
+.. container:: content
+
+  A convenience getter that returns the row property.
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
     set y(y: number): void
 
 .. container:: content

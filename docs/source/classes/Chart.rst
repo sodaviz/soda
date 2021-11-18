@@ -615,6 +615,8 @@ rowStripePatternSelection
 
 .. container:: content
 
+  A getter for the rowStripePatternSelection property. This serves as a null guard.
+
 rowStripeRectSelection
 **********************
 
@@ -625,6 +627,8 @@ rowStripeRectSelection
     get rowStripeRectSelection(): Selection <SVGRectElement, any, any, any>
 
 .. container:: content
+
+  A getter for the rowStripeSelection property. This serves as a null guard.
 
 selector
 ********
@@ -711,6 +715,25 @@ viewportWidth
 Methods
 -------
 
+addAxis
+*******
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    addAxis(force: boolean): void
+
+.. container:: content
+
+  If the Chart.axis property is set to true, this adds a horizontal axis to the Chart above the top row. Alternatively, if the force=true is supplied it will ignore the Chart.axis setting and add an axis anyway.
+
+  **Parameters**
+
+  - force: boolean
+
+  **Returns**: void
+
 addGlyphModifier
 ****************
 
@@ -763,6 +786,25 @@ applyGlyphModifiers
 .. container:: content
 
   This applies each of the Chart's GlyphModifier.zoom() methods, resulting in each of the glyphs in the Chart being appropriately redrawn for the current zoom level.
+
+  **Returns**: void
+
+applyLayoutAndSetRowCount
+*************************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    applyLayoutAndSetRowCount(params: P): void
+
+.. container:: content
+
+  Selectively apply the layout as defined in the RenderParams argument and set the rowCount property to an appropriate value. If a rowCount is defined in the RenderParams, it will not be overwritten. If the RenderParams are configured such that no layout is applied, rowCount will be set to the max row property of the Annotations in the RenderParams.
+
+  **Parameters**
+
+  - params: P
 
   **Returns**: void
 
@@ -916,14 +958,14 @@ disableZoom
 
   **Returns**: void
 
-fitPad
-******
+fitPadHeight
+************
 
 .. container:: collapsible
 
  .. code-block:: typescript
 
-    fitPad(): void
+    fitPadHeight(): void
 
 .. container:: content
 
@@ -1017,12 +1059,31 @@ initializeXScale
 
 .. container:: content
 
-  This initializes an x translation scale based off of the provided arguments and the dimensions of the Chart.
+  This initializes an x translation scale with the provided coordinates and the dimensions of the Chart.
 
   **Parameters**
 
   - start: number
   - end: number
+
+  **Returns**: void
+
+initializeXScaleFromRenderParams
+********************************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    initializeXScaleFromRenderParams(params: P): void
+
+.. container:: content
+
+  This initializes an x translation scale with the provided RenderParams and the dimensions of the Chart.
+
+  **Parameters**
+
+  - params: P
 
   **Returns**: void
 
@@ -1169,30 +1230,6 @@ zoom
 
   **Returns**: void
 
-inRender
-********
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    inRender(params: P, chart: Chart <P>): void
-
-.. container:: content
-
-  The default inRender() implementation.
-
-  **Type parameters**
-
-  - P: RenderParams
-
-  **Parameters**
-
-  - params: P
-  - chart: Chart <P>
-
-  **Returns**: void
-
 inferRenderRange
 ****************
 
@@ -1215,52 +1252,4 @@ inferRenderRange
   - params: P
 
   **Returns**: None
-
-postRender
-**********
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    postRender(params: P, chart: Chart <P>): void
-
-.. container:: content
-
-  The default postRender() implementation.
-
-  **Type parameters**
-
-  - P: RenderParams
-
-  **Parameters**
-
-  - params: P
-  - chart: Chart <P>
-
-  **Returns**: void
-
-preRender
-*********
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    preRender(params: P, chart: Chart <P>): void
-
-.. container:: content
-
-  The default preRender() implementation.
-
-  **Type parameters**
-
-  - P: RenderParams
-
-  **Parameters**
-
-  - params: P
-  - chart: Chart <P>
-
-  **Returns**: void
 
