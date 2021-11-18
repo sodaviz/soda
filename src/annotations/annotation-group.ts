@@ -52,7 +52,7 @@ export class AnnotationGroup<A extends Annotation> extends Annotation {
    * @param ann The Annotation to be added.
    */
   public add(ann: A) {
-    if (this.group == []) {
+    if (this.group.length == 0) {
       this.start = ann.start;
       this.end = ann.end;
     } else {
@@ -76,5 +76,9 @@ export class AnnotationGroup<A extends Annotation> extends Annotation {
     for (const ann of this.group) {
       ann.row = y;
     }
+  }
+
+  get y(): number {
+    return this.row;
   }
 }
