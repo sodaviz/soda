@@ -18,7 +18,7 @@ The basics
     basics/row-stripes
     basics/render-range
 
-**Contents**
+**Contents:**
 
  - :ref:`tutorial-creating-a-chart`
  - :ref:`tutorial-rendering-annotations`
