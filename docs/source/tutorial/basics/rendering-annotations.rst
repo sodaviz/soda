@@ -27,8 +27,7 @@ customized render behaviors later in the tutorial.
       annotations: ann
     })
 
-Live demo
----------
+----
 
 .. raw:: html
 

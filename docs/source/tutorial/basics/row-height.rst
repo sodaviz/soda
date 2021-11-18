@@ -22,8 +22,7 @@ The height of the rows in a Chart can be controlled by setting the rowHeight pro
     })
 
 
-Live demo
----------
+----
 
 .. raw:: html
 

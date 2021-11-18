@@ -25,8 +25,7 @@ true on the ChartConfig.
     })
 
 
-Live demo
----------
+----
 
 .. raw:: html
 

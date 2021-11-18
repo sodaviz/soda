@@ -23,8 +23,7 @@ true on the ChartConfig. A Chart can be panned by clicking and dragging or zoome
     })
 
 
-Live demo
----------
+----
 
 .. raw:: html
 

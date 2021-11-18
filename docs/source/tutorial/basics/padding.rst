@@ -23,8 +23,7 @@ property in the ChartConfig.
     })
 
 
-Live demo
----------
+----
 
 .. raw:: html
 

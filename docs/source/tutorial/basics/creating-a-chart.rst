@@ -18,8 +18,7 @@ set to the string "#soda-chart."
     });
 
 
-Live demo
----------
+----
 
 .. note::
 

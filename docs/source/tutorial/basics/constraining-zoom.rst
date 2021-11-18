@@ -25,8 +25,7 @@ far a Chart can be zoomed out and max :sub:`k` controls how far a Chart can be z
     })
 
 
-Live demo
----------
+----
 
 .. raw:: html
 

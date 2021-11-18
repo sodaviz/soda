@@ -25,8 +25,7 @@ and end properties.
       end: 2000,
     })
 
-Live demo
----------
+----
 
 .. raw:: html
 

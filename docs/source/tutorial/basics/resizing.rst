@@ -24,8 +24,7 @@ resizable property to true in the ChartConfig.
     })
 
 
-Live demo
----------
+----
 
 .. note::
 

@@ -23,8 +23,7 @@ Chart's first row. If you want to place a non-default axis in your chart, check 
       annotations: ann
     })
 
-Live demo
----------
+----
 
 .. raw:: html
 
