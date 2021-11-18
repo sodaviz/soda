@@ -78,6 +78,9 @@ export class AnnotationGroup<A extends Annotation> extends Annotation {
     }
   }
 
+  /**
+   * A convenience getter that returns the row property.
+   */
   get y(): number {
     return this.row;
   }
