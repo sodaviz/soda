@@ -20,11 +20,11 @@ The basics
 
 **Contents:**
 
- - :ref:`tutorial-creating-a-chart`
- - :ref:`tutorial-rendering-annotations`
- - :ref:`tutorial-axis`
- - :ref:`tutorial-zooming`
- - :ref:`tutorial-constraining-zoom`
- - :ref:`tutorial-resizing`
- - :ref:`tutorial-row-stripes`
- - :ref:`tutorial-render-range`
+- :ref:`tutorial-creating-a-chart`
+- :ref:`tutorial-rendering-annotations`
+- :ref:`tutorial-axis`
+- :ref:`tutorial-zooming`
+- :ref:`tutorial-constraining-zoom`
+- :ref:`tutorial-resizing`
+- :ref:`tutorial-row-stripes`
+- :ref:`tutorial-render-range`

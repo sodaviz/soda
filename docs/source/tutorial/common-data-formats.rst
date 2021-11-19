@@ -12,5 +12,5 @@ Using common Bioinformatics data formats
 
 **Contents:**
 
- - :ref:`tutorial-bed`
- - :ref:`tutorial-gff3`
+- :ref:`tutorial-bed`
+- :ref:`tutorial-gff3`
