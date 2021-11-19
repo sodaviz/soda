@@ -106,7 +106,7 @@ end
 
 .. container:: content
 
-  A BED3 field that describes the ending position of the record. This is chromEnd in the BED spec, but it's end here to fit in better with the rest of SODA.
+  The end position of the annotation in semantic coordinates (generally a position on a chromosome in base pairs).
 
 id
 **
@@ -184,7 +184,7 @@ start
 
 .. container:: content
 
-  A BED3 field that describes the starting position of the record. This is chromStart in the BED spec, but it's start here to fit in better with the rest of SODA.
+  The start position of the annotation in semantic coordinates (generally a position on a chromosome in base pairs).
 
 strand
 ******

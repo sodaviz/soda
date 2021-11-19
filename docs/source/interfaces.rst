@@ -11,7 +11,6 @@ Interfaces
    interfaces/AnnotationGenerationConfig
    interfaces/ArcConfig
    interfaces/BarPlotConfig
-   interfaces/BedRecord
    interfaces/ChartConfig
    interfaces/ChevronGlyphConfig
    interfaces/ChevronLineConfig

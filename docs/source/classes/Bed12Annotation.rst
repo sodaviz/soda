@@ -54,7 +54,7 @@ blockCount
 
 .. container:: content
 
-  
+  A BED12 field for records that should be drawn as discontiguous/fragmented glyphs. This describes the number of fragments.
 
 blockSizes
 **********
@@ -67,7 +67,7 @@ blockSizes
 
 .. container:: content
 
-  
+  A BED12 field for records that should be drawn as discontiguous/fragmented glyphs. This describes the size of each fragment.
 
 blockStarts
 ***********
@@ -80,7 +80,7 @@ blockStarts
 
 .. container:: content
 
-  
+  A BED12 field for records that should be drawn as discontiguous/fragmented glyphs. This describes the offset of each fragment.
 
 chrom
 *****
@@ -132,7 +132,7 @@ itemRgb
 
 .. container:: content
 
-  
+  A BED9 field BED field that defines the color of the feature. It is an RGB string, e.g. (0, 1, 256).
 
 name
 ****
@@ -145,7 +145,7 @@ name
 
 .. container:: content
 
-  
+  A BED6 field that describes the name of the record.
 
 row
 ***
@@ -171,7 +171,7 @@ score
 
 .. container:: content
 
-  
+  A BED6 field that describes the "score" of the record.
 
 start
 *****
@@ -197,7 +197,7 @@ strand
 
 .. container:: content
 
-  
+  A BED6 field that describes the orientation/strand of the record.
 
 suppressWarnings
 ****************
@@ -223,7 +223,7 @@ thickEnd
 
 .. container:: content
 
-  
+  A BED9 field that describes at which coordinate the feature should stop being drawn "thickly."
 
 thickStart
 **********
@@ -236,7 +236,7 @@ thickStart
 
 .. container:: content
 
-  
+  A BED9 field that describes at which coordinate the feature should start being drawn "thickly."
 
 width
 *****

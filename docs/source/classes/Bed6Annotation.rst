@@ -93,7 +93,7 @@ name
 
 .. container:: content
 
-  
+  A BED6 field that describes the name of the record.
 
 row
 ***
@@ -119,7 +119,7 @@ score
 
 .. container:: content
 
-  
+  A BED6 field that describes the "score" of the record.
 
 start
 *****
@@ -145,7 +145,7 @@ strand
 
 .. container:: content
 
-  
+  A BED6 field that describes the orientation/strand of the record.
 
 suppressWarnings
 ****************
