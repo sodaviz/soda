@@ -3,7 +3,6 @@
 Rendering GFF3 data
 ===================
 
-
 .. code-block:: typescript
 
     import * as d3 from 'https://cdn.skypack.dev/d3';
