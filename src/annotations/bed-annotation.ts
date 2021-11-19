@@ -4,18 +4,22 @@ import { Orientation } from "./orientation";
 /**
  * @internal
  */
-export type Bed3Record = Omit<
-  BedRecord,
-  | "name"
-  | "score"
-  | "strand"
-  | "thickStart"
-  | "thickEnd"
-  | "itemRgb"
-  | "blockCount"
-  | "blockSizes"
-  | "blockStarts"
->;
+export interface Bed3Record {
+  /**
+   * A BED3 field that describes the chromosome of the record.
+   */
+  chrom: string;
+  /**
+   * A BED3 field that describes the starting position of the record. This is chromStart in the BED spec, but it's
+   * start here to fit in better with the rest of SODA.
+   */
+  start: number;
+  /**
+   * A BED3 field that describes the ending position of the record. This is chromEnd in the BED spec, but it's end
+   * here to fit in better with the rest of SODA.
+   */
+  end: number;
+}
 
 /**
  * A type that defines the parameters to initialize a Bed3Annotation.
@@ -40,11 +44,20 @@ export class Bed3Annotation extends Annotation {
 /**
  * @internal
  */
-export type Bed6Record = Bed3Record & {
+export interface Bed6Record extends Bed3Record {
+  /**
+   * A BED6 field that describes the name of the record.
+   */
   name: string;
+  /**
+   * A BED6 field that describes the "score" of the record.
+   */
   score: number;
+  /**
+   * A BED6 field that describes the orientation/strand of the record.
+   */
   strand: Orientation;
-};
+}
 
 /**
  * A type that defines the parameters to initialize a Bed6Annotation.
@@ -71,11 +84,21 @@ export class Bed6Annotation extends Bed3Annotation {
 /**
  * @internal
  */
-export type Bed9Record = Bed6Record & {
+export interface Bed9Record extends Bed6Record {
+  /**
+   * A BED9 field that describes at which coordinate the feature should start being drawn "thickly."
+   */
   thickStart: number;
+  /**
+   * A BED9 field that describes at which coordinate the feature should stop being drawn "thickly."
+   */
   thickEnd: number;
+  /**
+   * A BED9 field BED field that defines the color of the feature. It is an RGB string, e.g. (0, 1,
+   * 256).
+   */
   itemRgb: string;
-};
+}
 
 /**
  * A type that defines the parameters to initialize a Bed9Annotation.
@@ -102,11 +125,23 @@ export class Bed9Annotation extends Bed6Annotation {
 /**
  * @internal
  */
-export type Bed12Record = Bed9Record & {
+export interface Bed12Record extends Bed9Record {
+  /**
+   * A BED12 field for records that should be drawn as discontiguous/fragmented glyphs. This describes the number of
+   * fragments.
+   */
   blockCount: number;
+  /**
+   * A BED12 field for records that should be drawn as discontiguous/fragmented glyphs. This describes the size of each
+   * fragment.
+   */
   blockSizes: number[];
+  /**
+   * A BED12 field for records that should be drawn as discontiguous/fragmented glyphs. This describes the offset of
+   * each fragment.
+   */
   blockStarts: number[];
-};
+}
 
 /**
  * A type that defines the parameters to initialize a Bed12Annotation.
@@ -132,6 +167,7 @@ export class Bed12Annotation extends Bed9Annotation {
 
 /**
  * An interface that describes BED records. For more information, see https://genome.ucsc.edu/FAQ/FAQformat.html#format1
+ * @internal
  */
 export interface BedRecord {
   /**
