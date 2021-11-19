@@ -86,6 +86,8 @@ Here, we'll just define a string inline that holds some BED records, parse it in
       annotations: ann
     })
 
+----
+
 Finally, here's a full example that omits explicit type annotations to be a bit more concise:
 
 .. code-block:: typescript
