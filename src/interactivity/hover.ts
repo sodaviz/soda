@@ -3,6 +3,7 @@ import { Annotation } from "../annotations/annotation";
 import { AnnotationDatum } from "../glyphs/bind";
 import { Chart } from "../charts/chart";
 import { InteractionCallback } from "./interaction-callback";
+import { InteractionConfig } from "./interaction-config";
 
 /**
  * @internal
@@ -44,11 +45,8 @@ function getMouseoutList<A extends Annotation>(ann: A): Function[] {
 /**
  * An interface that defines the parameters for a call to the hoverBehavior function.
  */
-export interface HoverConfig<A extends Annotation, C extends Chart<any>> {
-  /**
-   * The annotations that are going to get the hover behavior.
-   */
-  annotations: A[];
+export interface HoverConfig<A extends Annotation, C extends Chart<any>>
+  extends InteractionConfig<A, C> {
   /**
    * A callback function that will be responsible for executing the mouseover behavior. It receives a d3 selection
    * of the glyph and the Annotation object it represents as arguments.

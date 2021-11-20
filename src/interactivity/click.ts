@@ -3,6 +3,7 @@ import { Annotation } from "../annotations/annotation";
 import { InteractionCallback } from "./interaction-callback";
 import { Chart } from "../charts/chart";
 import { AnnotationDatum } from "../glyphs/bind";
+import { InteractionConfig } from "./interaction-config";
 
 /**
  * @internal
@@ -12,6 +13,7 @@ const clickBehaviorMap: Map<string, Function[]> = new Map();
 /**
  * This function returns the list of click behaviors that are associated with an Annotation object.
  * @param ann
+ * @internal
  */
 function getClickList<A extends Annotation>(ann: A): Function[] {
   let list = clickBehaviorMap.get(ann.id);
@@ -25,11 +27,8 @@ function getClickList<A extends Annotation>(ann: A): Function[] {
 /**
  * An interface that defines the parameters for a call to the clickBehavior function.
  */
-export interface ClickConfig<A extends Annotation, C extends Chart<any>> {
-  /**
-   * The annotations that are going to get the click behavior.
-   */
-  annotations: A[];
+export interface ClickConfig<A extends Annotation, C extends Chart<any>>
+  extends InteractionConfig<A, C> {
   /**
    * A callback function that will be responsible for executing the click behavior. It will implicitly receive
    * references to both a D3 Selection to the Annotation's representative glyph and the Annotation object itself.
