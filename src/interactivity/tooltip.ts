@@ -4,6 +4,7 @@ import { Chart } from "../charts/chart";
 import { hoverBehavior } from "./hover";
 import { GlyphProperty, resolveValue } from "../glyphs/glyph-modifier";
 import { AnnotationDatum } from "../glyphs/bind";
+import { InteractionConfig } from "./interaction-config";
 
 /**
  * @internal
@@ -37,11 +38,8 @@ function initTooltipDiv(): void {
 /**
  * An interface that defines the parameters for a call to the tooltip function.
  */
-export interface TooltipConfig<A extends Annotation, C extends Chart<any>> {
-  /**
-   * The list of Annotations that will get the tooltip
-   */
-  annotations: A[];
+export interface TooltipConfig<A extends Annotation, C extends Chart<any>>
+  extends InteractionConfig<A, C> {
   /**
    * This defines the text for the tooltip.
    * @param a The Annotation object.

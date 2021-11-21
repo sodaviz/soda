@@ -15,12 +15,8 @@ export {
   ChevronRectangleConfig,
 } from "./glyphs/chevron";
 export { GlyphConfig } from "./glyphs/glyph-config";
-export {
-  getAllAnnotationIds,
-  getAnnotationById,
-  getSelectionById,
-  getSelectionListById,
-} from "./glyphs/id-map";
+export { GlyphMapQueryConfig, queryGlyphMap } from "./glyphs/glyph-map";
+export { getAllAnnotationIds, getAnnotationById } from "./glyphs/id-map";
 export { line, LineConfig } from "./glyphs/line";
 export {
   barPlot,
