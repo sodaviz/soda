@@ -1,9 +1,9 @@
-import { getSelectionById } from "../glyphs/id-map";
 import { Annotation } from "../annotations/annotation";
 import { InteractionCallback } from "./interaction-callback";
 import { Chart } from "../charts/chart";
 import { AnnotationDatum } from "../glyphs/bind";
 import { InteractionConfig } from "./interaction-config";
+import { GlyphMapping, queryGlyphMap } from "../glyphs/glyph-map";
 
 /**
  * @internal
@@ -44,12 +44,29 @@ export function clickBehavior<A extends Annotation, C extends Chart<any>>(
   config: ClickConfig<A, C>
 ): void {
   for (const ann of config.annotations) {
+    let mapping = queryGlyphMap({
+      id: ann.id,
+      chart: config.chart,
+    });
+
+    if (mapping == undefined) {
+      console.error("No glyph mapping for Annotation ID", ann.id);
+      return;
+    }
+
     let clickList = getClickList(ann);
     clickList.push(config.click);
-    let selection = getSelectionById(ann.id);
+
     // prettier-ignore
-    selection
-      .on("click", click);
+    if (Array.isArray(mapping)) {
+      for (const map of mapping) {
+        map.selection
+          .on("click", click);
+      }
+    } else {
+      mapping.selection
+        .on("click", click);
+    }
   }
 }
 
@@ -62,9 +79,23 @@ export function clickBehavior<A extends Annotation, C extends Chart<any>>(
 function click<A extends Annotation, C extends Chart<any>>(
   datum: AnnotationDatum<A, C>
 ): void {
-  let selection = getSelectionById(datum.a.id);
+  let mapping = queryGlyphMap({
+    id: datum.a.id,
+    chart: datum.c,
+  });
+
+  if (mapping == undefined) {
+    console.error(
+      "GlyphMapping undefined for Annotation ID",
+      datum.a.id,
+      "in call to click()"
+    );
+    return;
+  }
+
+  mapping = <GlyphMapping>mapping;
   let behaviors = getClickList(datum.a);
   for (const behavior of behaviors) {
-    behavior(selection, datum);
+    behavior(mapping.selection, datum);
   }
 }

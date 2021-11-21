@@ -1,8 +1,8 @@
 import { Annotation } from "../annotations/annotation";
 import { Chart } from "../charts/chart";
 import * as d3 from "d3";
-import { mapIdToAnnotation, mapIdToSelection } from "./id-map";
 import { GlyphConfig } from "./glyph-config";
+import { mapGlyphs } from "./glyph-map";
 
 /**
  * An interface that simply joins an Annotation object and a Chart is has been rendered in.
@@ -114,10 +114,17 @@ export function bind<
   let exit = dataSelection.exit<AnnotationDatum<A, C>>();
   dataSelection.exit().remove();
 
-  merge.each((d, i, nodes) => {
-    mapIdToSelection(d.a.id, d3.select(nodes[i]));
-    mapIdToAnnotation(d.a.id, d.a);
+  let binding: Binding<A, C, E> = {
+    g,
+    enter,
+    merge,
+    exit,
+  };
+
+  mapGlyphs({
+    binding,
+    chart: config.chart,
   });
 
-  return { g, enter, merge, exit };
+  return binding;
 }
