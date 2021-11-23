@@ -1,3 +1,8 @@
+/**
+ * This css file was taken from Godot's AWESOME documentation and modified to fit SODA's theme
+ * You can find the original file at: https://github.com/godotengine/godot-docs/blob/master/_static/css/custom.css
+ */
+
 p {
     margin: 0 0 12px;
 }
@@ -14,11 +19,6 @@ p {
     font-size: 15px;
 }
 
-
-/*.active, .collapsible:hover {*/
-/*    background-color: #555;*/
-/*}*/
-
 .content {
     max-height: 0;
     overflow: hidden;
@@ -27,28 +27,20 @@ p {
     margin-bottom: 16px;
 }
 
-.highlight pre:before {
+.collapsible .highlight pre:before {
     content: '\02795'; /* Unicode character for "plus" sign (+) */
-    /*background-image: url(https://doc.rust-lang.org/toggle-plus1.56.1.svg);*/
-    /*content: "▶";*/
     font-size: 12px;
     color: cadetblue;
     float: right;
-    /*position:absolute;*/
     margin-right: 10px;
 }
 
 .active pre:before {
     content: "\2796"; /* Unicode character for "minus" sign (-) */
-    /*content: "▼";*/
 }
 
 .rst-content div[class^=highlight], .rst-content pre.literal-block {
     margin-bottom: 12px;
-}
-
-.collapsible .highlight {
-    background-color: #efefef;
 }
 
 /**
@@ -119,7 +111,9 @@ p {
     --search-credits-color: #b3b3b3; /* derived from --footer-color */
     --search-credits-link-color: #4392c5; /* derived from --link-color */
 
-    --highlight-background-color: #f5ffe1;
+
+
+--highlight-background-color: #efefef;
     --highlight-background-emph-color: #dbe6c3;
     --highlight-default-color: #404040;
     --highlight-comment-color: #408090;
