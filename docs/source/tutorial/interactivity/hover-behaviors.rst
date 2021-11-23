@@ -3,8 +3,40 @@
 Hover behaviors
 ===============
 
+Hover behaviors can be bound to glyphs using the :ref:`hoverBehavior` function.
+The hoverBehavior function takes a :ref:`HoverConfig` as an argument.
+
 .. code-block:: typescript
 
+    let chart = new soda.Chart({
+      selector: "#soda-chart",
+      axis: true,
+      zoomable: true,
+      inRender: function (this, params): void {
+        soda.rectangle({
+          chart: this,
+          annotations: params.annotations || []
+        })
+
+        soda.hoverBehavior({
+          annotations: params.annotations,
+          mouseover: (s, d) => {
+            s.style("fill", "cadetblue")
+          },
+          mouseout: (s, d) => {
+            s.style("fill", "black")
+          }
+        })
+      }
+    });
+
+    let ann: Soda.Annotation = soda.generateAnnotations({
+      n: 10
+    })
+
+    chart.render({
+      annotations: ann
+    })
 
 ----
 

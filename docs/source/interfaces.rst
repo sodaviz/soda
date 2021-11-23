@@ -20,6 +20,7 @@ Interfaces
    interfaces/Gff3AnnotationConfig
    interfaces/Gff3Record
    interfaces/GlyphConfig
+   interfaces/GlyphMapping
    interfaces/HorizontalAxisConfig
    interfaces/HoverConfig
    interfaces/LineConfig

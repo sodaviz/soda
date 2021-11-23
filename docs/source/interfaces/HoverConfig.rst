@@ -43,7 +43,20 @@ annotations
 
 .. container:: content
 
-  The annotations that are going to get the hover behavior.
+  The Annotations to which the interaction is applied.
+
+chart
+*****
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    chart: undefined | C
+
+.. container:: content
+
+  The Chart to which the interaction is applied.
 
 mouseout
 ********

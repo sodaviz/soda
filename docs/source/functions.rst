@@ -20,8 +20,6 @@ Functions
    functions/getAnnotationById
    functions/getAxis
    functions/getHorizontalAxisAnnotation
-   functions/getSelectionById
-   functions/getSelectionListById
    functions/greedyGraphLayout
    functions/heatmap
    functions/heuristicGraphLayout
@@ -30,7 +28,6 @@ Functions
    functions/intervalGraphLayout
    functions/line
    functions/linePlot
-   functions/mapIdToAnnotation
    functions/parseBed12Record
    functions/parseBed3Record
    functions/parseBed6Record
@@ -39,6 +36,7 @@ Functions
    functions/parseGff3Record
    functions/parseOrientation
    functions/parseRecordsFromString
+   functions/queryGlyphMap
    functions/rectangle
    functions/resolveValue
    functions/sequence

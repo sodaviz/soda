@@ -43,7 +43,7 @@ annotations
 
 .. container:: content
 
-  The list of Annotations that will get the tooltip
+  The Annotations to which the interaction is applied.
 
 backgroundColor
 ***************
@@ -70,6 +70,19 @@ borderRadius
 .. container:: content
 
   This defines the border radius of the tooltip.
+
+chart
+*****
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    chart: undefined | C
+
+.. container:: content
+
+  The Chart to which the interaction is applied.
 
 opacity
 *******

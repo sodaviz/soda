@@ -3,8 +3,35 @@
 Tooltips
 ========
 
+Toolips can be bound to glyphs using the :ref:`tooltip` function.
+The tooltip function takes a :ref:`TooltipConfig` as an argument.
+
 .. code-block:: typescript
 
+    let chart = new soda.Chart({
+      selector: "#soda-chart",
+      axis: true,
+      zoomable: true,
+        inRender: function (this, params): void {
+        soda.rectangle({
+          chart: this,
+          annotations: params.annotations || []
+        })
+
+        soda.tooltip({
+          annotations: params.annotations,
+          text: (d) => d.a.id
+        })
+      }
+    });
+
+    let ann: Soda.Annotation = soda.generateAnnotations({
+      n: 10
+    })
+
+    chart.render({
+      annotations: ann
+    })
 
 ----
 
