@@ -1,4 +1,4 @@
-.. _tutorial-exporting-images:
+.. _exporting-images:
 
 Exporting images
 ================
