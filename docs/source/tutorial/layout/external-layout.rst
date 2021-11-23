@@ -3,7 +3,20 @@
 Externally defining a layout
 ============================
 
+If you don't want to use a SODA layout function, you're free to define a layout by adjusting the row properties of your :ref:`Annotation` objects.
+
+For example, if we wanted to force every glyph into its own row, we might do something like this:
+
 .. code-block:: typescript
+
+    let ann: Soda.Annotation = soda.generateAnnotations({
+      n: 100,
+    })
+
+    let row = 0;
+    for (const a of ann) {
+      a.row = row++;
+    }
 
 ----
 

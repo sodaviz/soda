@@ -3,7 +3,18 @@
 Explicitly calling a SODA layout function
 =========================================
 
+We can also explicitly call one of SODA's layout functions on a list of Annotations.
+
 .. code-block:: typescript
+
+    let ann: Soda.Annotation = soda.generateAnnotations({
+      n: 100,
+      generationPattern: soda.GenerationPattern.Random
+    })
+
+    // this applies a layout directly to the Annotation
+    // objects by modifying their row properties
+    soda.intervalGraphLayout(ann);
 
 ----
 
