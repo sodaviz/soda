@@ -3,7 +3,53 @@
 Syncing the zoom level across multiple charts
 =============================================
 
+In this example, we'll build a multi-chart visualization that acts more like a set of "tracks" in a genome browser, where each Chart has a synchronized zoom level.
+
+We'll start off by instantiating a couple of Charts:
+
 .. code-block:: typescript
+
+    let chart = new soda.Chart({
+      selector: "#soda-chart",
+      axis: true,
+      zoomable: true
+    });
+
+    // we'll leave the axis off of this one
+    let chart2 = new soda.Chart({
+      zoomable: true,
+      inRender: function(this, params): void {
+        soda.rectangle({
+          chart: this,
+          annotations: params.annotations || [],
+          fillColor: "cadetblue"
+        })
+      }
+    });
+
+Now we'll create a :ref:`ZoomSyncer` object and add the Charts to it.
+After we've done this, the Charts will have synchronized zooming and panning.
+
+.. code-block:: typescript
+
+    let zoomSyncer = new soda.ZoomSyncer();
+    zoomSyncer.add([chart, chart2]);
+
+Finally we can render some glyphs as usual:
+
+.. code-block:: typescript
+
+    let ann: Soda.Annotation = soda.generateAnnotations({
+      n: 10
+    })
+
+    chart.render({
+      annotations: ann
+    })
+
+    chart2.render({
+      annotations: ann
+    })
 
 ----
 
