@@ -15,6 +15,8 @@ Custom rendering
     custom-rendering/chevron-rectangles
     custom-rendering/text
 
+This section showcases some of SODA's lower level customization features.
+
 **Contents:**
 
 - :ref:`tutorial-colored-rectangles`

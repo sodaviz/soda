@@ -18,6 +18,8 @@ The basics
     basics/row-stripes
     basics/render-range
 
+This section of the tutorial covers the basics of what makes up a SODA visualization and some higher level customizations that can be made.
+
 **Contents:**
 
 - :ref:`tutorial-creating-a-chart`

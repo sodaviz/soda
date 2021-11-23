@@ -16,6 +16,9 @@ Tutorial
     tutorial/multi-chart
 
 This tutorial explains SODA concepts by example.
+Throughout the tutorial, it is generally assumed you have read everything up to the point you are currently at.
+If you get confused, try backing up a bit.
+If you find anything that seems missing or poorly explained, we're interested in `hearing about it`_.
 
 **Contents:**
 
@@ -26,3 +29,5 @@ This tutorial explains SODA concepts by example.
 - :ref:`interactivity` - learn how to add interactive behaviors to a SODA visualization
 - :ref:`exporting-images` - export a SODA visualization as a static image
 - :ref:`multi-chart` - learn how to configure multi-chart SODA visualizations
+
+.. _hearing about it: https://github.com/sodaviz/soda/issues

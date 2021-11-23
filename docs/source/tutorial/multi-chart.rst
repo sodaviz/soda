@@ -10,6 +10,8 @@ Multi-chart visualizations
     multi-chart/multiple-charts
     multi-chart/zoom-sync
 
+This section explains how to configure multi-chart visualizations in SODA.
+
 **Contents:**
 
 - :ref:`tutorial-multiple-charts`

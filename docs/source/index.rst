@@ -13,8 +13,7 @@ Welcome to SODA's documentation!
     SODA issues <https://github.com/sodaviz/soda/issues>
     SODA website <https://sodaviz.org>
 
-This is the documentation for SODA.
-Here, you will find descriptions o
+This is the documentation for SODA, a TypeScript/Javascript library for creating genomic annotation visualizations.
 
 ----
 
