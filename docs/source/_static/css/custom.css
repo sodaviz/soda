@@ -35,7 +35,7 @@ p {
     margin-right: 10px;
 }
 
-.active pre:before {
+.collapsible.active .highlight pre:before {
     content: "\2796"; /* Unicode character for "minus" sign (-) */
 }
 
