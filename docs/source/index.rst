@@ -9,6 +9,9 @@ Welcome to SODA's documentation!
     installation
     tutorial
     api
+    SODA GitHub <https://github.com/sodaviz/soda>
+    SODA issues <https://github.com/sodaviz/soda/issues>
+    SODA website <https://sodaviz.org>
 
 This is the documentation for SODA.
 Here, you will find descriptions o
