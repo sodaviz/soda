@@ -353,13 +353,13 @@ a.btn:hover {
 .reference.external {
     background-position: center right;
     background-repeat: no-repeat;
-    background-image: var(--external-reference-icon);
+    /*background-image: var(--external-reference-icon);*/
     padding-right: 13px;
 }
 
 /* Distinguish class reference page links from "user manual" page links with a "ref" badge. */
 a[href*="classes/"]::before {
-    content: "ref";
+    /*content: "ref";*/
     color: var(--classref-badge-text-color);
     background-color: hsla(0, 0%, 50%, 0.3);
     font-weight: 700;
