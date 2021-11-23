@@ -75,8 +75,17 @@ export interface ViewRange {
  * Transform objects are used to describe and perform transformations on glyphs.
  */
 export interface Transform extends d3.ZoomTransform {
+  /**
+   * The x translation described by the Transform.
+   */
   x: number;
+  /**
+   * The y translation described by the Transform.
+   */
   y: number;
+  /**
+   * The scaling factor described by the Transform.
+   */
   k: number;
 }
 
