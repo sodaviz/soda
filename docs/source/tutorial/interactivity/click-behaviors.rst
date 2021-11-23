@@ -3,8 +3,47 @@
 Click behaviors
 ===============
 
-Click behaviors can be bound to glyphs using the :ref:`clickBehavior` function.
-The clickBehavior function takes a :ref:`ClickConfig` as an argument.
+Once glyphs have been rendered in a :ref:`Chart`, you can bind arbitrary click behaviors to them using the :ref:`clickBehavior` function.
+In this example, we'll set up a click behavior that calls the browser's alert() function when a glyph is clicked.
+
+To start off, let's first instantiate a Chart and render some glyphs:
+
+.. code-block:: typescript
+
+    let chart = new soda.Chart({
+      selector: "#soda-chart",
+      axis: true,
+      zoomable: true,
+    });
+
+    let ann: Soda.Annotation = soda.generateAnnotations({
+      n: 10
+    })
+
+    chart.render({
+      annotations: ann
+    })
+
+Now, we'll make a call to the clickBehavior function, which takes a :ref:`ClickConfig` object as an argument.
+All we need to do is supply a list of Annotations and a callback function that will be executed when a glyph is clicked.
+The callback function receives as arguments a reference to a D3 Selection to the glyph that was clicked and the :ref:`AnnotationDatum` bound to that glyph.
+
+.. code-block:: typescript
+
+    // explicit type parameters added for clarity
+    soda.clickBehavior<soda.Annotation, soda.Chart>({
+      annotations: ann
+      click: (
+        // we're usually not too concerned about how the D3 Selection is typed
+        s: d3.Selection<any, any, any, any>,
+        // explicit type parameters added for clarity
+        d: AnnotationDatum<soda.Annotation, soda.Chart<any>>
+       ) => {
+        alert(`${d.a.id} clicked`)
+      }
+    })
+
+Finally, here's a full example that omits explicit type parameters and performs the call to clickBehavior in an inRender override:
 
 .. code-block:: typescript
 
