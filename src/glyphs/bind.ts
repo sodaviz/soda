@@ -83,16 +83,19 @@ export function bind<
 ): Binding<A, C, E> {
   let parent;
   if (config.bindTarget == BindTarget.Viewport) {
-    parent = config.chart.viewportSelection;
+    parent = config.chart.viewportSelection.selectAll("g#glyphs");
   } else if (config.bindTarget == BindTarget.Overflow) {
     parent = config.chart.overflowViewportSelection;
   } else if (config.bindTarget == BindTarget.Defs) {
     parent = config.chart.defSelection;
   } else {
-    parent = config.bindTarget || config.chart.viewportSelection;
+    parent =
+      config.bindTarget || config.chart.viewportSelection.selectAll("g#glyphs");
   }
 
+  //@ts-ignore
   let g = parent
+    //@ts-ignore
     .selectAll<SVGGElement, string>(`g.${config.selector}`)
     .data([selector], (d: string) => d)
     .enter()

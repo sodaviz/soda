@@ -6,3 +6,4 @@ export * from "./layout";
 export * from "./observers";
 export * from "./parsers";
 export * from "./utilities";
+export * as d3 from "d3";

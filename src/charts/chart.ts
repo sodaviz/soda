@@ -444,6 +444,7 @@ export class Chart<P extends RenderParams> {
       .append("svg")
       .style("vertical-align", "top")
       .attr("overflow", "hidden");
+    this.viewportSelection.append("g").attr("id", "glyphs");
 
     this.overflowViewportSelection = this.padSelection
       .append("svg")
