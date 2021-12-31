@@ -68,11 +68,11 @@ function distributeXValues(
   start: number,
   width: number
 ): number[] {
-  let values = [...Array(nValues).keys()].map((v) => v + start);
+  let values = [...Array(nValues).keys()];
   const xScale = d3
     .scaleLinear<number, number>()
     .domain([0, nValues])
-    .range([0, width]);
+    .range([start, start + width]);
 
   let xValues = values.map((v) => xScale(v));
   return xValues;
