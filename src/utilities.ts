@@ -10,3 +10,4 @@ export {
 } from "./utilities/aggregate";
 export { exportPng } from "./utilities/export-png";
 export { generateId } from "./utilities/id-generation";
+export { internalD3 } from "./utilities/soda-d3";
