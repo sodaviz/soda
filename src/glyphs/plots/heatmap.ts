@@ -14,6 +14,15 @@ export interface HeatmapConfig<P extends PlotAnnotation, C extends Chart<any>>
   extends GlyphConfig<P, C> {
   initializeFn?: (this: HeatmapModifier<P, C>) => void;
   zoomFn?: (this: HeatmapModifier<P, C>) => void;
+  /**
+   * The function that will be used to define the output of the color scale used for the heatmap. See
+   * https://github.com/d3/d3-scale-chromatic for more information.
+   */
+  colorScheme?: (t: number) => string;
+  /**
+   * The domain of the heatmap color scale. This defaults to [0, 1].
+   */
+  domain?: [number, number];
 }
 
 /**
@@ -33,20 +42,33 @@ export class HeatmapModifier<
   P extends PlotAnnotation,
   C extends Chart<any>
 > extends GlyphModifier<P, C> {
+  /**
+   * The function that will be used to define the output of the color scale used for the heatmap. See
+   * https://github.com/d3/d3-scale-chromatic for more information.
+   */
+  colorScheme: (t: number) => string;
+  /**
+   * The domain of the heatmap color scale. This defaults to [0, 1].
+   */
+  domain: [number, number];
+  colorScale: d3.ScaleSequential<string>;
+
   constructor(config: HeatmapModifierConfig<P, C>) {
     super(config);
     this.strokeColor = config.strokeColor || "none";
+    this.colorScheme = config.colorScheme || d3.interpolatePRGn;
+    this.domain = config.domain || [0, 1];
+    this.colorScale = d3.scaleSequential(this.colorScheme).domain(this.domain);
   }
 
   defaultInitialize() {
     super.defaultInitialize();
-    let colorScale = d3.scaleSequential(d3.interpolatePRGn).domain([0, 100]);
     this.selection
       .selectAll("rect")
       .data((d) => d.a.points)
       .enter()
       .append("rect")
-      .attr("fill", (p) => colorScale(p[1]));
+      .attr("fill", (p) => this.colorScale(p[1]));
     this.zoom();
   }
 
