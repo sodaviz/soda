@@ -90,7 +90,12 @@ export function arc<A extends Annotation, C extends Chart<any>>(
   let selector = config.selector || generateId("soda-arc-glyph");
   let internalSelector = selector + "-internal";
 
-  let binding = bind<A, C, SVGPathElement>(selector, "path", config);
+  let binding = bind<A, C, SVGPathElement>({
+    ...config,
+    selector,
+    internalSelector,
+    elementType: "path",
+  });
 
   let modifier = new ArcModifier({
     ...config,

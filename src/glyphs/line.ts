@@ -93,7 +93,12 @@ export function line<A extends Annotation, C extends Chart<any>>(
   let selector = config.selector || generateId("soda-line-glyph");
   let internalSelector = selector + "-internal";
 
-  let binding = bind<A, C, SVGLineElement>(selector, "line", config);
+  let binding = bind<A, C, SVGLineElement>({
+    ...config,
+    selector,
+    internalSelector,
+    elementType: "line",
+  });
 
   let modifier = new LineModifier({
     ...config,

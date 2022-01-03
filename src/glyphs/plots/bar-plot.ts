@@ -105,7 +105,12 @@ export function barPlot<P extends PlotAnnotation, C extends Chart<any>>(
 
   setYScales(barPlotScaleMap, config);
 
-  let binding = bind<P, C, SVGGElement>(selector, "g", config);
+  let binding = bind<P, C, SVGGElement>({
+    ...config,
+    selector,
+    internalSelector,
+    elementType: "g",
+  });
 
   let modifier = new BarPlotModifier({
     ...config,

@@ -1033,7 +1033,7 @@ export class Chart<P extends RenderParams> {
         annotations: [this._axisAnn],
         y: () => -20,
         fixed: true,
-        bindTarget: BindTarget.Overflow,
+        target: BindTarget.Overflow,
       });
     }
   }

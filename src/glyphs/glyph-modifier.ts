@@ -128,7 +128,6 @@ export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
    */
   defaultInitialize() {
     this.applyId();
-    this.applyClass();
     this.applyStrokeWidth();
     this.applyStrokeColor();
     this.applyStrokeOpacity();

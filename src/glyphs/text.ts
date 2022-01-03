@@ -171,7 +171,12 @@ export function text<A extends Annotation, C extends Chart<any>>(
   let selector = config.selector || generateId("soda-text-glyph");
   let internalSelector = selector + "-internal";
 
-  let binding = bind<A, C, SVGTextElement>(selector, "text", config);
+  let binding = bind<A, C, SVGTextElement>({
+    ...config,
+    selector,
+    internalSelector,
+    elementType: "text",
+  });
 
   let modifier = new TextModifier({
     ...config,

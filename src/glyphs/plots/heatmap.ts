@@ -99,13 +99,19 @@ export function heatmap<P extends PlotAnnotation, C extends Chart<any>>(
   let selector = config.selector || generateId("soda-heatmap-glyph");
   let internalSelector = selector + "-internal";
 
-  let binding = bind<P, C, SVGRectElement>(selector, "g", config);
+  let binding = bind<P, C, SVGGElement>({
+    ...config,
+    selector,
+    internalSelector,
+    elementType: "g",
+  });
 
   let modifier = new HeatmapModifier({
     ...config,
     selector: internalSelector,
     selection: binding.merge,
   });
+
   config.chart.addGlyphModifier(modifier);
 
   return binding.g;

@@ -24,13 +24,19 @@ export function rectangle<A extends Annotation, C extends Chart<any>>(
   let selector = config.selector || generateId("soda-rect-glyph");
   let internalSelector = selector + "-internal";
 
-  let binding = bind<A, C, SVGRectElement>(selector, "rect", config);
+  let binding = bind<A, C, SVGRectElement>({
+    ...config,
+    selector,
+    internalSelector,
+    elementType: "rect",
+  });
 
   let modifier = new GlyphModifier({
     ...config,
     selector: internalSelector,
     selection: binding.merge,
   });
+
   config.chart.addGlyphModifier(modifier);
 
   return binding.g;

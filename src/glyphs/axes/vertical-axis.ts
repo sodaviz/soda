@@ -128,7 +128,12 @@ export function verticalAxis<A extends Annotation, C extends Chart<any>>(
   let selector = config.selector || generateId("soda-vertical-axis-glyph");
   let internalSelector = selector + "-internal";
 
-  let binding = bind<A, C, SVGGElement>(selector, "g", config);
+  let binding = bind<A, C, SVGGElement>({
+    ...config,
+    selector,
+    internalSelector,
+    elementType: "g",
+  });
 
   let modifier = new VerticalAxisModifier({
     selector: internalSelector,

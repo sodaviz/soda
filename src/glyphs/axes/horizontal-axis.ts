@@ -168,7 +168,12 @@ export function horizontalAxis<A extends Annotation, C extends Chart<any>>(
   let selector = config.selector || generateId("soda-horizontal-axis-glyph");
   let internalSelector = generateId("soda-horizontal-axis-glyph-internal");
 
-  let binding = bind<A, C, SVGGElement>(selector, "g", config);
+  let binding = bind<A, C, SVGGElement>({
+    ...config,
+    selector,
+    internalSelector,
+    elementType: "g",
+  });
 
   let modifier = new HorizontalAxisModifier({
     selector: internalSelector,
