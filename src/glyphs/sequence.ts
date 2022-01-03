@@ -85,7 +85,12 @@ export function sequence<S extends SequenceAnnotation, C extends Chart<any>>(
   let selector = config.selector || generateId("soda-sequence-glyph");
   let internalSelector = selector + "-internal";
 
-  let binding = bind<S, C, SVGGElement>(selector, "g", config);
+  let binding = bind<S, C, SVGGElement>({
+    ...config,
+    selector,
+    internalSelector,
+    elementType: "g",
+  });
 
   let modifier = new SequenceModifier({
     ...config,

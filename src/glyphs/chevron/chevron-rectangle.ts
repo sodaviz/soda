@@ -26,36 +26,43 @@ export function chevronRectangle<A extends Annotation, C extends Chart<any>>(
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-chevron-rect-glyph");
   let patternSelector = selector + "-pattern";
+  let patternSelectorInternal = patternSelector + "-internal";
   let rectSelector = selector + "-rect";
+  let rectSelectorInternal = patternSelector + "-internal";
 
-  let outerBinding = bind<A, C, SVGPatternElement>(selector, "pattern", {
+  let outerBinding = bind<A, C, SVGPatternElement>({
     ...config,
     annotations: [],
+    selector,
+    internalSelector: "none",
+    elementType: "g",
   });
 
-  let patternBinding = bind<A, C, SVGPatternElement>(
-    patternSelector,
-    "pattern",
-    {
-      ...config,
-      bindTarget: outerBinding.g,
-    }
-  );
-
-  let rectBinding = bind<A, C, SVGRectElement>(rectSelector, "rect", {
+  let patternBinding = bind<A, C, SVGPatternElement>({
     ...config,
-    bindTarget: outerBinding.g,
+    selector: patternSelector,
+    internalSelector: patternSelectorInternal,
+    elementType: "pattern",
+    target: outerBinding.g,
+  });
+
+  let rectBinding = bind<A, C, SVGRectElement>({
+    ...config,
+    selector: rectSelector,
+    internalSelector: rectSelectorInternal,
+    elementType: "rect",
+    target: outerBinding.g,
   });
 
   let patternModifier = new ChevronPatternModifier({
     ...config,
-    selector: patternSelector,
+    selector: patternSelectorInternal,
     selection: patternBinding.merge,
   });
 
   let rectModifier = new GlyphModifier({
     ...config,
-    selector: rectSelector,
+    selector: rectSelectorInternal,
     selection: rectBinding.merge,
     fillColor: (d) => `url(#${d.a.id})`,
     strokeColor: config.strokeColor || "black",

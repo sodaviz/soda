@@ -23,31 +23,39 @@ export function chevronLine<A extends Annotation, C extends Chart<any>>(
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-chevron-line-glyph");
   let patternSelector = selector + "-pattern";
-  let rectangleSelector = selector + "-rect";
+  let rectSelector = selector + "-rect";
   let lineSelector = selector + "-line";
 
-  let outerBinding = bind<A, C, SVGPatternElement>(selector, "pattern", {
+  let outerBinding = bind<A, C, SVGPatternElement>({
     ...config,
     annotations: [],
+    selector,
+    internalSelector: "none",
+    elementType: "g",
   });
 
-  let patternBinding = bind<A, C, SVGPatternElement>(
-    patternSelector,
-    "pattern",
-    {
-      ...config,
-      bindTarget: outerBinding.g,
-    }
-  );
-
-  let rectBinding = bind<A, C, SVGRectElement>(rectangleSelector, "rect", {
+  let patternBinding = bind<A, C, SVGPatternElement>({
     ...config,
-    bindTarget: outerBinding.g,
+    selector,
+    internalSelector: patternSelector,
+    elementType: "pattern",
+    target: outerBinding.g,
   });
 
-  let lineBinding = bind<A, C, SVGLineElement>(lineSelector, "line", {
+  let rectBinding = bind<A, C, SVGRectElement>({
     ...config,
-    bindTarget: outerBinding.g,
+    selector,
+    internalSelector: rectSelector,
+    elementType: "rect",
+    target: outerBinding.g,
+  });
+
+  let lineBinding = bind<A, C, SVGLineElement>({
+    ...config,
+    selector,
+    internalSelector: lineSelector,
+    elementType: "line",
+    target: outerBinding.g,
   });
 
   let patternModifier = new ChevronPatternModifier({
@@ -58,7 +66,7 @@ export function chevronLine<A extends Annotation, C extends Chart<any>>(
 
   let rectModifier = new GlyphModifier({
     ...config,
-    selector: rectangleSelector,
+    selector: rectSelector,
     selection: rectBinding.merge,
     fillColor: (d) => `url(#${d.a.id})`,
     strokeColor: "none",

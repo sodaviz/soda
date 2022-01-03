@@ -110,7 +110,12 @@ export function linePlot<P extends PlotAnnotation, C extends Chart<any>>(
     rangeEnd: () => 0,
   });
 
-  let binding = bind<P, C, SVGPathElement>(selector, "path", config);
+  let binding = bind<P, C, SVGPathElement>({
+    ...config,
+    selector,
+    internalSelector,
+    elementType: "path",
+  });
 
   let modifier = new LinePlotModifier({
     ...config,

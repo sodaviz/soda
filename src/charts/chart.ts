@@ -1030,10 +1030,11 @@ export class Chart<P extends RenderParams> {
       }
       horizontalAxis({
         chart: this,
+        selector: "soda-default-axis",
         annotations: [this._axisAnn],
         y: () => -20,
         fixed: true,
-        bindTarget: BindTarget.Overflow,
+        target: BindTarget.Overflow,
       });
     }
   }

@@ -25,7 +25,7 @@ export interface GlyphConfig<A extends Annotation, C extends Chart<any>> {
    * When supplying a BindTarget, the rendering function will find the appropriate parent in the supplied Chart.
    * When supplying a D3 selection, the rendering function will explicitly use the selected element.
    */
-  bindTarget?: BindTarget | d3.Selection<any, any, any, any>;
+  target?: BindTarget | d3.Selection<any, any, any, any>;
   /**
    * A callback to define the pixel y coordinate of the glyph
    * @param a
