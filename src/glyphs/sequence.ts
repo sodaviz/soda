@@ -7,12 +7,11 @@ import {
   GlyphModifier,
   GlyphModifierConfig,
   GlyphProperty,
-  resolveValue,
 } from "./glyph-modifier";
 import { GlyphConfig } from "./glyph-config";
 
 /**
- * An interface that defines the parameters for a call to sequenc rendering function.
+ * An interface that defines the parameters for a call to the sequence rendering function.
  */
 export interface SequenceConfig<
   S extends SequenceAnnotation,
@@ -20,7 +19,6 @@ export interface SequenceConfig<
 > extends GlyphConfig<S, C> {
   initializeFn?: (this: SequenceModifier<S, C>) => void;
   zoomFn?: (this: SequenceModifier<S, C>) => void;
-  fontFamily?: GlyphProperty<S, C, string>;
 }
 
 /**
@@ -40,14 +38,20 @@ export class SequenceModifier<
   S extends SequenceAnnotation,
   C extends Chart<any>
 > extends GlyphModifier<S, C> {
-  fontFamily: GlyphProperty<S, C, string>;
+  fontFamily: string;
+  offset: number = 0;
 
   constructor(config: SequenceModifierConfig<S, C>) {
     super(config);
     this.strokeColor = config.strokeColor || "none";
     this.y =
       config.y || ((d: AnnotationDatum<S, C>) => d.c.rowHeight * (d.a.y + 1));
-    this.fontFamily = config.fontFamily || "monospace";
+    this.x =
+      config.x ||
+      ((d: AnnotationDatum<S, C>) => d.c.xScale(d.a.x) - this.offset);
+
+    this.fontFamily = "monospace";
+    this.updateOffset();
   }
 
   defaultInitialize() {
@@ -57,9 +61,24 @@ export class SequenceModifier<
   }
 
   defaultZoom() {
+    this.updateOffset();
     this.applyTextLength();
     this.applyX();
     this.applyY();
+  }
+
+  updateOffset() {
+    let selection = d3.select("body").append("svg");
+
+    let width = selection
+      .append("text")
+      .text("A")
+      .attr("font-family", this.fontFamily)
+      .node()!
+      .getComputedTextLength();
+
+    selection.remove();
+    this.offset = width / 2;
   }
 
   applyFontFamily() {
@@ -69,7 +88,7 @@ export class SequenceModifier<
   applyTextLength() {
     this.applyAttr(
       "textLength",
-      (d) => d.c.xScale(d.a.x + d.a.w) - d.c.xScale(d.a.x)
+      (d) => d.c.xScale(d.a.x + d.a.w - 1) - d.c.xScale(d.a.x) + 2 * this.offset
     );
   }
 }
