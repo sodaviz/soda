@@ -2,6 +2,9 @@ import { SequenceAnnotation } from "../annotations/sequence-annotation";
 
 let blank = "\u2000";
 
+/**
+ * This defines the parameters for a call to the getAlignmentAnnotations() function.
+ */
 export interface AlignmentConfig {
   id: string;
   target: string;
@@ -11,6 +14,9 @@ export interface AlignmentConfig {
   row: number;
 }
 
+/**
+ * The return type for the getAlignmentAnnotations() function.
+ */
 export interface AlignmentAnnotations {
   matches: SequenceAnnotation;
   substitutions: SequenceAnnotation;
@@ -18,6 +24,12 @@ export interface AlignmentAnnotations {
   insertions: SequenceAnnotation[];
 }
 
+/**
+ * This returns a set of SequenceAnnotations defined such that the provided query sequence can be rendered in a
+ * Chart as if it were aligned to a chromosome. The matches, substitutions, gaps, and insertions are returned as
+ * separate objects. The idea here is that they can be rendered individually with different style parameters.
+ * @param config
+ */
 export function getAlignmentAnnotations(config: AlignmentConfig) {
   let targetSplit = config.target.split("");
   let querySplit = config.query.split("");
