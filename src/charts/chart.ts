@@ -257,6 +257,14 @@ export class Chart<P extends RenderParams> {
    */
   _renderParams: P | undefined;
   /**
+   * The width in pixels of the Chart's div.
+   */
+  _divWidth: number = 0;
+  /**
+   * The height in pixels of the Chart's div.
+   */
+  _divHeight: number = 0;
+  /**
    * The number of pixels of padding around each edge of the Chart.
    */
   padSize: number;
@@ -293,9 +301,14 @@ export class Chart<P extends RenderParams> {
    */
   zoomable: boolean;
   /**
-   * A d3 selection to the Chart's DOM container. This is usually a div.
+   * A d3 selection of the Chart's DOM container. This is a pre-existing DOM element (probably a div).
    */
   _containerSelection: d3.Selection<any, any, any, any> | undefined;
+  /**
+   * A d3 selection of the Chart's inner div. This is created when the Chart is instantiated and placed inside of the
+   * selected container in the DOM.
+   */
+  divSelection: d3.Selection<any, any, any, any>;
   /**
    * A d3 selection of the Chart's viewport.
    */
@@ -431,10 +444,12 @@ export class Chart<P extends RenderParams> {
     if (config.selector !== undefined) {
       this._selector = config.selector;
       this._containerSelection = d3.select(this._selector);
-      this.padSelection = this._containerSelection.append("svg");
+      this.divSelection = this._containerSelection.append("div");
     } else {
-      this.padSelection = d3.create("svg:svg").style("vertical-align", "top");
+      this.divSelection = d3.create("div");
+      // this.padSelection = d3.create("svg:svg").style("vertical-align", "top");
     }
+    this.padSelection = this.divSelection.append("svg");
     this.padSelection.attr("xmlns", "http://www.w3.org/2000/svg");
     this.xScale = buildPlaceholderXScale(this);
     this.xScaleBase = this.xScale;
@@ -454,6 +469,10 @@ export class Chart<P extends RenderParams> {
 
     this.padSize = config.padSize || 25;
     this.rowHeight = config.rowHeight || 10;
+
+    this.divSelection
+      .attr("width", "100%")
+      .style("height", 2 * this.padSize + this.rowHeight);
 
     this.padSelection
       .attr("width", "100%")
@@ -559,6 +578,13 @@ export class Chart<P extends RenderParams> {
     this.rowStripeRectSelection
       .attr("height", this.viewportHeight)
       .attr("width", this.viewportWidth);
+  }
+
+  /**
+   * This fits the Chart's div based off of the rowCount, rowHeight, and padSize properties.
+   */
+  public fitDivHeight(): void {
+    this.divHeight = this.rowCount * this.rowHeight + 2 * this.padSize;
   }
 
   /**
@@ -724,6 +750,22 @@ export class Chart<P extends RenderParams> {
   }
 
   /**
+   * Setter for the divHeight property. This actually adjusts the height attribute on the Chart's div in the DOM.
+   * @param height
+   */
+  set divHeight(height: number) {
+    this._divHeight = height;
+    this.divSelection.style("height", `${height}px`);
+  }
+
+  /**
+   * Getter for the divHeight property.
+   */
+  get divHeight() {
+    return this._divHeight;
+  }
+
+  /**
    * Setter for the padHeight property. This actually adjusts the height attribute on the viewport DOM element.
    * @param height
    */
@@ -740,7 +782,7 @@ export class Chart<P extends RenderParams> {
   }
 
   /**
-   * Setter for the padWidth property. This actually adjusts the height attribute on the viewport DOM element.
+   * Setter for the padWidth property. This actually adjusts the width attribute on the viewport DOM element.
    * @param width
    */
   set padWidth(width: number) {
