@@ -199,19 +199,4 @@ export class Annotation {
   set y(y: number) {
     this.row = y;
   }
-
-  public slice(start: number, end: number): Annotation | undefined {
-    if (this.start < end && this.end > start) {
-      let adjStart = Math.max(this.start, start);
-      let adjEnd = Math.min(this.end, end);
-      return new Annotation({
-        id: this.id,
-        start: adjStart,
-        end: adjEnd,
-        row: this.row,
-      });
-    } else {
-      return undefined;
-    }
-  }
 }

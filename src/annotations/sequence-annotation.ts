@@ -1,5 +1,4 @@
 import { Annotation, AnnotationConfig } from "./annotation";
-import { getSliceCoordinates } from "./annotation-utilities";
 
 /**
  * An interface that defines the parameters for initializing a SequenceAnnotation.
@@ -25,23 +24,5 @@ export class SequenceAnnotation extends Annotation {
   public constructor(conf: SequenceAnnotationConfig) {
     super(conf);
     this.sequence = conf.sequence;
-  }
-
-  public slice(start: number, end: number): SequenceAnnotation | undefined {
-    if (this.start < end && this.end > start) {
-      let sliceCoords = getSliceCoordinates(this, start, end);
-      return new SequenceAnnotation({
-        id: this.id,
-        start: sliceCoords.start,
-        end: sliceCoords.end,
-        row: this.row,
-        sequence: this.sequence.slice(
-          sliceCoords.relativeStart,
-          sliceCoords.relativeEnd
-        ),
-      });
-    } else {
-      return undefined;
-    }
   }
 }
