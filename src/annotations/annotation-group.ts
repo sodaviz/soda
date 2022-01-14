@@ -38,6 +38,7 @@ export class AnnotationGroup<A extends Annotation> extends Annotation {
    */
   group: A[] = [];
   suppressWarnings = true;
+
   constructor(config: AnnotationGroupConfig<A>) {
     super(config);
     if (hasGroup(config)) {
@@ -83,5 +84,24 @@ export class AnnotationGroup<A extends Annotation> extends Annotation {
    */
   get y(): number {
     return this.row;
+  }
+
+  public slice(start: number, end: number): AnnotationGroup<A> | undefined {
+    if (this.start < end && this.end > start) {
+      let group: A[] = [];
+      for (const ann of this.group) {
+        let slicedAnn = ann.slice(start, end);
+        if (slicedAnn != undefined) {
+          group.push(<A>slicedAnn);
+        }
+      }
+      if (group.length > 0) {
+        return new AnnotationGroup<A>({
+          id: this.id,
+          group,
+        });
+      }
+    }
+    return undefined;
   }
 }

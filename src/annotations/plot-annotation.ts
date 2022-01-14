@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import { Annotation, AnnotationConfig } from "./annotation";
+import { getSliceCoordinates } from "./annotation-utilities";
 
 /**
  * An interface that defines the parameters for initializing a PlotAnnotation.
@@ -55,6 +56,26 @@ export class PlotAnnotation extends Annotation {
     this.points = [];
     for (let i = 0; i < config.yValues.length; i++) {
       this.points.push([xValues[i], config.yValues[i]]);
+    }
+  }
+
+  public slice(start: number, end: number): PlotAnnotation | undefined {
+    if (this.start < end && this.end > start) {
+      let sliceCoords = getSliceCoordinates(this, start, end);
+      return new PlotAnnotation({
+        id: this.id,
+        start: sliceCoords.start,
+        end: sliceCoords.end,
+        row: this.row,
+        xValues: this.points
+          .map((p) => p[0])
+          .slice(sliceCoords.relativeStart, sliceCoords.relativeEnd),
+        yValues: this.points
+          .map((p) => p[1])
+          .slice(sliceCoords.relativeStart, sliceCoords.relativeEnd),
+      });
+    } else {
+      return undefined;
     }
   }
 }
