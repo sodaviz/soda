@@ -1,6 +1,6 @@
 import { Chart } from "../charts/chart";
 import * as d3 from "d3";
-import { PlotAnnotation } from "../annotations/plot-annotation";
+import { ContinuousAnnotation } from "../annotations/continuous-annotation";
 
 export * from "./plots/bar-plot";
 export * from "./plots/line-plot";
@@ -10,7 +10,10 @@ export * from "./plots/heatmap";
  * This defines the parameters for a call to the setYScales function.
  * @internal
  */
-export interface YScaleConfig<A extends PlotAnnotation, C extends Chart<any>> {
+export interface YScaleConfig<
+  A extends ContinuousAnnotation,
+  C extends Chart<any>
+> {
   chart: C;
   annotations: A[];
   binSpan?: number;
@@ -26,7 +29,10 @@ export interface YScaleConfig<A extends PlotAnnotation, C extends Chart<any>> {
  * @param map
  * @param config
  */
-export function setYScales<A extends PlotAnnotation, C extends Chart<any>>(
+export function setYScales<
+  A extends ContinuousAnnotation,
+  C extends Chart<any>
+>(
   map: Map<string, d3.ScaleLinear<number, number>>,
   config: YScaleConfig<A, C>
 ): void {

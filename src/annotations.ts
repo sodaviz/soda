@@ -25,6 +25,6 @@ export {
   Gff3AnnotationConfig,
 } from "./annotations/gff3-annotation";
 export {
-  PlotAnnotation,
-  PlotAnnotationConfig,
-} from "./annotations/plot-annotation";
+  ContinuousAnnotation,
+  ContinuousAnnotationConfig,
+} from "./annotations/continuous-annotation";

@@ -5,9 +5,9 @@ import {
 } from "../annotations/sequence-annotation";
 import { generateId } from "./id-generation";
 import {
-  PlotAnnotation,
-  PlotAnnotationConfig,
-} from "../annotations/plot-annotation";
+  ContinuousAnnotation,
+  ContinuousAnnotationConfig,
+} from "../annotations/continuous-annotation";
 
 export enum GenerationPattern {
   Sequential = "sequential",
@@ -102,14 +102,14 @@ export function generateSequenceAnnotations(
  */
 export function generatePlotAnnotations(
   conf: AnnotationGenerationConfig
-): PlotAnnotation[] {
-  let sequenceConf = <PlotAnnotationConfig[]>generateConfigs(conf);
+): ContinuousAnnotation[] {
+  let sequenceConf = <ContinuousAnnotationConfig[]>generateConfigs(conf);
   return sequenceConf.map((c) => {
-    c.yValues = [];
+    c.values = [];
     for (let i = 0; i < (conf.width || 100); i++) {
-      c.yValues[i] = randInt(100);
+      c.values[i] = randInt(100);
     }
-    return new PlotAnnotation(c);
+    return new ContinuousAnnotation(c);
   });
 }
 
