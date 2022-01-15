@@ -1,4 +1,4 @@
-import { PlotAnnotation } from "../../annotations/plot-annotation";
+import { ContinuousAnnotation } from "../../annotations/continuous-annotation";
 import { Chart } from "../../charts/chart";
 import * as d3 from "d3";
 import { generateId } from "../../utilities/id-generation";
@@ -10,10 +10,12 @@ import { GlyphModifier, GlyphModifierConfig } from "../glyph-modifier";
  * An interface that defines the parameters for a call to the heatmap rendering function.
  * @internal
  */
-export interface HeatmapConfig<P extends PlotAnnotation, C extends Chart<any>>
-  extends GlyphConfig<P, C> {
-  initializeFn?: (this: HeatmapModifier<P, C>) => void;
-  zoomFn?: (this: HeatmapModifier<P, C>) => void;
+export interface HeatmapConfig<
+  A extends ContinuousAnnotation,
+  C extends Chart<any>
+> extends GlyphConfig<A, C> {
+  initializeFn?: (this: HeatmapModifier<A, C>) => void;
+  zoomFn?: (this: HeatmapModifier<A, C>) => void;
   /**
    * The function that will be used to define the output of the color scale used for the heatmap. See
    * https://github.com/d3/d3-scale-chromatic for more information.
@@ -30,18 +32,18 @@ export interface HeatmapConfig<P extends PlotAnnotation, C extends Chart<any>>
  * @internal
  */
 export type HeatmapModifierConfig<
-  P extends PlotAnnotation,
+  A extends ContinuousAnnotation,
   C extends Chart<any>
-> = GlyphModifierConfig<P, C> & HeatmapConfig<P, C>;
+> = GlyphModifierConfig<A, C> & HeatmapConfig<A, C>;
 
 /**
  * A class that manages the styling and positioning of a group of heatmap glyphs.
  * @internal
  */
 export class HeatmapModifier<
-  P extends PlotAnnotation,
+  A extends ContinuousAnnotation,
   C extends Chart<any>
-> extends GlyphModifier<P, C> {
+> extends GlyphModifier<A, C> {
   /**
    * The function that will be used to define the output of the color scale used for the heatmap. See
    * https://github.com/d3/d3-scale-chromatic for more information.
@@ -53,7 +55,7 @@ export class HeatmapModifier<
   domain: [number, number];
   colorScale: d3.ScaleSequential<string>;
 
-  constructor(config: HeatmapModifierConfig<P, C>) {
+  constructor(config: HeatmapModifierConfig<A, C>) {
     super(config);
     this.strokeColor = config.strokeColor || "none";
     this.colorScheme = config.colorScheme || d3.interpolatePRGn;
@@ -80,9 +82,7 @@ export class HeatmapModifier<
         .attr("y", () => this.chart.rowHeight * d.a.y)
         .attr(
           "width",
-          () =>
-            this.chart.xScale(d.a.points[1][0]) -
-            this.chart.xScale(d.a.points[0][0])
+          () => this.chart.xScale(d.a.pointWidth) - this.chart.xScale(0)
         )
         .attr("height", () => this.chart.rowHeight);
     });
@@ -93,13 +93,13 @@ export class HeatmapModifier<
  * This renders PlotAnnotations as heatmaps in a Chart.
  * @param config
  */
-export function heatmap<P extends PlotAnnotation, C extends Chart<any>>(
-  config: HeatmapConfig<P, C>
+export function heatmap<A extends ContinuousAnnotation, C extends Chart<any>>(
+  config: HeatmapConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-heatmap-glyph");
   let internalSelector = selector + "-internal";
 
-  let binding = bind<P, C, SVGGElement>({
+  let binding = bind<A, C, SVGGElement>({
     ...config,
     selector,
     internalSelector,

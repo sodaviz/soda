@@ -1,4 +1,4 @@
-import { PlotAnnotation } from "../../annotations/plot-annotation";
+import { ContinuousAnnotation } from "../../annotations/continuous-annotation";
 import { Chart } from "../../charts/chart";
 import * as d3 from "d3";
 import { generateId } from "../../utilities/id-generation";
@@ -14,8 +14,8 @@ const barPlotScaleMap: Map<string, d3.ScaleLinear<number, number>> = new Map();
 /**
  * @internal
  */
-export const defaultBarHeightFn = <P extends PlotAnnotation>(
-  ann: P,
+export const defaultBarHeightFn = <A extends ContinuousAnnotation>(
+  ann: A,
   point: [number, number]
 ) => {
   let yScale = barPlotScaleMap.get(ann.id);
@@ -31,21 +31,21 @@ export const defaultBarHeightFn = <P extends PlotAnnotation>(
  * @internal
  */
 export type BarPlotModifierConfig<
-  P extends PlotAnnotation,
+  A extends ContinuousAnnotation,
   C extends Chart<any>
-> = GlyphModifierConfig<P, C> & BarPlotConfig<P, C>;
+> = GlyphModifierConfig<A, C> & BarPlotConfig<A, C>;
 
 /**
  * A class that manages the styling and positioning of a group of bar plot glyphs.
  * @internal
  */
 export class BarPlotModifier<
-  P extends PlotAnnotation,
+  A extends ContinuousAnnotation,
   C extends Chart<any>
-> extends GlyphModifier<P, C> {
-  barHeightFn: (ann: P, point: [number, number]) => number;
+> extends GlyphModifier<A, C> {
+  barHeightFn: (ann: A, point: [number, number]) => number;
 
-  constructor(config: BarPlotModifierConfig<P, C>) {
+  constructor(config: BarPlotModifierConfig<A, C>) {
     super(config);
     this.strokeColor = config.strokeColor || "none";
     this.barHeightFn = config.barHeightFn || defaultBarHeightFn;
@@ -80,32 +80,34 @@ export class BarPlotModifier<
 /**
  * An interface that defines the parameters for a call to the barPlot rendering function.
  */
-export interface BarPlotConfig<P extends PlotAnnotation, C extends Chart<any>>
-  extends GlyphConfig<P, C> {
+export interface BarPlotConfig<
+  A extends ContinuousAnnotation,
+  C extends Chart<any>
+> extends GlyphConfig<A, C> {
   /**
    * The number of bins that the plot will span. This defaults to 1, which forces the plot to fit into one row. If
    * an argument is supplied, it will cause the plot to grow downward. It will have no effect if a custom lineFunc
    * is supplied.
    */
   binSpan?: number;
-  barHeightFn?: (ann: P, point: [number, number]) => number;
-  initializeFn?: (this: BarPlotModifier<P, C>) => void;
-  zoomFn?: (this: BarPlotModifier<P, C>) => void;
+  barHeightFn?: (ann: A, point: [number, number]) => number;
+  initializeFn?: (this: BarPlotModifier<A, C>) => void;
+  zoomFn?: (this: BarPlotModifier<A, C>) => void;
 }
 
 /**
  * This renders PlotAnnotations as bar plots in a Chart.
  * @param config.
  */
-export function barPlot<P extends PlotAnnotation, C extends Chart<any>>(
-  config: BarPlotConfig<P, C>
+export function barPlot<A extends ContinuousAnnotation, C extends Chart<any>>(
+  config: BarPlotConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-bar-plot-glyph");
   let internalSelector = selector + "-internal";
 
   setYScales(barPlotScaleMap, config);
 
-  let binding = bind<P, C, SVGGElement>({
+  let binding = bind<A, C, SVGGElement>({
     ...config,
     selector,
     internalSelector,
