@@ -82,9 +82,7 @@ export class HeatmapModifier<
         .attr("y", () => this.chart.rowHeight * d.a.y)
         .attr(
           "width",
-          () =>
-            this.chart.xScale(d.a.points[1][0]) -
-            this.chart.xScale(d.a.points[0][0])
+          () => this.chart.xScale(d.a.pointWidth) - this.chart.xScale(0)
         )
         .attr("height", () => this.chart.rowHeight);
     });
