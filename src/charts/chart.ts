@@ -122,6 +122,22 @@ export interface ChartConfig<P extends RenderParams> {
    */
   padSize?: number;
   /**
+   * The number of pixels of padding on the left side of the Chart.
+   */
+  leftPadSize?: number;
+  /**
+   * The number of pixels of padding on the right side of the Chart.
+   */
+  rightPadSize?: number;
+  /**
+   * The number of pixels of padding on the top of the Chart.
+   */
+  upperPadSize?: number;
+  /**
+   * The number of pixels of padding on the bottom of the Chart.
+   */
+  lowerPadSize?: number;
+  /**
    * The CSS outline property for the Chart's div.
    */
   divOutline?: string;
@@ -284,6 +300,22 @@ export class Chart<P extends RenderParams> {
    * The number of pixels of padding around each edge of the Chart.
    */
   padSize: number;
+  /**
+   * The number of pixels of padding on the left side of the Chart.
+   */
+  leftPadSize: number;
+  /**
+   * The number of pixels of padding on the right side of the Chart.
+   */
+  rightPadSize: number;
+  /**
+   * The number of pixels of padding on the top of the Chart.
+   */
+  upperPadSize: number;
+  /**
+   * The number of pixels of padding on the bottom of the Chart.
+   */
+  lowerPadSize: number;
   /**
    * The width in pixels of the Chart's SVG pad.
    */
@@ -466,6 +498,16 @@ export class Chart<P extends RenderParams> {
     }
     this.padSelection = this.divSelection.append("svg");
     this.padSelection.attr("xmlns", "http://www.w3.org/2000/svg");
+
+    // *******************************
+    this.padSelection
+      .append("rect")
+      .attr("height", "100%")
+      .attr("width", "100%")
+      .attr("fill", "red")
+      .attr("fill-opacity", "0.1");
+    // *******************************
+
     this.xScale = buildPlaceholderXScale(this);
     this.xScaleBase = this.xScale;
     this._transform = cloneDeep(d3.zoomIdentity);
@@ -474,26 +516,44 @@ export class Chart<P extends RenderParams> {
       .append("svg")
       .attr("overflow", "hidden");
 
+    // *************************
+    this.viewportSelection
+      .append("rect")
+      .attr("height", "100%")
+      .attr("width", "100%")
+      .attr("fill", "blue")
+      .attr("fill-opacity", "0.1");
+    // *************************
+
     this.overflowViewportSelection = this.padSelection
       .append("svg")
       .attr("overflow", "visible");
 
     this.defSelection = this.viewportSelection.append("defs");
 
-    this.padSize = config.padSize || 25;
+    this.padSize = config.padSize != undefined ? config.padSize : 25;
+    this.leftPadSize =
+      config.leftPadSize != undefined ? config.leftPadSize : this.padSize;
+    this.rightPadSize =
+      config.rightPadSize != undefined ? config.rightPadSize : this.padSize;
+    this.upperPadSize =
+      config.upperPadSize != undefined ? config.upperPadSize : this.padSize;
+    this.lowerPadSize =
+      config.lowerPadSize != undefined ? config.lowerPadSize : this.padSize;
+
     this._divOutline = config.divOutline || "none";
     this._divMargin = config.divMargin || 0;
     this.rowHeight = config.rowHeight || 10;
 
     this.divSelection
       .attr("width", "100%")
-      .style("height", 2 * this.padSize + this.rowHeight)
+      .style("height", this.upperPadSize + this.lowerPadSize + this.rowHeight)
       .style("outline", this._divOutline)
       .style("margin", `${this._divMargin}px`);
 
     this.padSelection
       .attr("width", "100%")
-      .attr("height", 2 * this.padSize + this.rowHeight);
+      .attr("height", this.upperPadSize + this.lowerPadSize + this.rowHeight);
 
     this.fitViewport();
 
@@ -601,26 +661,32 @@ export class Chart<P extends RenderParams> {
    * This fits the Chart's div based off of the rowCount, rowHeight, and padSize properties.
    */
   public fitDivHeight(): void {
-    this.divHeight = this.rowCount * this.rowHeight + 2 * this.padSize;
+    this.divHeight =
+      this.rowCount * this.rowHeight + (this.leftPadSize + this.rightPadSize);
   }
 
   /**
    * This fits the Chart's SVG padding based off of the rowCount, rowHeight and padSize properties.
    */
   public fitPadHeight(): void {
-    this.padHeight = this.rowCount * this.rowHeight + 2 * this.padSize;
+    this.padHeight =
+      this.rowCount * this.rowHeight + (this.leftPadSize + this.rightPadSize);
   }
 
   /**
    * This fits the Chart's SVG viewport based off of the Chart's pad size.
    */
   public fitViewport(): void {
-    this.viewportWidth = this.calculatePadWidth() - 2 * this.padSize;
-    this.viewportHeight = this.calculatePadHeight() - 2 * this.padSize;
-    this.viewportSelection.attr("x", this.padSize).attr("y", this.padSize);
+    this.viewportWidth =
+      this.calculatePadWidth() - (this.leftPadSize + this.rightPadSize);
+    this.viewportHeight =
+      this.calculatePadHeight() - (this.upperPadSize + this.lowerPadSize);
+    this.viewportSelection
+      .attr("x", this.leftPadSize)
+      .attr("y", this.upperPadSize);
     this.overflowViewportSelection
-      .attr("x", this.padSize)
-      .attr("y", this.padSize);
+      .attr("x", this.leftPadSize)
+      .attr("y", this.upperPadSize);
 
     this.fitRowStripes();
   }
