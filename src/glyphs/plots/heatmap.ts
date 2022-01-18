@@ -4,7 +4,12 @@ import * as d3 from "d3";
 import { generateId } from "../../utilities/id-generation";
 import { GlyphConfig } from "../glyph-config";
 import { bind } from "../bind";
-import { GlyphModifier, GlyphModifierConfig } from "../glyph-modifier";
+import {
+  GlyphModifier,
+  GlyphModifierConfig,
+  GlyphProperty,
+  resolveValue,
+} from "../glyph-modifier";
 
 /**
  * An interface that defines the parameters for a call to the heatmap rendering function.
@@ -16,6 +21,14 @@ export interface HeatmapConfig<
 > extends GlyphConfig<A, C> {
   initializeFn?: (this: HeatmapModifier<A, C>) => void;
   zoomFn?: (this: HeatmapModifier<A, C>) => void;
+  /**
+   * The color of the outline around the entire heatmap glyph.
+   */
+  outlineColor?: GlyphProperty<A, C, string>;
+  /**
+   * The color of the background of the entire heatmap glyph.
+   */
+  backgroundColor?: GlyphProperty<A, C, string>;
   /**
    * The function that will be used to define the output of the color scale used for the heatmap. See
    * https://github.com/d3/d3-scale-chromatic for more information.
@@ -79,12 +92,12 @@ export class HeatmapModifier<
       d3.select(nodes[i])
         .selectAll<SVGRectElement, [number, number]>("rect")
         .attr("x", (p) => this.chart.xScale(p[0]))
-        .attr("y", () => this.chart.rowHeight * d.a.y)
+        .attr("y", resolveValue(this.y, d))
         .attr(
           "width",
           () => this.chart.xScale(d.a.pointWidth) - this.chart.xScale(0)
         )
-        .attr("height", () => this.chart.rowHeight);
+        .attr("height", resolveValue(this.height, d));
     });
   }
 }
@@ -105,6 +118,28 @@ export function heatmap<A extends ContinuousAnnotation, C extends Chart<any>>(
     internalSelector,
     elementType: "g",
   });
+
+  if (config.outlineColor || config.backgroundColor) {
+    let rectSelector = selector + "-background";
+    let internalRectSelector = rectSelector + "-internal";
+    let rectBinding = bind<A, C, SVGRectElement>({
+      ...config,
+      selector: rectSelector,
+      internalSelector: internalRectSelector,
+      target: binding.g,
+      elementType: "rect",
+    });
+
+    let rectModifier = new GlyphModifier({
+      ...config,
+      strokeColor: config.outlineColor || "none",
+      fillColor: config.backgroundColor || "none",
+      selector: internalRectSelector,
+      selection: rectBinding.merge,
+    });
+
+    config.chart.addGlyphModifier(rectModifier);
+  }
 
   let modifier = new HeatmapModifier({
     ...config,
