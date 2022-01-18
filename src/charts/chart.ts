@@ -122,6 +122,14 @@ export interface ChartConfig<P extends RenderParams> {
    */
   padSize?: number;
   /**
+   * The CSS outline property for the Chart's div.
+   */
+  divOutline?: string;
+  /**
+   * The CSS margin property for the Chart's div.
+   */
+  divMargin?: number;
+  /**
    * This controls whether or not the rows will be colored in an alternating pattern.
    */
   rowStripes?: boolean;
@@ -264,6 +272,14 @@ export class Chart<P extends RenderParams> {
    * The height in pixels of the Chart's div.
    */
   _divHeight: number = 0;
+  /**
+   * The CSS outline property of the Chart's div.
+   */
+  _divOutline: string;
+  /**
+   * The CSS margin property of the Chart's div.
+   */
+  _divMargin: number;
   /**
    * The number of pixels of padding around each edge of the Chart.
    */
@@ -447,7 +463,6 @@ export class Chart<P extends RenderParams> {
       this.divSelection = this._containerSelection.append("div");
     } else {
       this.divSelection = d3.create("div");
-      // this.padSelection = d3.create("svg:svg").style("vertical-align", "top");
     }
     this.padSelection = this.divSelection.append("svg");
     this.padSelection.attr("xmlns", "http://www.w3.org/2000/svg");
@@ -457,22 +472,24 @@ export class Chart<P extends RenderParams> {
     this.padSelection.node().__zoom = this._transform;
     this.viewportSelection = this.padSelection
       .append("svg")
-      .style("vertical-align", "top")
       .attr("overflow", "hidden");
 
     this.overflowViewportSelection = this.padSelection
       .append("svg")
-      .style("vertical-align", "top")
       .attr("overflow", "visible");
 
     this.defSelection = this.viewportSelection.append("defs");
 
     this.padSize = config.padSize || 25;
+    this._divOutline = config.divOutline || "none";
+    this._divMargin = config.divMargin || 0;
     this.rowHeight = config.rowHeight || 10;
 
     this.divSelection
       .attr("width", "100%")
-      .style("height", 2 * this.padSize + this.rowHeight);
+      .style("height", 2 * this.padSize + this.rowHeight)
+      .style("outline", this._divOutline)
+      .style("margin", `${this._divMargin}px`);
 
     this.padSelection
       .attr("width", "100%")
