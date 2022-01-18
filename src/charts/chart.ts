@@ -783,6 +783,36 @@ export class Chart<P extends RenderParams> {
   }
 
   /**
+   * Getter for the divOutline property.
+   */
+  get divOutline() {
+    return this._divOutline;
+  }
+
+  /**
+   * Setter for the divOutline property. This directly modifies the outline attribute on the Chart's div in the DOM.
+   */
+  set divOutline(outline: string) {
+    this._divOutline = outline;
+    this.divSelection.style("outline", outline);
+  }
+
+  /**
+   * Getter for the divMargin property.
+   */
+  get divMargin() {
+    return this._divMargin;
+  }
+
+  /**
+   * Setter for the divMargin property. This directly modifies the outline attribute on the Chart's div in the DOM.
+   */
+  set divMargin(margin: number) {
+    this._divMargin = margin;
+    this.divSelection.style("margin", `${margin}px`);
+  }
+
+  /**
    * Setter for the padHeight property. This actually adjusts the height attribute on the viewport DOM element.
    * @param height
    */
