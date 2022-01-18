@@ -499,15 +499,6 @@ export class Chart<P extends RenderParams> {
     this.padSelection = this.divSelection.append("svg");
     this.padSelection.attr("xmlns", "http://www.w3.org/2000/svg");
 
-    // *******************************
-    this.padSelection
-      .append("rect")
-      .attr("height", "100%")
-      .attr("width", "100%")
-      .attr("fill", "red")
-      .attr("fill-opacity", "0.1");
-    // *******************************
-
     this.xScale = buildPlaceholderXScale(this);
     this.xScaleBase = this.xScale;
     this._transform = cloneDeep(d3.zoomIdentity);
@@ -515,15 +506,6 @@ export class Chart<P extends RenderParams> {
     this.viewportSelection = this.padSelection
       .append("svg")
       .attr("overflow", "hidden");
-
-    // *************************
-    this.viewportSelection
-      .append("rect")
-      .attr("height", "100%")
-      .attr("width", "100%")
-      .attr("fill", "blue")
-      .attr("fill-opacity", "0.1");
-    // *************************
 
     this.overflowViewportSelection = this.padSelection
       .append("svg")
@@ -662,7 +644,7 @@ export class Chart<P extends RenderParams> {
    */
   public fitDivHeight(): void {
     this.divHeight =
-      this.rowCount * this.rowHeight + (this.leftPadSize + this.rightPadSize);
+      this.rowCount * this.rowHeight + (this.lowerPadSize + this.upperPadSize);
   }
 
   /**
@@ -670,7 +652,7 @@ export class Chart<P extends RenderParams> {
    */
   public fitPadHeight(): void {
     this.padHeight =
-      this.rowCount * this.rowHeight + (this.leftPadSize + this.rightPadSize);
+      this.rowCount * this.rowHeight + (this.upperPadSize + this.lowerPadSize);
   }
 
   /**
