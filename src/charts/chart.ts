@@ -677,7 +677,9 @@ export class Chart<P extends RenderParams> {
     } else {
       this.divSelection.style(
         "height",
-        `${this.upperPadSize + this.lowerPadSize + this.rowHeight}px`
+        `${
+          this.rowHeight * this.rowCount + this.upperPadSize + this.lowerPadSize
+        }px`
       );
     }
 
