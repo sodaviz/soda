@@ -112,6 +112,7 @@ export class Annotation {
 
   constructor(config: AnnotationConfig) {
     this.id = config.id || generateId("soda-ann");
+    this.tag = config.tag;
     if (hasStart(config)) {
       this.start = config.start;
     } else {
