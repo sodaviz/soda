@@ -52,6 +52,7 @@ export function sliceSequenceAnnotation(
     let sliceCoords = getSliceCoordinates(annotation, start, end);
     return new SequenceAnnotation({
       id: annotation.id,
+      tag: annotation.tag,
       start: sliceCoords.start,
       end: sliceCoords.end,
       row: annotation.row,
@@ -74,6 +75,7 @@ export function sliceContinuousAnnotation(
     let sliceCoords = getSliceCoordinates(annotation, start, end);
     return new ContinuousAnnotation({
       id: annotation.id,
+      tag: annotation.tag,
       start: sliceCoords.start,
       end: sliceCoords.end,
       row: annotation.row,
