@@ -110,14 +110,6 @@ export interface ChartConfig<P extends RenderParams> {
    */
   rowCount?: number;
   /**
-   * The height in pixels of the Chart's viewport.
-   */
-  height?: number;
-  /**
-   * The height in pixels of the Chart's viewport.
-   */
-  width?: number;
-  /**
    * The number of pixels of padding around each edge of the Chart.
    */
   padSize?: number;
@@ -137,6 +129,22 @@ export interface ChartConfig<P extends RenderParams> {
    * The number of pixels of padding on the bottom of the Chart.
    */
   lowerPadSize?: number;
+  /**
+   * The height in pixels of the Chart's containing div.
+   */
+  divHeight?: number | string;
+  /**
+   * The width in pixels of the Chart's containing div.
+   */
+  divWidth?: number | string;
+  /**
+   * The CSS overflow-y setting of the Chart's containing div.
+   */
+  divOverflowY?: string;
+  /**
+   * The CSS overflow-x setting of the Chart's containing div.
+   */
+  divOverflowX?: string;
   /**
    * The CSS outline property for the Chart's div.
    */
@@ -281,21 +289,29 @@ export class Chart<P extends RenderParams> {
    */
   _renderParams: P | undefined;
   /**
-   * The width in pixels of the Chart's div.
+   * The CSS height property of the Chart's div.
    */
-  _divWidth: number = 0;
+  divHeight: number | string | undefined;
   /**
-   * The height in pixels of the Chart's div.
+   * The CSS width property of the Chart's div.
    */
-  _divHeight: number = 0;
+  divWidth: number | string | undefined;
+  /**
+   * The CSS overflow-x property of the Chart's div.
+   */
+  divOverflowX: string | undefined;
+  /**
+   * The CSS overflow-y property of the Chart's div.
+   */
+  divOverflowY: string | undefined;
   /**
    * The CSS outline property of the Chart's div.
    */
-  _divOutline: string;
+  divOutline: string | undefined;
   /**
    * The CSS margin property of the Chart's div.
    */
-  _divMargin: number;
+  divMargin: number | undefined;
   /**
    * The number of pixels of padding around each edge of the Chart.
    */
@@ -459,6 +475,7 @@ export class Chart<P extends RenderParams> {
     params: P
   ): void {
     this.applyLayoutAndSetRowCount(params);
+    this.updateDivProperties();
     this.addAxis();
     this.fitPadHeight();
     this.fitViewport();
@@ -513,6 +530,8 @@ export class Chart<P extends RenderParams> {
 
     this.defSelection = this.viewportSelection.append("defs");
 
+    this.rowHeight = config.rowHeight || 10;
+
     this.padSize = config.padSize != undefined ? config.padSize : 25;
     this.leftPadSize =
       config.leftPadSize != undefined ? config.leftPadSize : this.padSize;
@@ -523,15 +542,14 @@ export class Chart<P extends RenderParams> {
     this.lowerPadSize =
       config.lowerPadSize != undefined ? config.lowerPadSize : this.padSize;
 
-    this._divOutline = config.divOutline || "none";
-    this._divMargin = config.divMargin || 0;
-    this.rowHeight = config.rowHeight || 10;
+    this.divHeight = config.divHeight;
+    this.divWidth = config.divWidth;
+    this.divOverflowX = config.divOverflowX;
+    this.divOverflowY = config.divOverflowY;
+    this.divOutline = config.divOutline;
+    this.divMargin = config.divMargin;
 
-    this.divSelection
-      .attr("width", "100%")
-      .style("height", this.upperPadSize + this.lowerPadSize + this.rowHeight)
-      .style("outline", this._divOutline)
-      .style("margin", `${this._divMargin}px`);
+    this.updateDivProperties();
 
     this.padSelection
       .attr("width", "100%")
@@ -639,12 +657,53 @@ export class Chart<P extends RenderParams> {
       .attr("width", this.viewportWidth);
   }
 
-  /**
-   * This fits the Chart's div based off of the rowCount, rowHeight, and padSize properties.
-   */
-  public fitDivHeight(): void {
-    this.divHeight =
-      this.rowCount * this.rowHeight + (this.lowerPadSize + this.upperPadSize);
+  public updateDivProperties(): void {
+    if (this.divWidth != undefined) {
+      if (typeof this.divWidth == "number") {
+        this.divSelection.style("width", `${this.divWidth}px`);
+      } else {
+        this.divSelection.style("width", this.divWidth);
+      }
+    } else {
+      this.divSelection.style("width", "100%");
+    }
+
+    if (this.divHeight != undefined) {
+      if (typeof this.divHeight == "number") {
+        this.divSelection.style("height", `${this.divHeight}px`);
+      } else {
+        this.divSelection.style("height", this.divHeight);
+      }
+    } else {
+      this.divSelection.style(
+        "height",
+        `${this.upperPadSize + this.lowerPadSize + this.rowHeight}px`
+      );
+    }
+
+    if (this.divOverflowY != undefined) {
+      this.divSelection.style("overflow-y", this.divOverflowY);
+    } else {
+      this.divSelection.style("overflow-y", null);
+    }
+
+    if (this.divOverflowX != undefined) {
+      this.divSelection.style("overflow-x", this.divOverflowX);
+    } else {
+      this.divSelection.style("overflow-x", null);
+    }
+
+    if (this.divOutline != undefined) {
+      this.divSelection.style("outline", this.divOutline);
+    } else {
+      this.divSelection.style("outline", null);
+    }
+
+    if (this.divMargin != undefined) {
+      this.divSelection.style("margin", this.divMargin);
+    } else {
+      this.divSelection.style("margin", null);
+    }
   }
 
   /**
@@ -812,52 +871,6 @@ export class Chart<P extends RenderParams> {
    */
   public calculatePadHeight(): number {
     return this.calculatePadDimensions().height;
-  }
-
-  /**
-   * Setter for the divHeight property. This actually adjusts the height attribute on the Chart's div in the DOM.
-   * @param height
-   */
-  set divHeight(height: number) {
-    this._divHeight = height;
-    this.divSelection.style("height", `${height}px`);
-  }
-
-  /**
-   * Getter for the divHeight property.
-   */
-  get divHeight() {
-    return this._divHeight;
-  }
-
-  /**
-   * Getter for the divOutline property.
-   */
-  get divOutline() {
-    return this._divOutline;
-  }
-
-  /**
-   * Setter for the divOutline property. This directly modifies the outline attribute on the Chart's div in the DOM.
-   */
-  set divOutline(outline: string) {
-    this._divOutline = outline;
-    this.divSelection.style("outline", outline);
-  }
-
-  /**
-   * Getter for the divMargin property.
-   */
-  get divMargin() {
-    return this._divMargin;
-  }
-
-  /**
-   * Setter for the divMargin property. This directly modifies the outline attribute on the Chart's div in the DOM.
-   */
-  set divMargin(margin: number) {
-    this._divMargin = margin;
-    this.divSelection.style("margin", `${margin}px`);
   }
 
   /**
