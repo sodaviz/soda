@@ -38,6 +38,7 @@ export class AnnotationGroup<A extends Annotation> extends Annotation {
    */
   group: A[] = [];
   suppressWarnings = true;
+
   constructor(config: AnnotationGroupConfig<A>) {
     super(config);
     if (hasGroup(config)) {
