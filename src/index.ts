@@ -6,4 +6,7 @@ export * from "./layout";
 export * from "./observers";
 export * from "./parsers";
 export * from "./utilities";
-export * from "../contrib/index";
+
+import * as c from "../contrib/index";
+
+export const contrib = c;
