@@ -110,17 +110,49 @@ export interface ChartConfig<P extends RenderParams> {
    */
   rowCount?: number;
   /**
-   * The height in pixels of the Chart's viewport.
-   */
-  height?: number;
-  /**
-   * The height in pixels of the Chart's viewport.
-   */
-  width?: number;
-  /**
    * The number of pixels of padding around each edge of the Chart.
    */
   padSize?: number;
+  /**
+   * The number of pixels of padding on the left side of the Chart.
+   */
+  leftPadSize?: number;
+  /**
+   * The number of pixels of padding on the right side of the Chart.
+   */
+  rightPadSize?: number;
+  /**
+   * The number of pixels of padding on the top of the Chart.
+   */
+  upperPadSize?: number;
+  /**
+   * The number of pixels of padding on the bottom of the Chart.
+   */
+  lowerPadSize?: number;
+  /**
+   * The height in pixels of the Chart's containing div.
+   */
+  divHeight?: number | string;
+  /**
+   * The width in pixels of the Chart's containing div.
+   */
+  divWidth?: number | string;
+  /**
+   * The CSS overflow-y setting of the Chart's containing div.
+   */
+  divOverflowY?: string;
+  /**
+   * The CSS overflow-x setting of the Chart's containing div.
+   */
+  divOverflowX?: string;
+  /**
+   * The CSS outline property for the Chart's div.
+   */
+  divOutline?: string;
+  /**
+   * The CSS margin property for the Chart's div.
+   */
+  divMargin?: number;
   /**
    * This controls whether or not the rows will be colored in an alternating pattern.
    */
@@ -257,17 +289,49 @@ export class Chart<P extends RenderParams> {
    */
   _renderParams: P | undefined;
   /**
-   * The width in pixels of the Chart's div.
+   * The CSS height property of the Chart's div.
    */
-  _divWidth: number = 0;
+  divHeight: number | string | undefined;
   /**
-   * The height in pixels of the Chart's div.
+   * The CSS width property of the Chart's div.
    */
-  _divHeight: number = 0;
+  divWidth: number | string | undefined;
+  /**
+   * The CSS overflow-x property of the Chart's div.
+   */
+  divOverflowX: string | undefined;
+  /**
+   * The CSS overflow-y property of the Chart's div.
+   */
+  divOverflowY: string | undefined;
+  /**
+   * The CSS outline property of the Chart's div.
+   */
+  divOutline: string | undefined;
+  /**
+   * The CSS margin property of the Chart's div.
+   */
+  divMargin: number | undefined;
   /**
    * The number of pixels of padding around each edge of the Chart.
    */
   padSize: number;
+  /**
+   * The number of pixels of padding on the left side of the Chart.
+   */
+  leftPadSize: number;
+  /**
+   * The number of pixels of padding on the right side of the Chart.
+   */
+  rightPadSize: number;
+  /**
+   * The number of pixels of padding on the top of the Chart.
+   */
+  upperPadSize: number;
+  /**
+   * The number of pixels of padding on the bottom of the Chart.
+   */
+  lowerPadSize: number;
   /**
    * The width in pixels of the Chart's SVG pad.
    */
@@ -411,6 +475,7 @@ export class Chart<P extends RenderParams> {
     params: P
   ): void {
     this.applyLayoutAndSetRowCount(params);
+    this.updateDivProperties();
     this.addAxis();
     this.fitPadHeight();
     this.fitViewport();
@@ -447,36 +512,48 @@ export class Chart<P extends RenderParams> {
       this.divSelection = this._containerSelection.append("div");
     } else {
       this.divSelection = d3.create("div");
-      // this.padSelection = d3.create("svg:svg").style("vertical-align", "top");
     }
     this.padSelection = this.divSelection.append("svg");
     this.padSelection.attr("xmlns", "http://www.w3.org/2000/svg");
+
     this.xScale = buildPlaceholderXScale(this);
     this.xScaleBase = this.xScale;
     this._transform = cloneDeep(d3.zoomIdentity);
     this.padSelection.node().__zoom = this._transform;
     this.viewportSelection = this.padSelection
       .append("svg")
-      .style("vertical-align", "top")
       .attr("overflow", "hidden");
 
     this.overflowViewportSelection = this.padSelection
       .append("svg")
-      .style("vertical-align", "top")
       .attr("overflow", "visible");
 
     this.defSelection = this.viewportSelection.append("defs");
 
-    this.padSize = config.padSize || 25;
     this.rowHeight = config.rowHeight || 10;
 
-    this.divSelection
-      .attr("width", "100%")
-      .style("height", 2 * this.padSize + this.rowHeight);
+    this.padSize = config.padSize != undefined ? config.padSize : 25;
+    this.leftPadSize =
+      config.leftPadSize != undefined ? config.leftPadSize : this.padSize;
+    this.rightPadSize =
+      config.rightPadSize != undefined ? config.rightPadSize : this.padSize;
+    this.upperPadSize =
+      config.upperPadSize != undefined ? config.upperPadSize : this.padSize;
+    this.lowerPadSize =
+      config.lowerPadSize != undefined ? config.lowerPadSize : this.padSize;
+
+    this.divHeight = config.divHeight;
+    this.divWidth = config.divWidth;
+    this.divOverflowX = config.divOverflowX;
+    this.divOverflowY = config.divOverflowY;
+    this.divOutline = config.divOutline;
+    this.divMargin = config.divMargin;
+
+    this.updateDivProperties();
 
     this.padSelection
       .attr("width", "100%")
-      .attr("height", 2 * this.padSize + this.rowHeight);
+      .attr("height", this.upperPadSize + this.lowerPadSize + this.rowHeight);
 
     this.fitViewport();
 
@@ -580,30 +657,77 @@ export class Chart<P extends RenderParams> {
       .attr("width", this.viewportWidth);
   }
 
-  /**
-   * This fits the Chart's div based off of the rowCount, rowHeight, and padSize properties.
-   */
-  public fitDivHeight(): void {
-    this.divHeight = this.rowCount * this.rowHeight + 2 * this.padSize;
+  public updateDivProperties(): void {
+    if (this.divWidth != undefined) {
+      if (typeof this.divWidth == "number") {
+        this.divSelection.style("width", `${this.divWidth}px`);
+      } else {
+        this.divSelection.style("width", this.divWidth);
+      }
+    } else {
+      this.divSelection.style("width", "100%");
+    }
+
+    if (this.divHeight != undefined) {
+      if (typeof this.divHeight == "number") {
+        this.divSelection.style("height", `${this.divHeight}px`);
+      } else {
+        this.divSelection.style("height", this.divHeight);
+      }
+    } else {
+      this.divSelection.style(
+        "height",
+        `${this.upperPadSize + this.lowerPadSize + this.rowHeight}px`
+      );
+    }
+
+    if (this.divOverflowY != undefined) {
+      this.divSelection.style("overflow-y", this.divOverflowY);
+    } else {
+      this.divSelection.style("overflow-y", null);
+    }
+
+    if (this.divOverflowX != undefined) {
+      this.divSelection.style("overflow-x", this.divOverflowX);
+    } else {
+      this.divSelection.style("overflow-x", null);
+    }
+
+    if (this.divOutline != undefined) {
+      this.divSelection.style("outline", this.divOutline);
+    } else {
+      this.divSelection.style("outline", null);
+    }
+
+    if (this.divMargin != undefined) {
+      this.divSelection.style("margin", this.divMargin);
+    } else {
+      this.divSelection.style("margin", null);
+    }
   }
 
   /**
    * This fits the Chart's SVG padding based off of the rowCount, rowHeight and padSize properties.
    */
   public fitPadHeight(): void {
-    this.padHeight = this.rowCount * this.rowHeight + 2 * this.padSize;
+    this.padHeight =
+      this.rowCount * this.rowHeight + (this.upperPadSize + this.lowerPadSize);
   }
 
   /**
    * This fits the Chart's SVG viewport based off of the Chart's pad size.
    */
   public fitViewport(): void {
-    this.viewportWidth = this.calculatePadWidth() - 2 * this.padSize;
-    this.viewportHeight = this.calculatePadHeight() - 2 * this.padSize;
-    this.viewportSelection.attr("x", this.padSize).attr("y", this.padSize);
+    this.viewportWidth =
+      this.calculatePadWidth() - (this.leftPadSize + this.rightPadSize);
+    this.viewportHeight =
+      this.calculatePadHeight() - (this.upperPadSize + this.lowerPadSize);
+    this.viewportSelection
+      .attr("x", this.leftPadSize)
+      .attr("y", this.upperPadSize);
     this.overflowViewportSelection
-      .attr("x", this.padSize)
-      .attr("y", this.padSize);
+      .attr("x", this.leftPadSize)
+      .attr("y", this.upperPadSize);
 
     this.fitRowStripes();
   }
@@ -747,22 +871,6 @@ export class Chart<P extends RenderParams> {
    */
   public calculatePadHeight(): number {
     return this.calculatePadDimensions().height;
-  }
-
-  /**
-   * Setter for the divHeight property. This actually adjusts the height attribute on the Chart's div in the DOM.
-   * @param height
-   */
-  set divHeight(height: number) {
-    this._divHeight = height;
-    this.divSelection.style("height", `${height}px`);
-  }
-
-  /**
-   * Getter for the divHeight property.
-   */
-  get divHeight() {
-    return this._divHeight;
   }
 
   /**
