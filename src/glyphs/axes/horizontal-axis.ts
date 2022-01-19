@@ -40,7 +40,7 @@ export function getHorizontalAxisAnnotation(
   return new Annotation({
     id: "soda-horizontal-axis",
     start: 0,
-    width: chart.viewportWidth,
+    width: chart.viewportWidth - 1,
     row: row,
   });
 }
@@ -74,8 +74,11 @@ export class HorizontalAxisModifier<
     if (config.fixed) {
       this.domain =
         config.domain ||
-        ((d) => [d.c.xScale.invert(0), d.c.xScale.invert(d.c.viewportWidth)]);
-      this.range = config.range || ((d) => [0, d.c.viewportWidth]);
+        ((d) => [
+          d.c.xScale.invert(0),
+          d.c.xScale.invert(d.c.viewportWidth - 1),
+        ]);
+      this.range = config.range || ((d) => [0, d.c.viewportWidth - 1]);
     } else {
       this.domain = config.domain || ((d) => [d.a.x, d.a.x + d.a.w]);
       this.range =
@@ -90,7 +93,7 @@ export class HorizontalAxisModifier<
 
   defaultZoom(): void {
     this.selection
-      .attr("transform", (d) => `translate(1, ${resolveValue(this.y, d)})`)
+      .attr("transform", (d) => `translate(0, ${resolveValue(this.y, d)})`)
       .each((d, i, nodes) => {
         let xScale = d3
           .scaleLinear()
