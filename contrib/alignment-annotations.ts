@@ -18,6 +18,7 @@ export interface AlignmentConfig {
  * The return type for the getAlignmentAnnotations() function.
  */
 export interface AlignmentAnnotations {
+  all: SequenceAnnotation[];
   matches: SequenceAnnotation;
   substitutions: SequenceAnnotation;
   gaps: SequenceAnnotation;
@@ -82,38 +83,51 @@ export function getAlignmentAnnotations(config: AlignmentConfig) {
   let gapsJoined = gaps.join("");
   let end = config.end || config.start + matchesJoined.length;
   let i = 0;
-  let alignments: AlignmentAnnotations = {
-    matches: new SequenceAnnotation({
-      id: config.id + "-matches",
-      start: config.start,
-      end: end,
+
+  let matchAnn = new SequenceAnnotation({
+    id: config.id + "-matches",
+    tag: "matches",
+    start: config.start,
+    end: end,
+    row: config.row,
+    sequence: matchesJoined,
+  });
+
+  let subAnn = new SequenceAnnotation({
+    id: config.id + "-substitutions",
+    tag: "substitutions",
+    start: config.start,
+    end: end,
+    row: config.row,
+    sequence: substitutionsJoined,
+  });
+
+  let gapAnn = new SequenceAnnotation({
+    id: config.id + "-gaps",
+    tag: "gaps",
+    start: config.start,
+    end: end,
+    row: config.row,
+    sequence: gapsJoined,
+  });
+
+  let insertAnn = insertions.map((insert) => {
+    let start = config.start + insert[0] - 0.5;
+    return new SequenceAnnotation({
+      id: config.id + `-insertion-${i++}`,
+      tag: "inserts",
+      start,
+      end: start + insert[1],
       row: config.row,
-      sequence: matchesJoined,
-    }),
-    substitutions: new SequenceAnnotation({
-      id: config.id + "-substitutions",
-      start: config.start,
-      end: end,
-      row: config.row,
-      sequence: substitutionsJoined,
-    }),
-    gaps: new SequenceAnnotation({
-      id: config.id + "-gaps",
-      start: config.start,
-      end: end,
-      row: config.row,
-      sequence: gapsJoined,
-    }),
-    insertions: insertions.map((insert) => {
-      let start = config.start + insert[0] - 0.5;
-      return new SequenceAnnotation({
-        id: config.id + `-insertion-${i++}`,
-        start,
-        end: start + insert[1],
-        row: config.row,
-        sequence: querySplit.splice(insert[0], insert[1]).join(""),
-      });
-    }),
+      sequence: querySplit.splice(insert[0], insert[1]).join(""),
+    });
+  });
+
+  return {
+    all: [matchAnn, subAnn, gapAnn, ...insertAnn],
+    matches: matchAnn,
+    substitutions: subAnn,
+    gaps: gapAnn,
+    inserts: insertAnn,
   };
-  return alignments;
 }
