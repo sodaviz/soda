@@ -13,6 +13,10 @@ export interface GlyphMapping {
    */
   selection: d3.Selection<any, any, any, any>;
   /**
+   * The selector that was assigned to the glyph when it was created.
+   */
+  selector: string;
+  /**
    * A reference to the Chart that the glyph is rendered in.
    */
   chart: Chart<any>;
@@ -34,6 +38,7 @@ export interface GlyphMapConfig<
   E extends Element
 > {
   binding: Binding<A, C, E>;
+  selector: string;
   chart: C;
 }
 
@@ -50,8 +55,22 @@ export function mapGlyphs<
   config.binding.merge.each((d, i, nodes) => {
     idAnnotationMap.set(d.a.id, d.a);
     let glyphMapList = glyphMap.get(d.a.id) || [];
+
+    let selection = d3.select(nodes[i]);
+
+    for (const mapping of glyphMapList) {
+      if (
+        mapping.chart == config.chart &&
+        mapping.selector == config.selector
+      ) {
+        mapping.selection = selection;
+        return;
+      }
+    }
+
     glyphMapList.push({
-      selection: d3.select(nodes[i]),
+      selection,
+      selector: config.selector,
       chart: config.chart,
     });
     glyphMap.set(d.a.id, glyphMapList);

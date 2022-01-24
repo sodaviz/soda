@@ -132,6 +132,7 @@ export function bind<
 
   mapGlyphs({
     binding,
+    selector: config.internalSelector,
     chart: config.chart,
   });
 
