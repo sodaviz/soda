@@ -155,6 +155,7 @@ export class TextModifier<
   constructor(config: TextModifierConfig<A, C>) {
     super(config);
     addToTextMaps(config);
+    this.fillColor = config.fillColor || "black";
     this.strokeColor = config.strokeColor || "none";
     this.textAnchor = config.textAnchor || "left";
     this.fontSize = config.fontSize || 12;
