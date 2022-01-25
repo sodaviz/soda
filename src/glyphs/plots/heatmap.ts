@@ -78,6 +78,7 @@ export class HeatmapModifier<
 
   defaultInitialize() {
     super.defaultInitialize();
+    this.selection.selectAll("rect").remove();
     this.selection
       .selectAll("rect")
       .data((d) => d.a.points)
