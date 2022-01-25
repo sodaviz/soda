@@ -79,62 +79,71 @@ export function mapGlyphs<
 
 /**
  * An interface that defines the parameters for a call to the queryGlyphMap() function.
- * @internal
  */
 export interface GlyphMapQueryConfig<C extends Chart<any>> {
   /**
-   * The Annotation ID that is the target of the query.
+   * Constrain the query to Annotations with this ID.
    */
-  id: string;
+  id?: string;
   /**
-   * The selector that was assigned to the glyph when it was created. If this is supplied, the queryGlyphMap
-   * function will return a list of GlyphMappings that correspond only to glyphs assigned that selector.
+   * Constrain the query to Annotations with this selector.
    */
   selector?: string;
   /**
-   * If a Chart is supplied, the queryGlyphMap function will return a list of GlyphMappings that correspond only to
-   * glyphs rendered in that Chart.
+   * Constrain the query to Annotations rendered in this Chart.
    */
   chart?: C;
 }
 
 /**
- * This function returns the GlyphMappings for the target Annotation IDs. The query can be constrained by Chart and
- * glyph selector. If both constraints are supplied, the function will return a single mapping. The function will
- * return undefined if no glyphs are mapped with the query constraints.
+ * This function returns GlyphMappings. If all three parameters (id, selector, chart) are supplied in the config,
+ * the function will return a single D3 selection. Otherwise, the function will return a list of D3 selections.
  * @param config
  */
 export function queryGlyphMap<C extends Chart<any>>(
-  config: GlyphMapQueryConfig<C>
+  config: GlyphMapQueryConfig<C> = {}
 ): GlyphMapping | GlyphMapping[] | undefined {
-  let mappings = glyphMap.get(config.id);
+  let mappings: GlyphMapping[] | undefined;
+
+  if (config.id == undefined) {
+    mappings = Array.from(glyphMap.values()).reduce((previous, current) => {
+      return previous.concat(current);
+    }, []);
+  } else {
+    mappings = glyphMap.get(config.id);
+  }
 
   if (mappings == undefined || mappings.length == 0) {
     return undefined;
   }
 
-  if (config.chart == undefined && config.selector == undefined) {
-    return mappings;
-  } else if (config.selector != undefined && config.chart != undefined) {
-    for (const mapping of mappings) {
-      if (
-        mapping.selector == config.selector &&
-        mapping.chart == config.chart
-      ) {
-        return mapping;
-      }
-    }
-  } else {
-    let filteredMappings: GlyphMapping[] = [];
-    if (config.selector != undefined) {
-      filteredMappings = mappings.filter((m) => m.selector == config.selector);
-    } else if (config.chart != undefined) {
-      filteredMappings = mappings.filter((m) => m.chart == config.chart);
-    }
-    if (filteredMappings.length > 0) {
-      return filteredMappings;
-    } else {
-      return undefined;
-    }
+  if (config.selector != undefined) {
+    mappings = mappings.filter((m) => m.selector == config.selector);
   }
+
+  if (config.chart != undefined) {
+    mappings = mappings.filter((m) => m.chart == config.chart);
+  }
+
+  if (mappings.length == 0) {
+    return undefined;
+  }
+
+  if (
+    config.id != undefined &&
+    config.selector != undefined &&
+    config.chart != undefined
+  ) {
+    if (mappings.length > 1) {
+      console.error(
+        `Multiple results in queryGlyphMap() with id: ${config.id}` +
+          `, selector: ${config.selector},` +
+          ` chart: ${config.chart},` +
+          ` returning only the first result.`
+      );
+    }
+    return mappings[0];
+  }
+
+  return mappings;
 }
