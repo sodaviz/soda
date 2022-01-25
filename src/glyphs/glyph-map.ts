@@ -13,6 +13,10 @@ export interface GlyphMapping {
    */
   selection: d3.Selection<any, any, any, any>;
   /**
+   * The selector that was assigned to the glyph when it was created.
+   */
+  selector: string;
+  /**
    * A reference to the Chart that the glyph is rendered in.
    */
   chart: Chart<any>;
@@ -34,6 +38,7 @@ export interface GlyphMapConfig<
   E extends Element
 > {
   binding: Binding<A, C, E>;
+  selector: string;
   chart: C;
 }
 
@@ -50,8 +55,22 @@ export function mapGlyphs<
   config.binding.merge.each((d, i, nodes) => {
     idAnnotationMap.set(d.a.id, d.a);
     let glyphMapList = glyphMap.get(d.a.id) || [];
+
+    let selection = d3.select(nodes[i]);
+
+    for (const mapping of glyphMapList) {
+      if (
+        mapping.chart == config.chart &&
+        mapping.selector == config.selector
+      ) {
+        mapping.selection = selection;
+        return;
+      }
+    }
+
     glyphMapList.push({
-      selection: d3.select(nodes[i]),
+      selection,
+      selector: config.selector,
       chart: config.chart,
     });
     glyphMap.set(d.a.id, glyphMapList);
@@ -60,41 +79,71 @@ export function mapGlyphs<
 
 /**
  * An interface that defines the parameters for a call to the queryGlyphMap() function.
- * @internal
  */
 export interface GlyphMapQueryConfig<C extends Chart<any>> {
   /**
-   * The Annotation ID that is the target of the query.
+   * Constrain the query to Annotations with this ID.
    */
-  id: string;
+  id?: string;
   /**
-   * If a Chart is supplied, the queryGlyphMap function will return a single GlyphMapping. If no Chart is supplied,
-   * it will return a list of GlyphMappings, one for each Chart the glyph is mapped to.
+   * Constrain the query to Annotations with this selector.
+   */
+  selector?: string;
+  /**
+   * Constrain the query to Annotations rendered in this Chart.
    */
   chart?: C;
 }
 
 /**
- * This function returns the GlyphMappings for the target Annotation IDs.
+ * This function returns GlyphMappings. If all three parameters (id, selector, chart) are supplied in the config,
+ * the function will return a single D3 selection. Otherwise, the function will return a list of D3 selections.
  * @param config
  */
 export function queryGlyphMap<C extends Chart<any>>(
-  config: GlyphMapQueryConfig<C>
+  config: GlyphMapQueryConfig<C> = {}
 ): GlyphMapping | GlyphMapping[] | undefined {
-  let mappings = glyphMap.get(config.id);
+  let mappings: GlyphMapping[] | undefined;
+
+  if (config.id == undefined) {
+    mappings = Array.from(glyphMap.values()).reduce((previous, current) => {
+      return previous.concat(current);
+    }, []);
+  } else {
+    mappings = glyphMap.get(config.id);
+  }
 
   if (mappings == undefined || mappings.length == 0) {
     return undefined;
   }
 
-  if (config.chart == undefined) {
-    return mappings;
-  } else {
-    for (const mapping of mappings) {
-      if (mapping.chart == config.chart) {
-        return mapping;
-      }
-    }
+  if (config.selector != undefined) {
+    mappings = mappings.filter((m) => m.selector == config.selector);
+  }
+
+  if (config.chart != undefined) {
+    mappings = mappings.filter((m) => m.chart == config.chart);
+  }
+
+  if (mappings.length == 0) {
     return undefined;
   }
+
+  if (
+    config.id != undefined &&
+    config.selector != undefined &&
+    config.chart != undefined
+  ) {
+    if (mappings.length > 1) {
+      console.error(
+        `Multiple results in queryGlyphMap() with id: ${config.id}` +
+          `, selector: ${config.selector},` +
+          ` chart: ${config.chart},` +
+          ` returning only the first result.`
+      );
+    }
+    return mappings[0];
+  }
+
+  return mappings;
 }

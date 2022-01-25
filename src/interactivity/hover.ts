@@ -76,7 +76,6 @@ export function hoverBehavior<A extends Annotation, C extends Chart<any>>(
       console.error("No glyph mapping for Annotation ID", ann.id);
       return;
     }
-
     let mouseoverList = getMouseoverList(ann);
     mouseoverList.push(config.mouseover);
     let mouseoutList = getMouseoutList(ann);

@@ -28,7 +28,7 @@ export function chevronRectangle<A extends Annotation, C extends Chart<any>>(
   let patternSelector = selector + "-pattern";
   let patternSelectorInternal = patternSelector + "-internal";
   let rectSelector = selector + "-rect";
-  let rectSelectorInternal = patternSelector + "-internal";
+  let rectSelectorInternal = rectSelector + "-internal";
 
   let outerBinding = bind<A, C, SVGPatternElement>({
     ...config,
