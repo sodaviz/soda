@@ -87,14 +87,21 @@ export interface GlyphMapQueryConfig<C extends Chart<any>> {
    */
   id: string;
   /**
-   * If a Chart is supplied, the queryGlyphMap function will return a single GlyphMapping. If no Chart is supplied,
-   * it will return a list of GlyphMappings, one for each Chart the glyph is mapped to.
+   * The selector that was assigned to the glyph when it was created. If this is supplied, the queryGlyphMap
+   * function will return a list of GlyphMappings that correspond only to glyphs assigned that selector.
+   */
+  selector?: string;
+  /**
+   * If a Chart is supplied, the queryGlyphMap function will return a list of GlyphMappings that correspond only to
+   * glyphs rendered in that Chart.
    */
   chart?: C;
 }
 
 /**
- * This function returns the GlyphMappings for the target Annotation IDs.
+ * This function returns the GlyphMappings for the target Annotation IDs. The query can be constrained by Chart and
+ * glyph selector. If both constraints are supplied, the function will return a single mapping. The function will
+ * return undefined if no glyphs are mapped with the query constraints.
  * @param config
  */
 export function queryGlyphMap<C extends Chart<any>>(
@@ -106,14 +113,28 @@ export function queryGlyphMap<C extends Chart<any>>(
     return undefined;
   }
 
-  if (config.chart == undefined) {
+  if (config.chart == undefined && config.selector == undefined) {
     return mappings;
-  } else {
+  } else if (config.selector != undefined && config.chart != undefined) {
     for (const mapping of mappings) {
-      if (mapping.chart == config.chart) {
+      if (
+        mapping.selector == config.selector &&
+        mapping.chart == config.chart
+      ) {
         return mapping;
       }
     }
-    return undefined;
+  } else {
+    let filteredMappings: GlyphMapping[] = [];
+    if (config.selector != undefined) {
+      filteredMappings = mappings.filter((m) => m.selector == config.selector);
+    } else if (config.chart != undefined) {
+      filteredMappings = mappings.filter((m) => m.chart == config.chart);
+    }
+    if (filteredMappings.length > 0) {
+      return filteredMappings;
+    } else {
+      return undefined;
+    }
   }
 }
