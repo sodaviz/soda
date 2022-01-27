@@ -11,6 +11,10 @@ export interface InteractionConfig<A extends Annotation, C extends Chart<any>> {
    */
   chart?: C;
   /**
+   * The selector of the glyphs to which the interaction is applied.
+   */
+  selector?: string;
+  /**
    * The Annotations to which the interaction is applied.
    */
   annotations: A[];
