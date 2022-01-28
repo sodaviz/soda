@@ -194,6 +194,16 @@ export interface ChartConfig<P extends RenderParams> {
    * @param params
    */
   postRender?: (this: Chart<P>, params: P) => void;
+  /**
+   * The callback function that the Chart executes after zoom() is called.
+   * @param params
+   */
+  postZoom?: (this: Chart<P>) => void;
+  /**
+   * The callback function that the Chart executes after resize() is called.
+   * @param params
+   */
+  postResize?: (this: Chart<P>) => void;
 }
 
 /**
@@ -502,6 +512,16 @@ export class Chart<P extends RenderParams> {
   postRender: (this: any, params: P) => void = function (this: Chart<P>): void {
     this.applyGlyphModifiers();
   };
+  /**
+   * The callback function that the Chart executes after zoom() is called.
+   * @param params
+   */
+  postZoom: (this: any) => void = () => {};
+  /**
+   * The callback function that the Chart executes after resize() is called.
+   * @param params
+   */
+  postResize: (this: any) => void = () => {};
 
   constructor(config: ChartConfig<P> = {}) {
     this.id = config.id || generateId("soda-chart");
@@ -578,6 +598,8 @@ export class Chart<P extends RenderParams> {
     this.preRender = config.preRender || this.preRender;
     this.inRender = config.inRender || this.inRender;
     this.postRender = config.postRender || this.postRender;
+    this.postZoom = config.postZoom || this.postZoom;
+    this.postResize = config.postResize || this.postResize;
 
     if (this.zoomable) {
       this.configureZoom();
@@ -1102,6 +1124,7 @@ export class Chart<P extends RenderParams> {
     this.rescaleXScale(transform);
     this.applyGlyphModifiers();
     this.alertObservers();
+    this.postZoom();
   }
 
   /**
@@ -1140,6 +1163,7 @@ export class Chart<P extends RenderParams> {
     this.resetTransform();
     this.initializeXScale(view.start, view.end);
     this.applyGlyphModifiers();
+    this.postResize();
   }
 
   /**
