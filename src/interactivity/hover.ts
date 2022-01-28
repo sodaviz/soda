@@ -1,8 +1,9 @@
+import * as d3 from "d3";
 import { Annotation } from "../annotations/annotation";
 import { Chart } from "../charts/chart";
 import { InteractionCallback } from "./interaction-callback";
 import { InteractionConfig } from "./interaction-config";
-import { GlyphMapping, queryGlyphMap } from "../glyphs/glyph-map";
+import { queryGlyphMap } from "../glyphs/glyph-map";
 import { getBehaviorList } from "./interaction-list";
 
 /**
@@ -18,16 +19,20 @@ const mouseoutBehaviorMap: Map<string, Function[]> = new Map();
  * This function returns the list of mouseover behaviors that are associated with an Annotation object.
  * @internal
  */
-function getMouseoverList(mapping: GlyphMapping): Function[] {
-  return getBehaviorList(mapping, mouseoverBehaviorMap);
+function getMouseoverList(
+  selection: d3.Selection<any, any, any, any>
+): Function[] {
+  return getBehaviorList(selection, mouseoverBehaviorMap);
 }
 
 /**
  * This function returns the list of mouseout behaviors that are associated with an Annotation object.
  * @internal
  */
-function getMouseoutList(mapping: GlyphMapping): Function[] {
-  return getBehaviorList(mapping, mouseoutBehaviorMap);
+function getMouseoutList(
+  selection: d3.Selection<any, any, any, any>
+): Function[] {
+  return getBehaviorList(selection, mouseoutBehaviorMap);
 }
 
 /**
@@ -77,15 +82,15 @@ export function hoverBehavior<A extends Annotation, C extends Chart<any>>(
 }
 
 function applyHoverCallbacks(
-  mapping: GlyphMapping,
+  selection: d3.Selection<any, any, any, any>,
   config: HoverConfig<any, any>
 ): void {
-  getMouseoverList(mapping).push(config.mouseover);
-  getMouseoutList(mapping).push(config.mouseout);
+  getMouseoverList(selection).push(config.mouseover);
+  getMouseoutList(selection).push(config.mouseout);
 
-  mapping.selection
-    .on("mouseover", () => mouseover(mapping))
-    .on("mouseout", () => mouseout(mapping));
+  selection
+    .on("mouseover", () => mouseover(selection))
+    .on("mouseout", () => mouseout(selection));
 }
 
 /**
@@ -94,13 +99,13 @@ function applyHoverCallbacks(
  * @internal
  */
 function mouseover<A extends Annotation, C extends Chart<any>>(
-  mapping: GlyphMapping
+  selection: d3.Selection<any, any, any, any>
 ): void {
-  let datum = mapping.selection.datum();
-  let behaviors = getMouseoverList(mapping);
+  let datum = selection.datum();
+  let behaviors = getMouseoverList(selection);
 
   for (const behavior of behaviors) {
-    behavior(mapping.selection, datum);
+    behavior(selection, datum);
   }
 }
 
@@ -110,12 +115,12 @@ function mouseover<A extends Annotation, C extends Chart<any>>(
  * @internal
  */
 function mouseout<A extends Annotation, C extends Chart<any>>(
-  mapping: GlyphMapping
+  selection: d3.Selection<any, any, any, any>
 ): void {
-  let datum = mapping.selection.datum();
-  let behaviors = getMouseoutList(mapping);
+  let datum = selection.datum();
+  let behaviors = getMouseoutList(selection);
 
   for (const behavior of behaviors) {
-    behavior(mapping.selection, datum);
+    behavior(selection, datum);
   }
 }
