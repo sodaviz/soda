@@ -87,7 +87,7 @@ export function tooltip<A extends Annotation, C extends Chart<any>>(
 ) {
   initTooltipDiv();
   hoverBehavior<A, C>({
-    annotations: config.annotations,
+    ...config,
     mouseover: (s, d) => {
       defaultTooltipMouseover(s, d, config);
     },

@@ -1,9 +1,9 @@
 import { Annotation } from "../annotations/annotation";
-import { AnnotationDatum } from "../glyphs/bind";
 import { Chart } from "../charts/chart";
 import { InteractionCallback } from "./interaction-callback";
 import { InteractionConfig } from "./interaction-config";
 import { GlyphMapping, queryGlyphMap } from "../glyphs/glyph-map";
+import { getBehaviorList } from "./interaction-list";
 
 /**
  * @internal
@@ -16,30 +16,18 @@ const mouseoutBehaviorMap: Map<string, Function[]> = new Map();
 
 /**
  * This function returns the list of mouseover behaviors that are associated with an Annotation object.
- * @param ann
  * @internal
  */
-function getMouseoverList<A extends Annotation>(ann: A): Function[] {
-  let list = mouseoverBehaviorMap.get(ann.id);
-  if (list == undefined) {
-    list = [];
-    mouseoverBehaviorMap.set(ann.id, list);
-  }
-  return list;
+function getMouseoverList(mapping: GlyphMapping): Function[] {
+  return getBehaviorList(mapping, mouseoverBehaviorMap);
 }
 
 /**
  * This function returns the list of mouseout behaviors that are associated with an Annotation object.
- * @param ann
  * @internal
  */
-function getMouseoutList<A extends Annotation>(ann: A): Function[] {
-  let list = mouseoutBehaviorMap.get(ann.id);
-  if (list == undefined) {
-    list = [];
-    mouseoutBehaviorMap.set(ann.id, list);
-  }
-  return list;
+function getMouseoutList(mapping: GlyphMapping): Function[] {
+  return getBehaviorList(mapping, mouseoutBehaviorMap);
 }
 
 /**
@@ -69,88 +57,64 @@ export function hoverBehavior<A extends Annotation, C extends Chart<any>>(
   for (const ann of config.annotations) {
     let mapping = queryGlyphMap({
       id: ann.id,
+      selector: config.selector,
       chart: config.chart,
     });
 
     if (mapping == undefined) {
-      console.error("No glyph mapping for Annotation ID", ann.id);
+      console.warn("No glyph mapping found");
       return;
     }
-    let mouseoverList = getMouseoverList(ann);
-    mouseoverList.push(config.mouseover);
-    let mouseoutList = getMouseoutList(ann);
-    mouseoutList.push(config.mouseout);
 
-    // prettier-ignore
     if (Array.isArray(mapping)) {
       for (const map of mapping) {
-        map.selection
-          .on("mouseover", mouseover)
-          .on("mouseout", mouseout);
+        applyHoverCallbacks(map, config);
       }
     } else {
-      mapping.selection
-        .on("mouseover", mouseover)
-        .on("mouseout", mouseout);
+      applyHoverCallbacks(mapping, config);
     }
   }
 }
 
+function applyHoverCallbacks(
+  mapping: GlyphMapping,
+  config: HoverConfig<any, any>
+): void {
+  getMouseoverList(mapping).push(config.mouseover);
+  getMouseoutList(mapping).push(config.mouseout);
+
+  mapping.selection
+    .on("mouseover", () => mouseover(mapping))
+    .on("mouseout", () => mouseout(mapping));
+}
+
 /**
- * A generic function that is actually routed to the mouseover event on a SODA glyph. When called, it will retrieve the
+ * A generic function that is routed to the mouseover event on a SODA glyph. When called, it will retrieve the
  * list of mouseover behaviors associated with that glyph, and run the callback function for each behavior.
- * @param datum
  * @internal
  */
 function mouseover<A extends Annotation, C extends Chart<any>>(
-  datum: AnnotationDatum<A, C>
+  mapping: GlyphMapping
 ): void {
-  let mapping = queryGlyphMap({
-    id: datum.a.id,
-    chart: datum.c,
-  });
+  let datum = mapping.selection.datum();
+  let behaviors = getMouseoverList(mapping);
 
-  if (mapping == undefined) {
-    console.error(
-      "GlyphMapping undefined for Annotation ID",
-      datum.a.id,
-      "in call to mouseover()"
-    );
-    return;
-  }
-
-  mapping = <GlyphMapping>mapping;
-  let behaviors = getMouseoverList(datum.a);
   for (const behavior of behaviors) {
     behavior(mapping.selection, datum);
   }
 }
 
 /**
- * A generic function that is actually routed to the mouseover event on a SODA glyph. When called, it will retrieve the
+ * A generic function that is routed to the mouseover event on a SODA glyph. When called, it will retrieve the
  * list of mouseout behaviors associated with that glyph, and run the callback function for each behavior.
- * @param datum
  * @internal
  */
 function mouseout<A extends Annotation, C extends Chart<any>>(
-  datum: AnnotationDatum<A, C>
+  mapping: GlyphMapping
 ): void {
-  let mapping = queryGlyphMap({
-    id: datum.a.id,
-    chart: datum.c,
-  });
+  let datum = mapping.selection.datum();
+  let behaviors = getMouseoutList(mapping);
 
-  if (mapping == undefined) {
-    console.error(
-      "GlyphMapping undefined for Annotation ID",
-      datum.a.id,
-      "in call to mouseover()"
-    );
-    return;
-  }
-
-  mapping = <GlyphMapping>mapping;
-  let behaviors = getMouseoutList(datum.a);
   for (const behavior of behaviors) {
     behavior(mapping.selection, datum);
   }
