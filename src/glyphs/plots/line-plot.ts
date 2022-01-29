@@ -1,15 +1,15 @@
 import { ContinuousAnnotation } from "../../annotations/continuous-annotation";
 import { Chart } from "../../charts/chart";
 import * as d3 from "d3";
-import { GlyphConfig } from "../glyph-config";
+import { GlyphConfig } from "../../glyph-utilities/glyph-config";
 import { generateId } from "../../utilities/id-generation";
-import { AnnotationDatum, bind } from "../bind";
+import { AnnotationDatum, bind } from "../../glyph-utilities/bind";
 import { setYScales } from "../plots";
 import {
   GlyphModifier,
   GlyphModifierConfig,
   GlyphProperty,
-} from "../glyph-modifier";
+} from "../../glyph-utilities/glyph-modifier";
 
 /**
  * @internal

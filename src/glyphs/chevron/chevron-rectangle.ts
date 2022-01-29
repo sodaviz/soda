@@ -3,8 +3,8 @@ import { Chart } from "../../charts/chart";
 import { generateId } from "../../utilities/id-generation";
 import { RectangleConfig } from "../rectangle";
 import { Annotation } from "../../annotations/annotation";
-import { bind } from "../bind";
-import { GlyphModifier } from "../glyph-modifier";
+import { bind } from "../../glyph-utilities/bind";
+import { GlyphModifier } from "../../glyph-utilities/glyph-modifier";
 import { ChevronPatternModifier } from "./chevron-pattern";
 import { ChevronGlyphConfig } from "../chevron";
 

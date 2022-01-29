@@ -1,16 +1,16 @@
 import { Annotation } from "../annotations/annotation";
 import { Chart } from "../charts/chart";
 import * as d3 from "d3";
-import { GlyphConfig } from "./glyph-config";
+import { GlyphConfig } from "../glyph-utilities/glyph-config";
 import { generateId } from "../utilities/id-generation";
-import { bind } from "./bind";
+import { bind } from "../glyph-utilities/bind";
 import {
   GlyphCallback,
   GlyphModifier,
   GlyphModifierConfig,
   GlyphProperty,
   resolveValue,
-} from "./glyph-modifier";
+} from "../glyph-utilities/glyph-modifier";
 
 /**
  * @internal

@@ -1,7 +1,7 @@
 import { Annotation } from "../annotations/annotation";
 import { Chart } from "../charts/chart";
-import { GlyphProperty } from "./glyph-modifier";
-import { GlyphConfig } from "./glyph-config";
+import { GlyphProperty } from "../glyph-utilities/glyph-modifier";
+import { GlyphConfig } from "../glyph-utilities/glyph-config";
 import { Orientation } from "../annotations/orientation";
 
 export * from "./chevron/chevron-line";

@@ -1,8 +1,8 @@
 import { Chart } from "../../charts/chart";
 import { generateId } from "../../utilities/id-generation";
 import { Annotation } from "../../annotations/annotation";
-import { bind } from "../bind";
-import { GlyphModifier } from "../glyph-modifier";
+import { bind } from "../../glyph-utilities/bind";
+import { GlyphModifier } from "../../glyph-utilities/glyph-modifier";
 import * as d3 from "d3";
 import { LineModifier } from "../line";
 import { ChevronPatternModifier } from "./chevron-pattern";

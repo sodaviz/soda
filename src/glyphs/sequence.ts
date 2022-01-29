@@ -2,13 +2,13 @@ import { SequenceAnnotation } from "../annotations/sequence-annotation";
 import { Chart } from "../charts/chart";
 import * as d3 from "d3";
 import { generateId } from "../utilities/id-generation";
-import { AnnotationDatum, bind } from "./bind";
+import { AnnotationDatum, bind } from "../glyph-utilities/bind";
 import {
   GlyphModifier,
   GlyphModifierConfig,
   GlyphProperty,
-} from "./glyph-modifier";
-import { GlyphConfig } from "./glyph-config";
+} from "../glyph-utilities/glyph-modifier";
+import { GlyphConfig } from "../glyph-utilities/glyph-config";
 
 /**
  * An interface that defines the parameters for a call to the sequence rendering function.

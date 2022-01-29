@@ -3,7 +3,7 @@ import { Annotation } from "../annotations/annotation";
 import { InteractionCallback } from "./interaction-callback";
 import { Chart } from "../charts/chart";
 import { InteractionConfig } from "./interaction-config";
-import { queryGlyphMap } from "../glyphs/glyph-map";
+import { queryGlyphMap } from "../glyph-utilities/glyph-map";
 import { getBehaviorList } from "./interaction-list";
 
 /**
@@ -30,6 +30,17 @@ export interface ClickConfig<A extends Annotation, C extends Chart<any>>
    * references to both a D3 Selection to the Annotation's representative glyph and the Annotation object itself.
    */
   click: InteractionCallback<A, C>;
+}
+
+/**
+ * Remove all click behaviors by associated keys.
+ * @internal
+ * @param keys
+ */
+export function removeClickBehaviorsByKeys(keys: string[]): void {
+  for (const key of keys) {
+    clickBehaviorMap.delete(key);
+  }
 }
 
 /**

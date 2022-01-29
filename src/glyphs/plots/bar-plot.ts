@@ -2,10 +2,13 @@ import { ContinuousAnnotation } from "../../annotations/continuous-annotation";
 import { Chart } from "../../charts/chart";
 import * as d3 from "d3";
 import { generateId } from "../../utilities/id-generation";
-import { GlyphConfig } from "../glyph-config";
-import { bind } from "../bind";
+import { GlyphConfig } from "../../glyph-utilities/glyph-config";
+import { bind } from "../../glyph-utilities/bind";
 import { setYScales } from "../plots";
-import { GlyphModifier, GlyphModifierConfig } from "../glyph-modifier";
+import {
+  GlyphModifier,
+  GlyphModifierConfig,
+} from "../../glyph-utilities/glyph-modifier";
 
 /**
  * @internal

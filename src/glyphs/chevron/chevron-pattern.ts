@@ -6,10 +6,10 @@ import {
   GlyphModifierConfig,
   GlyphProperty,
   resolveValue,
-} from "../glyph-modifier";
+} from "../../glyph-utilities/glyph-modifier";
 import { Orientation } from "../../annotations/orientation";
 import * as d3 from "d3";
-import { AnnotationDatum } from "../bind";
+import { AnnotationDatum } from "../../glyph-utilities/bind";
 import { ChevronGlyphConfig } from "../chevron";
 
 /**

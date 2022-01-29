@@ -1,7 +1,6 @@
 import { Annotation } from "../annotations/annotation";
 import { Chart } from "../charts/chart";
 import * as d3 from "d3";
-import { GlyphConfig } from "./glyph-config";
 import { mapGlyphs } from "./glyph-map";
 
 /**

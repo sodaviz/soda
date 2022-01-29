@@ -7,8 +7,8 @@ import {
 } from "../glyphs/axes/horizontal-axis";
 import { intervalGraphLayout } from "../layout/interval-graph-layout";
 import { rectangle } from "../glyphs/rectangle";
-import { BindTarget } from "../glyphs/bind";
-import { GlyphModifier } from "../glyphs/glyph-modifier";
+import { BindTarget } from "../glyph-utilities/bind";
+import { GlyphModifier } from "../glyph-utilities/glyph-modifier";
 import { generateId } from "../utilities/id-generation";
 import { ChartObserver } from "../observers/chart-observer";
 

@@ -3,8 +3,9 @@ import { Annotation } from "../annotations/annotation";
 import { Chart } from "../charts/chart";
 import { InteractionCallback } from "./interaction-callback";
 import { InteractionConfig } from "./interaction-config";
-import { queryGlyphMap } from "../glyphs/glyph-map";
+import { queryGlyphMap } from "../glyph-utilities/glyph-map";
 import { getBehaviorList } from "./interaction-list";
+import { GlyphQueryConfig } from "../glyph-utilities/glyph-query";
 
 /**
  * @internal
@@ -50,6 +51,18 @@ export interface HoverConfig<A extends Annotation, C extends Chart<any>>
    * of the glyph and the Annotation object it represents as arguments.
    */
   mouseout: InteractionCallback<A, C>;
+}
+
+/**
+ * Remove all hover behaviors by associated keys.
+ * @internal
+ * @param keys
+ */
+export function removeHoverBehaviorsByKeys(keys: string[]): void {
+  for (const key of keys) {
+    mouseoverBehaviorMap.delete(key);
+    mouseoutBehaviorMap.delete(key);
+  }
 }
 
 /**
