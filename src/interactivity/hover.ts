@@ -60,23 +60,27 @@ export function hoverBehavior<A extends Annotation, C extends Chart<any>>(
   config: HoverConfig<A, C>
 ): void {
   for (const ann of config.annotations) {
-    let mapping = queryGlyphMap({
+    let selection = queryGlyphMap({
       id: ann.id,
       selector: config.selector,
       chart: config.chart,
     });
 
-    if (mapping == undefined) {
+    if (selection == undefined) {
       console.warn("No glyph mapping found");
       return;
     }
 
-    if (Array.isArray(mapping)) {
-      for (const map of mapping) {
+    if (Array.isArray(selection)) {
+      if (selection.length == 0) {
+        console.warn("No glyph mapping found");
+        return;
+      }
+      for (const map of selection) {
         applyHoverCallbacks(map, config);
       }
     } else {
-      applyHoverCallbacks(mapping, config);
+      applyHoverCallbacks(selection, config);
     }
   }
 }
