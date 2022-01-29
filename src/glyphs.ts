@@ -15,7 +15,11 @@ export {
   ChevronRectangleConfig,
 } from "./glyphs/chevron";
 export { GlyphConfig } from "./glyphs/glyph-config";
-export { GlyphMapQueryConfig, queryGlyphMap } from "./glyphs/glyph-map";
+export {
+  setKeySeparator,
+  GlyphMapQueryConfig,
+  queryGlyphMap,
+} from "./glyphs/glyph-map";
 export { getAllAnnotationIds, getAnnotationById } from "./glyphs/id-map";
 export { line, LineConfig } from "./glyphs/line";
 export {
