@@ -33,11 +33,6 @@ export interface AnnotationConfig {
    * is not overwritten during a call to the glyph rendering API.
    */
   row?: number;
-  /**
-   * This flag suppresses Annotation initialization warnings. Unless you really know what you're doing, you'll
-   * probably want to leave this alone.
-   */
-  suppressWarnings?: boolean;
 }
 
 /**
@@ -108,7 +103,6 @@ export class Annotation {
   end: number;
   width: number;
   row: number;
-  suppressWarnings: boolean = false;
 
   constructor(config: AnnotationConfig) {
     this.id = config.id || generateId("soda-ann");
@@ -116,15 +110,6 @@ export class Annotation {
     if (hasStart(config)) {
       this.start = config.start;
     } else {
-      if (!this.suppressWarnings) {
-        console.warn(
-          "AnnotationConfig",
-          config,
-          "doesn't have start",
-          this,
-          "set with start: 0"
-        );
-      }
       this.start = 0;
     }
     this.row = config.row || 0;
@@ -136,15 +121,6 @@ export class Annotation {
       this.end = config.end;
       this.width = this.end - this.start;
     } else {
-      if (!this.suppressWarnings) {
-        console.warn(
-          "AnnotationConfig",
-          config,
-          "doesn't have end or width",
-          this,
-          "set with end: 0 and width: 0"
-        );
-      }
       this.end = 0;
       this.width = 0;
     }

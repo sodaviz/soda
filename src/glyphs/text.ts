@@ -23,16 +23,16 @@ export function selectText(a: Annotation, c: Chart<any>): string {
   let thresholds = thresholdMap.get(a.id);
   if (thresholds === undefined) {
     console.error(
-      "text thresholds undefined for annotation",
-      a,
-      "returning empty string"
+      `text thresholds undefined for annotation: ${a.id}, returning empty string`
     );
     return "";
   }
 
   let text = textMap.get(a.id);
   if (text === undefined) {
-    console.error("text undefined for annotation", a, "returning empty string");
+    console.error(
+      `text undefined for annotation: ${a.id} returning empty string`
+    );
     return "";
   }
 
@@ -97,7 +97,8 @@ export interface TextConfig<A extends Annotation, C extends Chart<any>>
    */
   fontSize?: GlyphProperty<A, C, number>;
   /**
-   * The weight of the font: normal, bold, bolder, lighter. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-weight
+   * The weight of the font: normal, bold, bolder, lighter. See:
+   * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-weight
    */
   fontWeight?: GlyphProperty<A, C, string>;
   /**
@@ -105,15 +106,18 @@ export interface TextConfig<A extends Annotation, C extends Chart<any>>
    */
   fontFamily?: GlyphProperty<A, C, string>;
   /**
-   * The font style: normal, italic, or oblique. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-style
+   * The font style: normal, italic, or oblique. See:
+   * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-style
    */
   fontStyle?: GlyphProperty<A, C, string>;
   /**
-   * Where the text is aligned to: start, middle, or end. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor
+   * Where the text is aligned to: start, middle, or end. See:
+   * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor
    */
   textAnchor?: GlyphProperty<A, C, string>;
   /**
-   * How the text glyph is aligned with it's parent. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/alignment-baseline
+   * How the text glyph is aligned with it's parent. See:
+   * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/alignment-baseline
    */
   alignmentBaseline?: GlyphProperty<A, C, string>;
   /**

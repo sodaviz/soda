@@ -5,7 +5,6 @@ import { InteractionCallback } from "./interaction-callback";
 import { InteractionConfig } from "./interaction-config";
 import { queryGlyphMap } from "../glyph-utilities/glyph-map";
 import { getBehaviorList } from "./interaction-list";
-import { GlyphQueryConfig } from "../glyph-utilities/glyph-query";
 
 /**
  * @internal

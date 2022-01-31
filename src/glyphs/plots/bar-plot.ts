@@ -23,7 +23,9 @@ export const defaultBarHeightFn = <A extends ContinuousAnnotation>(
 ) => {
   let yScale = barPlotScaleMap.get(ann.id);
   if (yScale == undefined) {
-    console.error("yScale not defined for", ann, "in call to barPlot()");
+    console.error(
+      `yScale not defined for annotation: ${ann.id} in call to barPlot()`
+    );
     return 0;
   }
   return yScale(point[1]);

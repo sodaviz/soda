@@ -27,7 +27,9 @@ export const defaultLineFn = <
 ) => {
   let yScale = linePlotScaleMap.get(d.a.id);
   if (yScale == undefined) {
-    console.error("yScale not defined for", d.a, "in call to linePlot()");
+    console.error(
+      `yScale not defined for annotation: ${d.a.id} in call to linePlot()`
+    );
     return "";
   }
   let buffer = d3.path();
