@@ -4,6 +4,7 @@ import { queryGlyphMap, unmapGlyphsByKeys } from "./glyph-map";
 import { keyFromSelection } from "./map-keys";
 import { removeHoverBehaviorsByKeys } from "../interactivity/hover";
 import { removeClickBehaviorsByKeys } from "../interactivity/click";
+import { idAnnotationMap } from "./id-map";
 
 export function removeGlyphsByQuery(config: GlyphQueryConfig): void {
   let selections = queryGlyphMap(config);
@@ -23,6 +24,8 @@ function removeGlyphsBySelection(
   selections: d3.Selection<any, any, any, any>[]
 ): void {
   for (const selection of selections) {
+    let id: string = selection.datum().a.id;
+    idAnnotationMap.delete(id);
     selection.remove();
   }
 }

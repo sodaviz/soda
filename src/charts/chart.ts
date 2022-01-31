@@ -11,6 +11,7 @@ import { BindTarget } from "../glyph-utilities/bind";
 import { GlyphModifier } from "../glyph-utilities/glyph-modifier";
 import { generateId } from "../utilities/id-generation";
 import { ChartObserver } from "../observers/chart-observer";
+import { removeGlyphsByQuery } from "../glyph-utilities/glyph-removal";
 
 /**
  * This returns a "placeholder" xScale, which is initially used on a Chart before one is properly initialized.
@@ -1279,6 +1280,14 @@ export class Chart<P extends RenderParams> {
           Math.max(...params.annotations.map((a) => a.row)) + 1;
       }
     }
+  }
+
+  /**
+   * This method clears all glyphs that have been rendered in the Chart.
+   */
+  public clear(): void {
+    this.glyphModifiers = [];
+    removeGlyphsByQuery({ chart: this });
   }
 
   /**
