@@ -2,15 +2,15 @@ import * as d3 from "d3";
 import { Chart } from "../../charts/chart";
 import { Annotation } from "../../annotations/annotation";
 import { AxisType, getAxis } from "../axes";
-import { GlyphConfig } from "../glyph-config";
+import { GlyphConfig } from "../../glyph-utilities/glyph-config";
 import { generateId } from "../../utilities/id-generation";
-import { bind } from "../bind";
+import { bind } from "../../glyph-utilities/bind";
 import {
   GlyphModifier,
   GlyphModifierConfig,
   GlyphProperty,
   resolveValue,
-} from "../glyph-modifier";
+} from "../../glyph-utilities/glyph-modifier";
 
 /**
  * An interface that defines the parameters for a call to the verticalAxis rendering function.

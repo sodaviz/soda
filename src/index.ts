@@ -1,5 +1,6 @@
 export * from "./annotations";
 export * from "./charts";
+export * from "./glyph-utilities";
 export * from "./glyphs";
 export * from "./interactivity";
 export * from "./layout";

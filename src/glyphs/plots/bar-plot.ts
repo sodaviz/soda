@@ -2,10 +2,13 @@ import { ContinuousAnnotation } from "../../annotations/continuous-annotation";
 import { Chart } from "../../charts/chart";
 import * as d3 from "d3";
 import { generateId } from "../../utilities/id-generation";
-import { GlyphConfig } from "../glyph-config";
-import { bind } from "../bind";
+import { GlyphConfig } from "../../glyph-utilities/glyph-config";
+import { bind } from "../../glyph-utilities/bind";
 import { setYScales } from "../plots";
-import { GlyphModifier, GlyphModifierConfig } from "../glyph-modifier";
+import {
+  GlyphModifier,
+  GlyphModifierConfig,
+} from "../../glyph-utilities/glyph-modifier";
 
 /**
  * @internal
@@ -20,7 +23,9 @@ export const defaultBarHeightFn = <A extends ContinuousAnnotation>(
 ) => {
   let yScale = barPlotScaleMap.get(ann.id);
   if (yScale == undefined) {
-    console.error("yScale not defined for", ann, "in call to barPlot()");
+    console.error(
+      `yScale not defined for annotation: ${ann.id} in call to barPlot()`
+    );
     return 0;
   }
   return yScale(point[1]);

@@ -2,14 +2,14 @@ import { ContinuousAnnotation } from "../../annotations/continuous-annotation";
 import { Chart } from "../../charts/chart";
 import * as d3 from "d3";
 import { generateId } from "../../utilities/id-generation";
-import { GlyphConfig } from "../glyph-config";
-import { bind } from "../bind";
+import { GlyphConfig } from "../../glyph-utilities/glyph-config";
+import { bind } from "../../glyph-utilities/bind";
 import {
   GlyphModifier,
   GlyphModifierConfig,
   GlyphProperty,
   resolveValue,
-} from "../glyph-modifier";
+} from "../../glyph-utilities/glyph-modifier";
 
 /**
  * An interface that defines the parameters for a call to the heatmap rendering function.

@@ -7,16 +7,16 @@ export {
   HorizontalAxisConfig,
   VerticalAxisConfig,
 } from "./glyphs/axes";
-export { AnnotationDatum, BindTarget } from "./glyphs/bind";
 export {
   chevronLine,
   chevronRectangle,
   ChevronLineConfig,
   ChevronRectangleConfig,
 } from "./glyphs/chevron";
-export { GlyphConfig } from "./glyphs/glyph-config";
-export { GlyphMapQueryConfig, queryGlyphMap } from "./glyphs/glyph-map";
-export { getAllAnnotationIds, getAnnotationById } from "./glyphs/id-map";
+export {
+  getAllAnnotationIds,
+  getAnnotationById,
+} from "./glyph-utilities/id-map";
 export { line, LineConfig } from "./glyphs/line";
 export {
   barPlot,

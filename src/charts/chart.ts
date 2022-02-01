@@ -7,10 +7,11 @@ import {
 } from "../glyphs/axes/horizontal-axis";
 import { intervalGraphLayout } from "../layout/interval-graph-layout";
 import { rectangle } from "../glyphs/rectangle";
-import { BindTarget } from "../glyphs/bind";
-import { GlyphModifier } from "../glyphs/glyph-modifier";
+import { BindTarget } from "../glyph-utilities/bind";
+import { GlyphModifier } from "../glyph-utilities/glyph-modifier";
 import { generateId } from "../utilities/id-generation";
 import { ChartObserver } from "../observers/chart-observer";
+import { removeGlyphsByQuery } from "../glyph-utilities/glyph-removal";
 
 /**
  * This returns a "placeholder" xScale, which is initially used on a Chart before one is properly initialized.
@@ -25,9 +26,7 @@ function buildPlaceholderXScale(
   // @ts-ignore
   let placeholderScale = (() => {
     console.warn(
-      "xScale on chart",
-      chart,
-      "has been used before initialization"
+      `xScale on chart: ${chart.id} has been used before initialization`
     );
     return 0;
   }) as d3.ScaleLinear<number, number>;
@@ -40,9 +39,7 @@ function buildPlaceholderXScale(
   placeholderScale.nice = scale.nice;
   placeholderScale.copy = () => {
     console.warn(
-      "xScale.copy() on chart",
-      chart,
-      "has been used before initialization"
+      `xScale.copy() on chart: ${chart.id} has been used before initialization`
     );
     return placeholderScale;
   };
@@ -615,7 +612,9 @@ export class Chart<P extends RenderParams> {
    */
   get rowStripeRectSelection() {
     if (this._rowStripeRectSelection == undefined) {
-      console.error("_rowStripeRectSelection is not defined on", this);
+      console.error(
+        `_rowStripeRectSelection is not defined on chart: ${this.id}`
+      );
       throw `_rowStripeRectSelection undefined`;
     }
     return this._rowStripeRectSelection;
@@ -626,7 +625,9 @@ export class Chart<P extends RenderParams> {
    */
   get rowStripePatternSelection() {
     if (this._rowStripePatternSelection == undefined) {
-      console.error("_rowStripePatternSelection is not defined on", this);
+      console.error(
+        `_rowStripePatternSelection is not defined on chart: ${this.id}`
+      );
       throw `_rowStripePatternSelection undefined`;
     }
     return this._rowStripePatternSelection;
@@ -763,9 +764,7 @@ export class Chart<P extends RenderParams> {
   get selector(): string {
     if (this._selector == undefined) {
       console.error(
-        "_selector not defined on",
-        this,
-        "is this Chart detached?"
+        `_selector not defined on chart: ${this.id}, is this chart detached?`
       );
       throw "_selector undefined";
     }
@@ -789,9 +788,7 @@ export class Chart<P extends RenderParams> {
   get containerSelection(): d3.Selection<any, any, any, any> {
     if (this._containerSelection == undefined) {
       console.error(
-        "_containerSelection not defined on",
-        this,
-        "is this Chart detached?"
+        `_containerSelection not defined on chart: ${this.id}, is this chart detached?`
       );
       throw "_containerSelection undefined";
     }
@@ -877,7 +874,7 @@ export class Chart<P extends RenderParams> {
   public calculatePadDimensions(): DOMRect {
     let padNode = this.padSelection.node();
     if (padNode == null) {
-      console.warn("padSelection is null on", this);
+      console.warn(`padSelection is null on chart: ${this.id}`);
       throw "SVG undefined";
     }
     return padNode.getBoundingClientRect();
@@ -1119,7 +1116,7 @@ export class Chart<P extends RenderParams> {
     if (d3.event != undefined) {
       transform = d3.event.transform;
     } else {
-      console.warn("d3.event is undefined in zoom() call on", this);
+      console.warn(`d3.event is undefined in zoom() call on chart: ${this.id}`);
     }
     this.rescaleXScale(transform);
     this.applyGlyphModifiers();
@@ -1134,9 +1131,7 @@ export class Chart<P extends RenderParams> {
   public configureResize(): void {
     if (this._containerSelection == undefined) {
       console.warn(
-        "No containerSelection defined on",
-        this,
-        ", can't run configureResize()"
+        `No containerSelection defined on chart: ${this.id}, can't run configureResize()`
       );
       return;
     }
@@ -1180,7 +1175,7 @@ export class Chart<P extends RenderParams> {
    */
   get renderParams() {
     if (this._renderParams == undefined) {
-      console.error("_renderParams is not defined on", this);
+      console.error(`_renderParams is not defined on chart: ${this.id}`);
       throw `_renderParams undefined`;
     }
     return this._renderParams;
@@ -1250,8 +1245,7 @@ export class Chart<P extends RenderParams> {
           end = renderRange[1];
         } else {
           console.warn(
-            "no render range provided in call to initializeXScale() on",
-            this
+            `no render range provided in call to initializeXScale() on chart: ${this.id}`
           );
         }
       }
@@ -1282,6 +1276,14 @@ export class Chart<P extends RenderParams> {
   }
 
   /**
+   * This method clears all glyphs that have been rendered in the Chart.
+   */
+  public clear(): void {
+    this.glyphModifiers = [];
+    removeGlyphsByQuery({ chart: this });
+  }
+
+  /**
    * This method stores the render parameters on the Chart and calls preRender(), inRender(), and postRender().
    * @param params
    */
@@ -1301,8 +1303,7 @@ export class Chart<P extends RenderParams> {
     if (params.start == undefined || params.end == undefined) {
       if (params.annotations == undefined || params.annotations == []) {
         console.error(
-          "annotations undefined, can't infer range on RenderParams",
-          params
+          `annotations undefined, can't infer range on RenderParams`
         );
       } else {
         let min = Infinity;
