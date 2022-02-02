@@ -37,6 +37,7 @@
   "dependencies": {
     "@types/resize-observer-browser": "^0.1.6",
     "d3": "^5.15.0",
+    "d3-radial-axis": "^1.6.5",
     "file-saver": "^2.0.5",
     "lodash": "^4.17.21"
   },
