@@ -338,9 +338,18 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       semanticTheta + rightDomainDelta,
     ];
 
+    newDomain[0] = Math.max(newDomain[0], originalDomain[0]);
+    newDomain[1] = Math.min(newDomain[1], originalDomain[1]);
+
     if (source.type == "mousemove") {
-      newDomain[0] += source.movementX;
-      newDomain[1] += source.movementX;
+      let deltaX = source.movementX / transform.k;
+      if (newDomain[0] + deltaX <= originalDomain[0]) {
+        deltaX = originalDomain[0] - newDomain[0];
+      } else if (newDomain[1] + deltaX >= originalDomain[1]) {
+        deltaX = originalDomain[1] - newDomain[1];
+      }
+      newDomain[0] += deltaX;
+      newDomain[1] += deltaX;
     }
 
     this.xScale = d3
@@ -353,10 +362,17 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       .attr("d", (a) => {
         return d3
           .arc<any, Annotation>()
-          .innerRadius(400)
-          .outerRadius(405)
-          .startAngle(this.xScale(a.start))
-          .endAngle(this.xScale(a.end))(a);
+          .innerRadius((a) => 400 + a.y * 5)
+          .outerRadius((a) => 405 + a.y * 5)
+          .startAngle(Math.max(this.xScale(a.start), 0))
+          .endAngle(Math.min(this.xScale(a.end), 2 * Math.PI))(a);
+      })
+      .attr("visibility", (a) => {
+        if (a.start < newDomain[1] && a.end > newDomain[0]) {
+          return "visible";
+        } else {
+          return "hidden";
+        }
       });
 
     // this.rescaleXScale(transform);
