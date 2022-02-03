@@ -295,15 +295,20 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       console.warn(`d3.event is undefined in zoom() call on chart: ${this.id}`);
     }
 
-    // console.log(transform);
-    // console.log(source);
+    let vertical = source.layerY - this.upperPadSize - this.viewportWidth / 2;
+    let horizontal = source.layerX - this.leftPadSize - this.viewportWidth / 2;
+    let hypotenuse = Math.sqrt(vertical * vertical + horizontal * horizontal);
 
-    let a = source.layerY - this.upperPadSize - this.viewportWidth / 2;
-    let b = source.layerX - this.leftPadSize - this.viewportWidth / 2;
-    let c = Math.sqrt(a * a + b * b);
-
-    let theta = Math.asin(b / c);
+    let theta = Math.asin(horizontal / hypotenuse);
+    if (vertical < 0) {
+      if (horizontal < 0) {
+        theta += 2 * Math.PI;
+      }
+    } else {
+      theta = Math.PI - theta;
+    }
     let semanticTheta = this.xScale.invert(theta);
+
     this.overflowViewportSelection.selectAll<any, null>("path.point").attr(
       "d",
       d3
@@ -324,21 +329,24 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       (semanticTheta - currentDomain[0]) / currentDomainWidth;
     let rightDomainRatio =
       (currentDomain[1] - semanticTheta) / currentDomainWidth;
-
     let newDomainWidth = originalDomainWidth / transform.k;
+    let leftDomainDelta = newDomainWidth * leftDomainRatio;
+    let rightDomainDelta = newDomainWidth * rightDomainRatio;
 
-    let newDomain = currentDomain;
-    if (newDomainWidth != currentDomainWidth) {
-      let leftDomainDelta = newDomainWidth * leftDomainRatio;
-      let rightDomainDelta = newDomainWidth * rightDomainRatio;
+    let newDomain = [
+      semanticTheta - leftDomainDelta,
+      semanticTheta + rightDomainDelta,
+    ];
 
-      newDomain[0] = semanticTheta - leftDomainDelta;
-      newDomain[1] = semanticTheta + rightDomainDelta;
+    if (source.type == "mousemove") {
+      newDomain[0] += source.movementX;
+      newDomain[1] += source.movementX;
     }
 
-    let newRange = [0, 2 * Math.PI];
-
-    this.xScale = d3.scaleLinear().domain(newDomain).range(newRange);
+    this.xScale = d3
+      .scaleLinear()
+      .domain(newDomain)
+      .range([0, 2 * Math.PI]);
 
     this.viewportSelection
       .selectAll<any, Annotation>("path.ann")
