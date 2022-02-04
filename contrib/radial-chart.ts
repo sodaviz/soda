@@ -8,173 +8,20 @@ import {
   Transform,
 } from "../src";
 
-// export class RadialChartArcZoomBehavior<
-//   A extends Annotation,
-//   C extends RadialChart<any>
-// > implements ZoomBehavior<C, d3.Selection<SVGElement, A, HTMLElement, any>>
-// {
-//   selector: string;
-//   id = "radial-chart-arc-zoom-behavior";
-//
-//   constructor(selector: string) {
-//     this.selector = `path.${selector}`;
-//   }
-//
-//   public apply(
-//     chart: C,
-//     selection: d3.Selection<SVGElement, A, HTMLElement, any>
-//   ): void {
-//     let chartTransform = chart.viewportSelection.node().__zoom;
-//     selection
-//       .attr(
-//         "d",
-//         d3
-//           .arc<any, A>()
-//           .outerRadius((a) => chart.outerRadius(chart) - a.y * chart.rowHeight)
-//           .innerRadius(
-//             (a) => chart.outerRadius(chart) - (a.y + 1) * chart.rowHeight
-//           )
-//           .startAngle((a) => chart.xScale(a.x))
-//           .endAngle((a) => chart.xScale(a.x + a.w))
-//       )
-//       .attr("transform", chartTransform);
-//   }
-// }
-
-// export class RadialChartBrushZoomBehavior<
-//   A extends Annotation,
-//   C extends RadialChart<any>
-// > implements ZoomBehavior<C, d3.Selection<SVGElement, A, HTMLElement, any>>
-// {
-//   selector: string;
-//   id = "radial-chart-brush-zoom-behavior";
-//
-//   constructor(selector: string) {
-//     this.selector = `path.${selector}`;
-//   }
-//
-//   public apply(
-//     chart: C,
-//     selection: d3.Selection<SVGElement, A, HTMLElement, any>
-//   ): void {
-//     let chartTransform = chart.viewportSelection.node().__zoom;
-//     selection
-//       .attr(
-//         "d",
-//         d3
-//           .arc<any, A>()
-//           .outerRadius(() => chart.outerRadius(chart))
-//           .innerRadius(
-//             () => chart.outerRadius(chart) - chart.rowCount * chart.rowHeight
-//           )
-//           .startAngle((a) => chart.xScale(a.x))
-//           .endAngle((a) => chart.xScale(a.x + a.w))
-//       )
-//       .attr("transform", chartTransform)
-//       .each((a, i, nodes) => {
-//         nodes[i].parentNode!.appendChild(nodes[i]);
-//       });
-//   }
-// }
-//
-// export class RadialChartTrackZoomBehavior<
-//   A extends Annotation,
-//   C extends RadialChart<any>
-// > implements ZoomBehavior<C, d3.Selection<SVGElement, A, HTMLElement, any>>
-// {
-//   selector: string;
-//   id = "radial-chart-track-zoom-behavior";
-//
-//   constructor(selector: string) {
-//     this.selector = `path.${selector}`;
-//   }
-//
-//   public apply(
-//     chart: C,
-//     selection: d3.Selection<SVGElement, A, HTMLElement, any>
-//   ): void {
-//     let chartTransform = chart.viewportSelection.node().__zoom;
-//     selection
-//       .attr(
-//         "d",
-//         d3
-//           .arc<any, A>()
-//           .outerRadius((a) => chart.outerRadius(chart) - a.y * chart.rowHeight)
-//           .innerRadius(
-//             (a) => chart.outerRadius(chart) - (a.y + 1) * chart.rowHeight
-//           )
-//           .startAngle(3.14)
-//           .endAngle(6.28 * 2)
-//       )
-//       .attr("transform", chartTransform);
-//   }
-// }
-//
-// export class RadialAxisZoomBehavior<
-//   A extends Annotation,
-//   C extends RadialChart<any>
-// > implements ZoomBehavior<C, d3.Selection<SVGElement, A, HTMLElement, any>>
-// {
-//   selector: string;
-//   id = "radial-axis-zoom-behavior";
-//
-//   constructor(selector: string) {
-//     this.selector = `path.${selector}`;
-//   }
-//
-//   public apply(
-//     chart: C,
-//     selection: d3.Selection<SVGElement, A, HTMLElement, any>
-//   ): void {
-//     let chartTransform = chart.viewportSelection.node().__zoom;
-//     selection.attr("transform", chartTransform);
-//
-//     // TODO: I'd rather not create a new axis every time
-//     let axis = axisRadialOuter(chart.xScale, chart.outerRadius(chart));
-//
-//     // we'll set the ticks by multiplying the tick
-//     // count by the transform scale factor k rounded
-//     // this seems to work well enough for now
-//     let kRounded = Math.round(chartTransform.k);
-//     axis.ticks(chart.tickCount * kRounded);
-//
-//     selection.call(axis);
-//
-//     // scale the ticks by the inverse of the scaling factor
-//     selection
-//       .selectAll("text")
-//       .style("stroke", "#181d24")
-//       .style("fill", "#181d24")
-//       .style("font-size", 12)
-//       .attr("transform", `scale(${1 / chartTransform.k})`);
-//
-//     selection
-//       .selectAll("line")
-//       .attr("transform", `scale(${1 / chartTransform.k})`);
-//   }
-// }
-
 /**
  * A simple interface that defines the parameters that initialize a RadialChart
  */
 export interface RadialChartConfig<P extends RenderParams>
   extends ChartConfig<P> {
   /**
-   * The radius of the circle that defines the empty space in the center of the chart.
+   * The "height" of the radial track on which annotations will be rendered. Conceptually, this is equal to to the
+   * difference of the radii of two concentric circles that define an annulus.
    */
-  innerRadius?: (c: RadialChart<P>) => number;
-  /**
-   * The radius of the circle that defines the outer boundary of the chart.
-   */
-  outerRadius?: (c: RadialChart<P>) => number;
+  trackHeight?: number;
   /**
    * The initial number of ticks on the chart axis.
    */
   tickCount?: number;
-  /**
-   * This controls whether or not the chart will resize itself to match its container's dimensions.
-   */
-  resizable?: boolean;
 }
 
 /**
@@ -182,13 +29,18 @@ export interface RadialChartConfig<P extends RenderParams>
  */
 export class RadialChart<P extends RenderParams> extends Chart<P> {
   /**
-   * The radius of the circle that defines the empty space in the center of the chart.
+   * The "height" of the radial track on which annotations will be rendered. Conceptually, this is equal to to the
+   * difference of the radii of two concentric circles that define an annulus.
    */
-  innerRadius: (c: RadialChart<P>) => number;
+  trackHeight: number;
   /**
-   * The radius of the circle that defines the outer boundary of the chart.
+   * The inner radius of the conceptual annulus that defines the Chart annotation track.
    */
-  outerRadius: (c: RadialChart<P>) => number;
+  innerRadius: number;
+  /**
+   * The outer radius of the conceptual annulus that defines the Chart annotation track.
+   */
+  outerRadius: number;
   /**
    * The radius of the circle that defines the axis placement.
    */
@@ -202,27 +54,57 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
    * supplied, and instead it tries really hard to make it even and "pretty."
    */
   tickCount: number;
-  previousX: number = 0;
-  previousY: number = 0;
-  previousK: number = 1;
 
   public constructor(config: RadialChartConfig<P>) {
     super(config);
 
-    this.innerRadius =
-      config.innerRadius || ((c: RadialChart<P>) => c.viewportWidth / 3);
-    this.outerRadius =
-      config.outerRadius || ((c: RadialChart<P>) => c.viewportWidth / 2);
+    this.trackHeight = config.trackHeight || this.viewportWidth / 4;
+
+    this.outerRadius = this.viewportWidth / 2;
+    this.innerRadius = this.outerRadius - this.trackHeight;
     this.rowCount = config.rowCount || 1;
-    this.rowHeight =
-      (this.outerRadius(this) - this.innerRadius(this)) / this.rowCount;
+    this.rowHeight = this.trackHeight / this.rowCount;
     this.tickCount = config.tickCount || 10;
 
-    // this.preRender = () => {};
-    // this.inRender = () => {};
-    // this.postRender = () => {};
+    this.preRender = function (params): void {
+      this.applyLayoutAndSetRowCount(params);
+      this.updateDivProperties();
+      this.addAxis();
+      this.fitPadHeight();
+      this.fitViewport();
+      this.squareToContainerWidth();
+      this.initializeXScaleFromRenderParams(params);
+      this.renderTrackOutline();
+    };
 
+    this.inRender = function (params): void {
+      if (params.annotations != undefined) {
+        this.viewportSelection
+          .append("g")
+          .attr(
+            "transform",
+            `translate(${this.viewportWidth / 2}, ${this.viewportWidth / 2})`
+          )
+          .selectAll("path.ann")
+          .data(params.annotations)
+          .enter()
+          .append("path")
+          .attr("class", "ann")
+          .attr("d", (a: Annotation) => {
+            return d3
+              .arc<any, Annotation>()
+              .startAngle(this.xScale(a.start))
+              .endAngle(this.xScale(a.end))(a);
+          })
+          .attr("fill", "green");
+      }
+    };
     this.configureZoom();
+  }
+
+  public applyLayoutAndSetRowCount(params: P) {
+    super.applyLayoutAndSetRowCount(params);
+    this.rowHeight = this.trackHeight / this.rowCount;
   }
 
   public configureZoom(): void {
@@ -233,7 +115,6 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
           .zoom()
           .filter(() => {
             if (d3.event.type === "wheel") {
-              // don't allow zooming without pressing ctrl
               return d3.event.ctrlKey;
             }
             return true;
@@ -242,22 +123,32 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
           .on("zoom", () => self.zoom())
       )
       .on("dblclick.zoom", null);
+  }
 
-    this.overflowViewportSelection
-      .selectAll("path.point")
-      .data(["point"])
+  public renderTrackOutline() {
+    this.viewportSelection
+      .selectAll("path.track-outline")
+      .data(["track-outline"])
       .enter()
       .append("path")
-      .attr("class", "point")
-      .attr("fill", "red")
+      .attr("class", "track-outline")
       .attr(
         "transform",
         `translate(${this.viewportWidth / 2}, ${this.viewportWidth / 2})`
+      )
+      .attr(
+        "d",
+        d3
+          .arc<any, null>()
+          .innerRadius(this.innerRadius - 1)
+          .outerRadius(this.innerRadius)
+          .startAngle(0)
+          .endAngle(2 * Math.PI)(null)!
       );
   }
 
   public addAxis() {
-    let axis = axisRadialOuter(this.xScale, this.outerRadius(this));
+    let axis = axisRadialOuter(this.xScale, this.outerRadius);
     axis.ticks(this.tickCount);
 
     this._axisSelection = this.overflowViewportSelection
@@ -272,7 +163,7 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
   }
 
   public zoomAxis() {
-    let axis = axisRadialOuter(this.xScale, this.outerRadius(this));
+    let axis = axisRadialOuter(this.xScale, this.outerRadius);
     axis.ticks(this.tickCount);
 
     this._axisSelection = this.overflowViewportSelection
@@ -308,40 +199,28 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       theta = Math.PI - theta;
     }
     let semanticTheta = this.xScale.invert(theta);
-
-    this.overflowViewportSelection.selectAll<any, null>("path.point").attr(
-      "d",
-      d3
-        .arc<null>()
-        .innerRadius(0)
-        .outerRadius(this.outerRadius(this))
-        .startAngle(this.xScale(semanticTheta - 1))
-        .endAngle(this.xScale(semanticTheta + 1))
-    );
-
     let originalDomain = this.xScaleBase.domain();
     let currentDomain = this.xScale.domain();
 
     let originalDomainWidth = originalDomain[1] - originalDomain[0];
     let currentDomainWidth = currentDomain[1] - currentDomain[0];
 
-    let leftDomainRatio =
-      (semanticTheta - currentDomain[0]) / currentDomainWidth;
-    let rightDomainRatio =
-      (currentDomain[1] - semanticTheta) / currentDomainWidth;
-    let newDomainWidth = originalDomainWidth / transform.k;
-    let leftDomainDelta = newDomainWidth * leftDomainRatio;
-    let rightDomainDelta = newDomainWidth * rightDomainRatio;
+    let newDomain = [currentDomain[0], currentDomain[1]];
 
-    let newDomain = [
-      semanticTheta - leftDomainDelta,
-      semanticTheta + rightDomainDelta,
-    ];
+    if (source.type == "wheel") {
+      let leftDomainRatio =
+        (semanticTheta - currentDomain[0]) / currentDomainWidth;
+      let rightDomainRatio =
+        (currentDomain[1] - semanticTheta) / currentDomainWidth;
+      let newDomainWidth = originalDomainWidth / transform.k;
+      let leftDelta = newDomainWidth * leftDomainRatio;
+      let rightDelta = newDomainWidth * rightDomainRatio;
 
-    newDomain[0] = Math.max(newDomain[0], originalDomain[0]);
-    newDomain[1] = Math.min(newDomain[1], originalDomain[1]);
+      newDomain = [semanticTheta - leftDelta, semanticTheta + rightDelta];
 
-    if (source.type == "mousemove") {
+      newDomain[0] = Math.max(newDomain[0], originalDomain[0]);
+      newDomain[1] = Math.min(newDomain[1], originalDomain[1]);
+    } else if (source.type == "mousemove") {
       let deltaX = source.movementX / transform.k;
       if (newDomain[0] + deltaX <= originalDomain[0]) {
         deltaX = originalDomain[0] - newDomain[0];
@@ -362,8 +241,8 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       .attr("d", (a) => {
         return d3
           .arc<any, Annotation>()
-          .innerRadius((a) => 400 + a.y * 5)
-          .outerRadius((a) => 405 + a.y * 5)
+          .innerRadius((a) => this.innerRadius + a.y * this.rowHeight)
+          .outerRadius((a) => this.innerRadius + (a.y + 1) * this.rowHeight)
           .startAngle(Math.max(this.xScale(a.start), 0))
           .endAngle(Math.min(this.xScale(a.end), 2 * Math.PI))(a);
       })
@@ -375,9 +254,7 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
         }
       });
 
-    // this.rescaleXScale(transform);
     this.zoomAxis();
-    // this.applyGlyphModifiers();
     this.alertObservers();
     this.postZoom();
   }
