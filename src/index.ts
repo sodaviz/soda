@@ -8,6 +8,4 @@ export * from "./observers";
 export * from "./parsers";
 export * from "./utilities";
 
-import * as c from "../contrib/index";
-
-export const contrib = c;
+export * as Contrib from "../contrib/index";

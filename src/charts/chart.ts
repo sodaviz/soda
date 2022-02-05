@@ -561,8 +561,8 @@ export class Chart<P extends RenderParams> {
 
     this.divHeight = config.divHeight;
     this.divWidth = config.divWidth;
-    this.divOverflowX = config.divOverflowX;
-    this.divOverflowY = config.divOverflowY;
+    this.divOverflowX = config.divOverflowX || "hidden";
+    this.divOverflowY = config.divOverflowY || "hidden";
     this.divOutline = config.divOutline;
     this.divMargin = config.divMargin;
 
@@ -605,6 +605,20 @@ export class Chart<P extends RenderParams> {
     if (this.resizable) {
       this.configureResize();
     }
+
+    this.padSelection
+      .append("rect")
+      .attr("width", "100%")
+      .attr("height", "100%")
+      .attr("fill", "blue")
+      .attr("fill-opacity", 0.03);
+
+    this.viewportSelection
+      .append("rect")
+      .attr("width", "100%")
+      .attr("height", "100%")
+      .attr("fill", "red")
+      .attr("fill-opacity", 0.03);
   }
 
   /**
@@ -866,6 +880,19 @@ export class Chart<P extends RenderParams> {
     this.padWidth = dims.height;
     this.padHeight = dims.height;
     this.fitViewport();
+  }
+
+  public calculateDivDimensions(): DOMRect {
+    return this.divSelection.node().getBoundingClientRect();
+  }
+
+  public squareToDivWidth(): void {
+    let dims = this.calculateDivDimensions();
+    this.divHeight = dims.width;
+    this.padWidth = dims.width;
+    this.padHeight = dims.width;
+    this.fitViewport();
+    this.updateDivProperties();
   }
 
   /**

@@ -6,6 +6,7 @@ import {
   ChartConfig,
   RenderParams,
   Transform,
+  ViewRange,
 } from "../src";
 
 /**
@@ -67,13 +68,12 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
     this.tickCount = config.tickCount || 10;
 
     this.preRender = function (params): void {
+      this.initializeXScaleFromRenderParams(params);
       this.applyLayoutAndSetRowCount(params);
       this.updateDivProperties();
       this.addAxis();
-      this.fitPadHeight();
-      this.fitViewport();
-      this.squareToContainerWidth();
-      this.initializeXScaleFromRenderParams(params);
+      this.squareToDivWidth();
+      this.fitRadialDimensions();
       this.renderTrackOutline();
     };
 
@@ -93,13 +93,22 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
           .attr("d", (a: Annotation) => {
             return d3
               .arc<any, Annotation>()
-              .startAngle(this.xScale(a.start))
-              .endAngle(this.xScale(a.end))(a);
+              .innerRadius((a) => this.innerRadius + a.y * this.rowHeight)
+              .outerRadius((a) => this.innerRadius + (a.y + 1) * this.rowHeight)
+              .startAngle(Math.max(this.xScale(a.start), 0))
+              .endAngle(Math.min(this.xScale(a.end), 2 * Math.PI))(a);
           })
           .attr("fill", "green");
       }
     };
     this.configureZoom();
+  }
+
+  public fitRadialDimensions(): void {
+    this.trackHeight = this.viewportWidth / 4;
+    this.outerRadius = this.viewportWidth / 2;
+    this.innerRadius = this.outerRadius - this.trackHeight;
+    this.rowHeight = this.trackHeight / this.rowCount;
   }
 
   public applyLayoutAndSetRowCount(params: P) {
@@ -174,6 +183,21 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       "transform",
       `translate(${this.viewportWidth / 2}, ${this.viewportWidth / 2})`
     );
+  }
+
+  public getSemanticViewRange(): ViewRange {
+    let domain = this.xScale.domain();
+    return { start: domain[0], end: domain[1], width: domain[1] - domain[0] };
+  }
+
+  public resize() {
+    let view = this.getSemanticViewRange();
+    this.squareToDivWidth();
+    this.fitRadialDimensions();
+    this.resetTransform();
+    this.initializeXScale(view.start, view.end);
+    this.applyGlyphModifiers();
+    this.postResize();
   }
 
   public zoom() {
