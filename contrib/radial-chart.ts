@@ -93,8 +93,8 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
           .attr("d", (a: Annotation) => {
             return d3
               .arc<any, Annotation>()
-              .innerRadius((a) => this.innerRadius + a.y * this.rowHeight)
-              .outerRadius((a) => this.innerRadius + (a.y + 1) * this.rowHeight)
+              .innerRadius((a) => this.outerRadius - a.y * this.rowHeight)
+              .outerRadius((a) => this.outerRadius - (a.y + 1) * this.rowHeight)
               .startAngle(Math.max(this.xScale(a.start), 0))
               .endAngle(Math.min(this.xScale(a.end), 2 * Math.PI))(a);
           })
@@ -245,7 +245,10 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       newDomain[0] = Math.max(newDomain[0], originalDomain[0]);
       newDomain[1] = Math.min(newDomain[1], originalDomain[1]);
     } else if (source.type == "mousemove") {
-      let deltaX = source.movementX / transform.k;
+      let radiusFraction = source.movementX / this.outerRadius;
+      let deltaTheta = radiusFraction * Math.PI * -1;
+      let deltaX = this.xScale.invert(deltaTheta) - this.xScale.invert(0);
+
       if (newDomain[0] + deltaX <= originalDomain[0]) {
         deltaX = originalDomain[0] - newDomain[0];
       } else if (newDomain[1] + deltaX >= originalDomain[1]) {
@@ -265,8 +268,8 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       .attr("d", (a) => {
         return d3
           .arc<any, Annotation>()
-          .innerRadius((a) => this.innerRadius + a.y * this.rowHeight)
-          .outerRadius((a) => this.innerRadius + (a.y + 1) * this.rowHeight)
+          .innerRadius((a) => this.outerRadius - a.y * this.rowHeight)
+          .outerRadius((a) => this.outerRadius - (a.y + 1) * this.rowHeight)
           .startAngle(Math.max(this.xScale(a.start), 0))
           .endAngle(Math.min(this.xScale(a.end), 2 * Math.PI))(a);
       })

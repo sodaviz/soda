@@ -201,6 +201,10 @@ export interface ChartConfig<P extends RenderParams> {
    * @param params
    */
   postResize?: (this: Chart<P>) => void;
+  /**
+   * If this is set to true, the pad and viewport will be shaded so that they are visible in the browser.
+   */
+  debugShading?: boolean;
 }
 
 /**
@@ -606,19 +610,21 @@ export class Chart<P extends RenderParams> {
       this.configureResize();
     }
 
-    this.padSelection
-      .append("rect")
-      .attr("width", "100%")
-      .attr("height", "100%")
-      .attr("fill", "blue")
-      .attr("fill-opacity", 0.03);
+    if (config.debugShading) {
+      this.padSelection
+        .append("rect")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("fill", "blue")
+        .attr("fill-opacity", 0.03);
 
-    this.viewportSelection
-      .append("rect")
-      .attr("width", "100%")
-      .attr("height", "100%")
-      .attr("fill", "red")
-      .attr("fill-opacity", 0.03);
+      this.viewportSelection
+        .append("rect")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("fill", "red")
+        .attr("fill-opacity", 0.03);
+    }
   }
 
   /**
