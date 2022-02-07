@@ -8,6 +8,7 @@ import {
   Transform,
   ViewRange,
 } from "../src";
+import { radialRectangle } from "./radial-rectangle";
 
 /**
  * A simple interface that defines the parameters that initialize a RadialChart
@@ -78,28 +79,10 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
     };
 
     this.inRender = function (params): void {
-      if (params.annotations != undefined) {
-        this.viewportSelection
-          .append("g")
-          .attr(
-            "transform",
-            `translate(${this.viewportWidth / 2}, ${this.viewportWidth / 2})`
-          )
-          .selectAll("path.ann")
-          .data(params.annotations)
-          .enter()
-          .append("path")
-          .attr("class", "ann")
-          .attr("d", (a: Annotation) => {
-            return d3
-              .arc<any, Annotation>()
-              .innerRadius((a) => this.outerRadius - a.y * this.rowHeight)
-              .outerRadius((a) => this.outerRadius - (a.y + 1) * this.rowHeight)
-              .startAngle(Math.max(this.xScale(a.start), 0))
-              .endAngle(Math.min(this.xScale(a.end), 2 * Math.PI))(a);
-          })
-          .attr("fill", "green");
-      }
+      radialRectangle({
+        chart: this,
+        annotations: params.annotations || [],
+      });
     };
     this.configureZoom();
   }
@@ -263,25 +246,8 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       .domain(newDomain)
       .range([0, 2 * Math.PI]);
 
-    this.viewportSelection
-      .selectAll<any, Annotation>("path.ann")
-      .attr("d", (a) => {
-        return d3
-          .arc<any, Annotation>()
-          .innerRadius((a) => this.outerRadius - a.y * this.rowHeight)
-          .outerRadius((a) => this.outerRadius - (a.y + 1) * this.rowHeight)
-          .startAngle(Math.max(this.xScale(a.start), 0))
-          .endAngle(Math.min(this.xScale(a.end), 2 * Math.PI))(a);
-      })
-      .attr("visibility", (a) => {
-        if (a.start < newDomain[1] && a.end > newDomain[0]) {
-          return "visible";
-        } else {
-          return "hidden";
-        }
-      });
-
     this.zoomAxis();
+    this.applyGlyphModifiers();
     this.alertObservers();
     this.postZoom();
   }
@@ -293,9 +259,7 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
     return this._axisSelection;
   }
 
-  public rescaleXScale(transformArg?: Transform) {
-    let transform = transformArg || this.transform;
-  }
+  public rescaleXScale(transformArg?: Transform) {}
 
   /**
    * Set the internal d3 scale to map from the provided semantic query range to the Chart's current
