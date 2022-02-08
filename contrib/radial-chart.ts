@@ -1,13 +1,6 @@
 import * as d3 from "d3";
 import { axisRadialOuter } from "d3-radial-axis";
-import {
-  Annotation,
-  Chart,
-  ChartConfig,
-  RenderParams,
-  Transform,
-  ViewRange,
-} from "../src";
+import { Chart, ChartConfig, RenderParams, Transform, ViewRange } from "../src";
 import { radialRectangle } from "./radial-rectangle";
 
 /**
@@ -146,6 +139,9 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
     axis.ticks(this.tickCount);
 
     this._axisSelection = this.overflowViewportSelection
+      .selectAll("g.radial-axis")
+      .data(["radial-axis"])
+      .enter()
       .append("g")
       .attr("class", "radial-axis")
       .call(axis);
