@@ -1265,9 +1265,9 @@ export class Chart<P extends RenderParams> {
    * @param params
    */
   public initializeXScaleFromRenderParams(params: P): void {
-    let start = 0;
-    let end = 0;
     if (params.initializeXScale === undefined || params.initializeXScale) {
+      let start = 0;
+      let end = 0;
       if (hasRange(params)) {
         start = params.start;
         end = params.end;
@@ -1282,8 +1282,8 @@ export class Chart<P extends RenderParams> {
           );
         }
       }
+      this.initializeXScale(start, end);
     }
-    this.initializeXScale(start, end);
   }
 
   /**

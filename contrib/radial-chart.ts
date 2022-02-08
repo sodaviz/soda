@@ -78,12 +78,14 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       this.renderTrackOutline();
     };
 
-    this.inRender = function (params): void {
-      radialRectangle({
-        chart: this,
-        annotations: params.annotations || [],
-      });
-    };
+    this.inRender =
+      config.inRender ||
+      function (params): void {
+        radialRectangle({
+          chart: this,
+          annotations: params.annotations || [],
+        });
+      };
     this.configureZoom();
   }
 
