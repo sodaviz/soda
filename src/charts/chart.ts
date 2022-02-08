@@ -47,6 +47,32 @@ function buildPlaceholderXScale(
 }
 
 /**
+ * This describes the parameters for a call to the Chart.highlight() function.
+ */
+export interface HighlightConfig {
+  /**
+   * The start of the region to be highlighted in semantic coordinates.
+   */
+  start: number;
+  /**
+   * The end of the region to be highlighted in semantic coordinates.
+   */
+  end: number;
+  /**
+   * The selector that will be applied to the highlight object in the DOM. This will be auto generated if not supplied.
+   */
+  selector?: string;
+  /**
+   * The color of the highlight. This defaults to black.
+   */
+  color?: string;
+  /**
+   * The opacity of the highlight. This defaults to 0.1.
+   */
+  opacity?: number;
+}
+
+/**
  * This describes a range in semantic coordinates (e.g. base pairs). This will typically describe the
  * current rendered view in a Chart.
  */
@@ -401,6 +427,10 @@ export class Chart<P extends RenderParams> {
    */
   defSelection: d3.Selection<any, any, any, any>;
   /**
+   * A d3 selection of the Chart's highlight.
+   */
+  highlightSelection: d3.Selection<any, any, any, any>;
+  /**
    * A D3 selection of the SVG pattern that is used for row striping.
    */
   _rowStripePatternSelection:
@@ -541,6 +571,11 @@ export class Chart<P extends RenderParams> {
     this.xScaleBase = this.xScale;
     this._transform = cloneDeep(d3.zoomIdentity);
     this.padSelection.node().__zoom = this._transform;
+
+    this.highlightSelection = this.padSelection
+      .append("g")
+      .attr("class", "highlight");
+
     this.viewportSelection = this.padSelection
       .append("svg")
       .attr("overflow", "hidden");
@@ -550,7 +585,6 @@ export class Chart<P extends RenderParams> {
       .attr("overflow", "visible");
 
     this.defSelection = this.viewportSelection.append("defs");
-
     this.rowHeight = config.rowHeight || 10;
 
     this.padSize = config.padSize != undefined ? config.padSize : 25;
@@ -1139,6 +1173,7 @@ export class Chart<P extends RenderParams> {
     for (const modifier of this.glyphModifiers) {
       modifier.zoom();
     }
+    this.zoomHighlight();
   }
 
   /**
@@ -1314,6 +1349,58 @@ export class Chart<P extends RenderParams> {
   public clear(): void {
     this.glyphModifiers = [];
     removeGlyphsByQuery({ chart: this });
+  }
+
+  /**
+   * This method highlights a region in the Chart. If no selector is provided, one will be auto generated and
+   * returned by the function.
+   * @param config
+   */
+  public highlight(config: HighlightConfig): string {
+    let selector = config.selector || generateId("highlight");
+    let selection = this.highlightSelection
+      .selectAll<SVGRectElement, string>(`rect.${selector}`)
+      .data([config]);
+
+    let enter = selection
+      .enter()
+      .append("rect")
+      .attr("class", selector)
+      .attr("y", 0)
+      .attr("height", "100%");
+
+    enter
+      .merge(selection)
+      .attr("x", this.xScale(config.start) + this.leftPadSize)
+      .attr("width", this.xScale(config.end) - this.xScale(config.start))
+      .attr("fill", config.color || "black")
+      .attr("fill-opacity", config.opacity || 0.1);
+    selection.exit().remove();
+    return selector;
+  }
+
+  /**
+   * Clear highlights from the Chart. If a selector is supplied, only the highlight that matches that selector will
+   * be removed. Otherwise, all highlights will be removed.
+   */
+  public clearHighlight(selector?: string): void {
+    if (selector == undefined) {
+      this.highlightSelection.selectAll("rect").remove();
+    } else {
+      this.highlightSelection
+        .selectAll<SVGRectElement, string>(`rect.${selector}`)
+        .remove();
+    }
+  }
+
+  public zoomHighlight(): void {
+    this.highlightSelection
+      .selectAll<any, HighlightConfig>("rect")
+      .attr("x", (config) => this.xScale(config.start) + this.leftPadSize)
+      .attr(
+        "width",
+        (config) => this.xScale(config.end) - this.xScale(config.start)
+      );
   }
 
   /**
