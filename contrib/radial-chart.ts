@@ -1,7 +1,16 @@
 import * as d3 from "d3";
 import { axisRadialOuter } from "d3-radial-axis";
-import { Chart, ChartConfig, RenderParams, Transform, ViewRange } from "../src";
+import {
+  Chart,
+  ChartConfig,
+  generateId,
+  RenderParams,
+  Transform,
+  ViewRange,
+} from "../src";
 import { radialRectangle } from "./radial-rectangle";
+import { HighlightConfig } from "../src/charts/chart";
+import { AnnotationDatum } from "../src/glyph-utilities/bind";
 
 /**
  * A simple interface that defines the parameters that initialize a RadialChart
@@ -258,6 +267,68 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
   }
 
   public rescaleXScale(transformArg?: Transform) {}
+
+  public highlight(config: HighlightConfig): string {
+    let selector = config.selector || generateId("highlight");
+    let selection = this.highlightSelection
+      .selectAll<SVGPathElement, string>(`path.${selector}`)
+      .data([config]);
+
+    let enter = selection
+      .enter()
+      .append("path")
+      .attr("class", selector)
+      .attr(
+        "transform",
+        `translate(${this.viewportWidth / 2 + this.leftPadSize}, ${
+          this.viewportWidth / 2 + this.upperPadSize
+        })`
+      );
+
+    enter
+      .merge(selection)
+      .attr("d", (d) =>
+        d3
+          .arc<any, HighlightConfig>()
+          .innerRadius((d) => this.innerRadius)
+          .outerRadius((d) => this.outerRadius)
+          .startAngle((d) => Math.max(this.xScale(d.start), 0))
+          .endAngle((d) => Math.min(this.xScale(d.end), 2 * Math.PI))(d)
+      )
+      .attr("fill", config.color || "black")
+      .attr("fill-opacity", config.opacity || 0.1);
+    selection.exit().remove();
+    return selector;
+  }
+
+  public clearHighlight(selector?: string): void {
+    if (selector == undefined) {
+      this.highlightSelection.selectAll("rect").remove();
+    } else {
+      this.highlightSelection
+        .selectAll<SVGRectElement, string>(`rect.${selector}`)
+        .remove();
+    }
+  }
+
+  public zoomHighlight(): void {
+    this.highlightSelection
+      .selectAll<any, HighlightConfig>("path")
+      .attr(
+        "transform",
+        `translate(${this.viewportWidth / 2 + this.leftPadSize}, ${
+          this.viewportWidth / 2 + this.upperPadSize
+        })`
+      )
+      .attr("d", (d) =>
+        d3
+          .arc<any, HighlightConfig>()
+          .innerRadius((d) => this.innerRadius)
+          .outerRadius((d) => this.outerRadius)
+          .startAngle((d) => Math.max(this.xScale(d.start), 0))
+          .endAngle((d) => Math.min(this.xScale(d.end), 2 * Math.PI))(d)
+      );
+  }
 
   /**
    * Set the internal d3 scale to map from the provided semantic query range to the Chart's current
