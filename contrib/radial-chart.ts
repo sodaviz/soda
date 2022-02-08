@@ -10,7 +10,6 @@ import {
 } from "../src";
 import { radialRectangle } from "./radial-rectangle";
 import { HighlightConfig } from "../src/charts/chart";
-import { AnnotationDatum } from "../src/glyph-utilities/bind";
 
 /**
  * A simple interface that defines the parameters that initialize a RadialChart
@@ -50,9 +49,9 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
    */
   axisRadius?: number;
   /**
-   * A d3 selection to the radial axis.
+   * A d3 selection to the track outline.
    */
-  _axisSelection?: d3.Selection<any, any, any, any>;
+  trackOutlineSelection: d3.Selection<any, any, any, any> | undefined;
   /**
    * The initial number of ticks to display on the radial axis. D3 usually refuses to use the actual number
    * supplied, and instead it tries really hard to make it even and "pretty."
@@ -121,58 +120,60 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       .on("dblclick.zoom", null);
   }
 
-  public renderTrackOutline() {
-    this.viewportSelection
-      .selectAll("path.track-outline")
+  public addTrackOutline() {
+    this.trackOutlineSelection = this.viewportSelection
+      .selectAll<SVGPathElement, string>("path.track-outline")
       .data(["track-outline"])
       .enter()
-      .append("path")
-      .attr("class", "track-outline")
+      .append<SVGPathElement>("path")
+      .attr("class", "track-outline");
+
+    this.renderTrackOutline();
+  }
+
+  public renderTrackOutline() {
+    if (this.trackOutlineSelection != undefined) {
+      this.trackOutlineSelection
+        .attr(
+          "transform",
+          `translate(${this.viewportWidth / 2}, ${this.viewportWidth / 2})`
+        )
+        .attr(
+          "d",
+          d3
+            .arc<any, null>()
+            .innerRadius(this.innerRadius - 1)
+            .outerRadius(this.innerRadius)
+            .startAngle(0)
+            .endAngle(2 * Math.PI)(null)!
+        );
+    }
+  }
+
+  public addAxis(force?: boolean) {
+    if (this.axis || force) {
+      this.overflowViewportSelection
+        .selectAll("g.radial-axis")
+        .data(["radial-axis"])
+        .enter()
+        .append("g")
+        .attr("class", "radial-axis");
+
+      this.renderAxis();
+    }
+  }
+
+  public renderAxis() {
+    let axis = axisRadialOuter(this.xScale, this.outerRadius);
+    axis.ticks(this.tickCount);
+
+    this.overflowViewportSelection
+      .selectAll("g.radial-axis")
+      .call(axis)
       .attr(
         "transform",
         `translate(${this.viewportWidth / 2}, ${this.viewportWidth / 2})`
-      )
-      .attr(
-        "d",
-        d3
-          .arc<any, null>()
-          .innerRadius(this.innerRadius - 1)
-          .outerRadius(this.innerRadius)
-          .startAngle(0)
-          .endAngle(2 * Math.PI)(null)!
       );
-  }
-
-  public addAxis() {
-    let axis = axisRadialOuter(this.xScale, this.outerRadius);
-    axis.ticks(this.tickCount);
-
-    this._axisSelection = this.overflowViewportSelection
-      .selectAll("g.radial-axis")
-      .data(["radial-axis"])
-      .enter()
-      .append("g")
-      .attr("class", "radial-axis")
-      .call(axis);
-
-    this._axisSelection.attr(
-      "transform",
-      `translate(${this.viewportWidth / 2}, ${this.viewportWidth / 2})`
-    );
-  }
-
-  public zoomAxis() {
-    let axis = axisRadialOuter(this.xScale, this.outerRadius);
-    axis.ticks(this.tickCount);
-
-    this._axisSelection = this.overflowViewportSelection
-      .select("g.radial-axis")
-      .call(axis);
-
-    this._axisSelection.attr(
-      "transform",
-      `translate(${this.viewportWidth / 2}, ${this.viewportWidth / 2})`
-    );
   }
 
   public getSemanticViewRange(): ViewRange {
@@ -186,6 +187,8 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
     this.fitRadialDimensions();
     this.resetTransform();
     this.initializeXScale(view.start, view.end);
+    this.renderAxis();
+    this.renderTrackOutline();
     this.applyGlyphModifiers();
     this.postResize();
   }
@@ -253,17 +256,11 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       .domain(newDomain)
       .range([0, 2 * Math.PI]);
 
-    this.zoomAxis();
+    this.renderAxis();
+    this.renderTrackOutline();
     this.applyGlyphModifiers();
     this.alertObservers();
     this.postZoom();
-  }
-
-  get axisSelection(): d3.Selection<any, any, any, any> {
-    if (this._axisSelection == null) {
-      throw "_axisSelection is null or undefined";
-    }
-    return this._axisSelection;
   }
 
   public rescaleXScale(transformArg?: Transform) {}
