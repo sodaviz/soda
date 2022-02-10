@@ -227,6 +227,10 @@ export interface ChartConfig<P extends RenderParams> {
    * @param params
    */
   postResize?: (this: Chart<P>) => void;
+  /**
+   * If this is set to true, the pad and viewport will be shaded so that they are visible in the browser.
+   */
+  debugShading?: boolean;
 }
 
 /**
@@ -507,46 +511,23 @@ export class Chart<P extends RenderParams> {
    * The first rendering callback function.
    * @param params
    */
-  preRender: (this: any, params: P) => void = function (
-    this: Chart<P>,
-    params: P
-  ): void {
-    this.applyLayoutAndSetRowCount(params);
-    this.updateDivProperties();
-    this.addAxis();
-    this.fitPadHeight();
-    this.fitViewport();
-    this.initializeXScaleFromRenderParams(params);
-  };
+  preRender: (this: any, params: P) => void = this.defaultPreRender;
   /**
    * The second rendering callback function.
    * @param params
    */
-  inRender: (this: any, params: P) => void = function (
-    this: Chart<P>,
-    params: P
-  ): void {
-    rectangle({
-      chart: this,
-      annotations: params.annotations || [],
-      selector: "soda-rect",
-    });
-  };
+  inRender: (this: any, params: P) => void = this.defaultInRender;
   /**
    * The final rendering callback function.
    * @param params
    */
-  postRender: (this: any, params: P) => void = function (this: Chart<P>): void {
-    this.applyGlyphModifiers();
-  };
+  postRender: (this: any, params: P) => void = this.defaultPostRender;
   /**
    * The callback function that the Chart executes after zoom() is called.
-   * @param params
    */
   postZoom: (this: any) => void = () => {};
   /**
    * The callback function that the Chart executes after resize() is called.
-   * @param params
    */
   postResize: (this: any) => void = () => {};
 
@@ -595,8 +576,8 @@ export class Chart<P extends RenderParams> {
 
     this.divHeight = config.divHeight;
     this.divWidth = config.divWidth;
-    this.divOverflowX = config.divOverflowX;
-    this.divOverflowY = config.divOverflowY;
+    this.divOverflowX = config.divOverflowX || "hidden";
+    this.divOverflowY = config.divOverflowY || "hidden";
     this.divOutline = config.divOutline;
     this.divMargin = config.divMargin;
 
@@ -639,6 +620,43 @@ export class Chart<P extends RenderParams> {
     if (this.resizable) {
       this.configureResize();
     }
+
+    if (config.debugShading) {
+      this.padSelection
+        .append("rect")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("fill", "blue")
+        .attr("fill-opacity", 0.03);
+
+      this.viewportSelection
+        .append("rect")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("fill", "red")
+        .attr("fill-opacity", 0.03);
+    }
+  }
+
+  public defaultPreRender(params: P): void {
+    this.applyLayoutAndSetRowCount(params);
+    this.updateDivProperties();
+    this.addAxis();
+    this.fitPadHeight();
+    this.fitViewport();
+    this.initializeXScaleFromRenderParams(params);
+  }
+
+  public defaultInRender<P extends RenderParams>(params: P): void {
+    rectangle({
+      chart: this,
+      annotations: params.annotations || [],
+      selector: "soda-rect",
+    });
+  }
+
+  public defaultPostRender<P extends RenderParams>(): void {
+    this.applyGlyphModifiers();
   }
 
   /**
@@ -900,6 +918,19 @@ export class Chart<P extends RenderParams> {
     this.padWidth = dims.height;
     this.padHeight = dims.height;
     this.fitViewport();
+  }
+
+  public calculateDivDimensions(): DOMRect {
+    return this.divSelection.node().getBoundingClientRect();
+  }
+
+  public squareToDivWidth(): void {
+    let dims = this.calculateDivDimensions();
+    this.divHeight = dims.width;
+    this.padWidth = dims.width;
+    this.padHeight = dims.width;
+    this.fitViewport();
+    this.updateDivProperties();
   }
 
   /**
@@ -1267,9 +1298,9 @@ export class Chart<P extends RenderParams> {
    * @param params
    */
   public initializeXScaleFromRenderParams(params: P): void {
-    let start = 0;
-    let end = 0;
     if (params.initializeXScale === undefined || params.initializeXScale) {
+      let start = 0;
+      let end = 0;
       if (hasRange(params)) {
         start = params.start;
         end = params.end;
@@ -1284,8 +1315,8 @@ export class Chart<P extends RenderParams> {
           );
         }
       }
+      this.initializeXScale(start, end);
     }
-    this.initializeXScale(start, end);
   }
 
   /**

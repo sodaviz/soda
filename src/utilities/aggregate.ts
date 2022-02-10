@@ -88,6 +88,7 @@ export function aggregateIntransitive<A extends Annotation>(
           group.add(annCopy[idx]);
           arraySwapRemove(annCopy, idx);
           idx--;
+          break;
         }
       }
     }
