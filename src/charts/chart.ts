@@ -511,46 +511,23 @@ export class Chart<P extends RenderParams> {
    * The first rendering callback function.
    * @param params
    */
-  preRender: (this: any, params: P) => void = function (
-    this: Chart<P>,
-    params: P
-  ): void {
-    this.applyLayoutAndSetRowCount(params);
-    this.updateDivProperties();
-    this.addAxis();
-    this.fitPadHeight();
-    this.fitViewport();
-    this.initializeXScaleFromRenderParams(params);
-  };
+  preRender: (this: any, params: P) => void = this.defaultPreRender;
   /**
    * The second rendering callback function.
    * @param params
    */
-  inRender: (this: any, params: P) => void = function (
-    this: Chart<P>,
-    params: P
-  ): void {
-    rectangle({
-      chart: this,
-      annotations: params.annotations || [],
-      selector: "soda-rect",
-    });
-  };
+  inRender: (this: any, params: P) => void = this.defaultInRender;
   /**
    * The final rendering callback function.
    * @param params
    */
-  postRender: (this: any, params: P) => void = function (this: Chart<P>): void {
-    this.applyGlyphModifiers();
-  };
+  postRender: (this: any, params: P) => void = this.defaultPostRender;
   /**
    * The callback function that the Chart executes after zoom() is called.
-   * @param params
    */
   postZoom: (this: any) => void = () => {};
   /**
    * The callback function that the Chart executes after resize() is called.
-   * @param params
    */
   postResize: (this: any) => void = () => {};
 
@@ -659,6 +636,27 @@ export class Chart<P extends RenderParams> {
         .attr("fill", "red")
         .attr("fill-opacity", 0.03);
     }
+  }
+
+  public defaultPreRender(params: P): void {
+    this.applyLayoutAndSetRowCount(params);
+    this.updateDivProperties();
+    this.addAxis();
+    this.fitPadHeight();
+    this.fitViewport();
+    this.initializeXScaleFromRenderParams(params);
+  }
+
+  public defaultInRender<P extends RenderParams>(params: P): void {
+    rectangle({
+      chart: this,
+      annotations: params.annotations || [],
+      selector: "soda-rect",
+    });
+  }
+
+  public defaultPostRender<P extends RenderParams>(): void {
+    this.applyGlyphModifiers();
   }
 
   /**
