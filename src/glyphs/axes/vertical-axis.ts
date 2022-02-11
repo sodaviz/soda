@@ -40,10 +40,6 @@ export interface VerticalAxisConfig<A extends Annotation, C extends Chart<any>>
    */
   axisType?: AxisType.Left | AxisType.Right;
   /**
-   * If this is set to true, the axis glyph will not translate or scale during zoom events.
-   */
-  fixed?: boolean;
-  /**
    * The number of bins that the axis will span. This defaults to 1, which forces the axis to fit into one row. If
    * an argument is supplied, it will cause the axis to grow downward. It will have no effect if a custom domain
    * function is supplied.
@@ -76,7 +72,6 @@ export class VerticalAxisModifier<
   ticks: GlyphProperty<A, C, number>;
   tickSizeOuter: GlyphProperty<A, C, number>;
   axisType: AxisType.Left | AxisType.Right;
-  fixed: boolean;
 
   constructor(config: VerticalAxisModifierConfig<A, C>) {
     super(config);
@@ -87,7 +82,6 @@ export class VerticalAxisModifier<
     this.ticks = config.ticks || 5;
     this.tickSizeOuter = config.tickSizeOuter || 6;
     this.axisType = config.axisType || AxisType.Right;
-    this.fixed = config.fixed || false;
   }
 
   defaultZoom(): void {
@@ -116,8 +110,7 @@ export class VerticalAxisModifier<
 
 /**
  * This renders Annotations as vertical axes in a chart. This is intended to be used in conjunction with one of the
- * plotting glyph modules. The vertical axes can be fixed in place, but they are configured to move during zoom
- * events by default.
+ * plotting glyph modules.
  * @param config The parameters for configuring the styling of the axes.
  */
 export function verticalAxis<A extends Annotation, C extends Chart<any>>(
