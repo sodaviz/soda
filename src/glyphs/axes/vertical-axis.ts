@@ -118,8 +118,6 @@ export class VerticalAxisModifier<
  * This renders Annotations as vertical axes in a chart. This is intended to be used in conjunction with one of the
  * plotting glyph modules. The vertical axes can be fixed in place, but they are configured to move during zoom
  * events by default.
- * @param chart The Chart in which we will render the axes.
- * @param ann The Annotations to be rendered.
  * @param config The parameters for configuring the styling of the axes.
  */
 export function verticalAxis<A extends Annotation, C extends Chart<any>>(
