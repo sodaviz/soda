@@ -151,7 +151,7 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
   }
 
   public addAxis(force?: boolean) {
-    if (this.axis || force) {
+    if (this.axisType || force) {
       this.overflowViewportSelection
         .selectAll("g.radial-axis")
         .data(["radial-axis"])

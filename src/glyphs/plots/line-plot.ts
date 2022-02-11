@@ -93,7 +93,7 @@ export interface LinePlotConfig<
    * an argument is supplied, it will cause the plot to grow downward. It will have no effect if a custom lineFunc
    * is supplied.
    */
-  binSpan?: number;
+  rowSpan?: number;
   initializeFn?: (this: LinePlotModifier<A, C>) => void;
   zoomFn?: (this: LinePlotModifier<A, C>) => void;
 }
@@ -111,9 +111,9 @@ export function linePlot<A extends ContinuousAnnotation, C extends Chart<any>>(
   setYScales(linePlotScaleMap, {
     chart: config.chart,
     annotations: config.annotations,
-    binSpan: config.binSpan || 1,
+    rowSpan: config.rowSpan || 1,
     domainStart: (p: A) => p.minValue,
-    rangeStart: (p: A, c: C) => c.rowHeight * (config.binSpan || 1),
+    rangeStart: (p: A, c: C) => c.rowHeight * (config.rowSpan || 1),
     rangeEnd: () => 0,
   });
 
