@@ -16,7 +16,7 @@ export interface YScaleConfig<
 > {
   chart: C;
   annotations: A[];
-  binSpan?: number;
+  rowSpan?: number;
   rangeStart?: (a: A, c: C) => number;
   rangeEnd?: (a: A, c: C) => number;
   domainStart?: (a: A, c: C) => number;
@@ -36,9 +36,9 @@ export function setYScales<
   map: Map<string, d3.ScaleLinear<number, number>>,
   config: YScaleConfig<A, C>
 ): void {
-  let binSpan = config.binSpan || 1;
+  let rowSpan = config.rowSpan || 1;
   let rangeStart = config.rangeStart || (() => 0);
-  let rangeEnd = config.rangeEnd || ((a: A, c: C) => c.rowHeight * binSpan);
+  let rangeEnd = config.rangeEnd || ((a: A, c: C) => c.rowHeight * rowSpan);
   let domainStart = config.domainStart || (() => 0);
   let domainEnd = config.domainEnd || ((a: A) => a.maxValue);
 

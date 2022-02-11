@@ -12,6 +12,7 @@ import { GlyphModifier } from "../glyph-utilities/glyph-modifier";
 import { generateId } from "../utilities/id-generation";
 import { ChartObserver } from "../observers/chart-observer";
 import { removeGlyphsByQuery } from "../glyph-utilities/glyph-removal";
+import { AxisType } from "../glyphs/axes";
 
 /**
  * This returns a "placeholder" xScale, which is initially used on a Chart before one is properly initialized.
@@ -183,7 +184,7 @@ export interface ChartConfig<P extends RenderParams> {
   /**
    * This controls whether or not the Chart will render a horizontal axis.
    */
-  axis?: boolean;
+  axisType?: AxisType.Top | AxisType.Bottom;
   /**
    * This controls whether or not the Chart will automatically resize itself as it's container changes size. This
    * will cause the Chart to ignore explicit height/width arguments in the config.
@@ -388,7 +389,7 @@ export class Chart<P extends RenderParams> {
   /**
    * This indicates whether or not the Chart has a horizontal axis.
    */
-  axis: boolean;
+  axisType: AxisType.Top | AxisType.Bottom | undefined;
   /**
    * The Annotation object that is used to render the horizontal axis (if enabled).
    */
@@ -595,7 +596,7 @@ export class Chart<P extends RenderParams> {
       this.setRowStripes();
     }
 
-    this.axis = config.axis || false;
+    this.axisType = config.axisType;
     this.resizable = config.resizable || false;
     this.zoomable = config.zoomable || false;
 
@@ -1261,7 +1262,7 @@ export class Chart<P extends RenderParams> {
    * @param force Override the Chart.axis property setting.
    */
   public addAxis(force?: boolean) {
-    if (this.axis || force) {
+    if (this.axisType != undefined || force == true) {
       if (this._axisAnn == undefined) {
         this._axisAnn = getHorizontalAxisAnnotation(this);
       }
@@ -1269,8 +1270,9 @@ export class Chart<P extends RenderParams> {
         chart: this,
         selector: "soda-default-axis",
         annotations: [this._axisAnn],
-        y: () => -20,
+        y: this.axisType == AxisType.Bottom ? -20 : -5,
         fixed: true,
+        axisType: this.axisType || AxisType.Bottom,
         target: BindTarget.Overflow,
       });
     }

@@ -94,7 +94,7 @@ export interface BarPlotConfig<
    * an argument is supplied, it will cause the plot to grow downward. It will have no effect if a custom lineFunc
    * is supplied.
    */
-  binSpan?: number;
+  rowSpan?: number;
   barHeightFn?: (ann: A, point: [number, number]) => number;
   initializeFn?: (this: BarPlotModifier<A, C>) => void;
   zoomFn?: (this: BarPlotModifier<A, C>) => void;

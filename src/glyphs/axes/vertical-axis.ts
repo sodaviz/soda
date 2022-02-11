@@ -48,7 +48,7 @@ export interface VerticalAxisConfig<A extends Annotation, C extends Chart<any>>
    * an argument is supplied, it will cause the axis to grow downward. It will have no effect if a custom domain
    * function is supplied.
    */
-  binSpan?: number;
+  rowSpan?: number;
   initializeFn?: (this: VerticalAxisModifier<A, C>) => void;
   zoomFn?: (this: VerticalAxisModifier<A, C>) => void;
 }
@@ -72,7 +72,7 @@ export class VerticalAxisModifier<
 > extends GlyphModifier<A, C> {
   domain: GlyphProperty<A, C, [number, number]>;
   range: GlyphProperty<A, C, [number, number]>;
-  binSpan: number;
+  rowSpan: number;
   ticks: GlyphProperty<A, C, number>;
   tickSizeOuter: GlyphProperty<A, C, number>;
   axisType: AxisType.Left | AxisType.Right;
@@ -82,8 +82,8 @@ export class VerticalAxisModifier<
     super(config);
     this.strokeColor = config.strokeColor || "none";
     this.domain = config.domain || [0, 100];
-    this.binSpan = config.binSpan || 1;
-    this.range = config.range || [0, config.chart.rowHeight * this.binSpan];
+    this.rowSpan = config.rowSpan || 1;
+    this.range = config.range || [0, config.chart.rowHeight * this.rowSpan];
     this.ticks = config.ticks || 5;
     this.tickSizeOuter = config.tickSizeOuter || 6;
     this.axisType = config.axisType || AxisType.Right;
