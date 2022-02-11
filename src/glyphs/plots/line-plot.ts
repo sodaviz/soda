@@ -43,6 +43,77 @@ export const defaultLineFn = <
 };
 
 /**
+ * @internal
+ */
+export const defaultLowerAreaFn = <
+  A extends ContinuousAnnotation,
+  C extends Chart<any>
+>(
+  d: AnnotationDatum<A, C>
+) => {
+  let yScale = linePlotScaleMap.get(d.a.id);
+  if (yScale == undefined) {
+    console.error("yScale not defined for", d.a, "in call to linePlot()");
+    return "";
+  }
+  let buffer = d3.path();
+  let curve = d3.curveLinear(buffer);
+  curve.lineStart();
+
+  // add a dummy point at what is effectively (0,0)
+  curve.point(d.c.xScale(d.a.points[0][0]), d.c.rowHeight * d.a.y + yScale(0));
+
+  for (const point of d.a.points) {
+    curve.point(d.c.xScale(point[0]), d.c.rowHeight * d.a.y + yScale(point[1]));
+  }
+  // add a dummy point at what is effectively (<end>,0)
+  curve.point(
+    d.c.xScale(d.a.points[d.a.points.length - 1][0]),
+    d.c.rowHeight * d.a.y + yScale(0)
+  );
+
+  curve.lineEnd();
+  return buffer.toString();
+};
+
+/**
+ * @internal
+ */
+export const defaultUpperAreaFn = <
+  A extends ContinuousAnnotation,
+  C extends Chart<any>
+>(
+  d: AnnotationDatum<A, C>
+) => {
+  let yScale = linePlotScaleMap.get(d.a.id);
+  if (yScale == undefined) {
+    console.error("yScale not defined for", d.a, "in call to linePlot()");
+    return "";
+  }
+  let buffer = d3.path();
+  let curve = d3.curveLinear(buffer);
+  curve.lineStart();
+
+  // add a dummy point at what is effectively (0,<max>)
+  curve.point(
+    d.c.xScale(d.a.points[0][0]),
+    d.c.rowHeight * d.a.y + yScale(d.a.maxValue)
+  );
+
+  for (const point of d.a.points) {
+    curve.point(d.c.xScale(point[0]), d.c.rowHeight * d.a.y + yScale(point[1]));
+  }
+  // add a dummy point at what is effectively (<end>,<max>)
+  curve.point(
+    d.c.xScale(d.a.points[d.a.points.length - 1][0]),
+    d.c.rowHeight * d.a.y + yScale(d.a.maxValue)
+  );
+
+  curve.lineEnd();
+  return buffer.toString();
+};
+
+/**
  * An interface that defines the parameters for instantiating a LinePlotModifier.
  * @internal
  */
@@ -64,8 +135,41 @@ export class LinePlotModifier<
   constructor(config: LinePlotModifierConfig<A, C>) {
     super(config);
     this.pathData = config.pathData || defaultLineFn;
-    this.strokeColor = "black";
-    this.fillColor = "none";
+    this.fillColor = config.fillColor || "none";
+  }
+
+  defaultZoom() {
+    this.applyD();
+  }
+
+  applyD(): void {
+    this.applyAttr("d", this.pathData);
+  }
+}
+
+/**
+ * An interface that defines the parameters for instantiating a LinePlotModifier.
+ * @internal
+ */
+export type LinePlotAreaModifierConfig<
+  A extends ContinuousAnnotation,
+  C extends Chart<any>
+> = GlyphModifierConfig<A, C> & LinePlotConfig<A, C>;
+
+/**
+ * A class that manages the styling and positioning of a group line plot glyph shaded areas.
+ * @internal
+ */
+export class LinePlotAreaModifier<
+  A extends ContinuousAnnotation,
+  C extends Chart<any>
+> extends GlyphModifier<A, C> {
+  pathData?: GlyphProperty<A, C, string>;
+
+  constructor(config: LinePlotAreaModifierConfig<A, C>) {
+    super(config);
+    this.pathData = config.pathData || defaultLowerAreaFn;
+    this.strokeColor = "none";
   }
 
   defaultZoom() {
@@ -96,6 +200,24 @@ export interface LinePlotConfig<
   rowSpan?: number;
   initializeFn?: (this: LinePlotModifier<A, C>) => void;
   zoomFn?: (this: LinePlotModifier<A, C>) => void;
+  /**
+   * Setting this will fill the area above the plot with the color.
+   */
+  upperFillColor?: GlyphProperty<A, C, string>;
+  /**
+   * This controls the opacity of the area above the plot. If no upperFillColor is supplied, setting this will
+   * trigger the upper fill in black with the supplied opacity.
+   */
+  upperFillOpacity?: GlyphProperty<A, C, number>;
+  /**
+   * Setting this will fill the area below the plot with the color.
+   */
+  lowerFillColor?: GlyphProperty<A, C, string>;
+  /**
+   * This controls the opacity of the area below the plot. If no upperFillColor is supplied, setting this will
+   * trigger the lower fill in black with the supplied opacity.
+   */
+  lowerFillOpacity?: GlyphProperty<A, C, number>;
 }
 
 /**
@@ -112,10 +234,56 @@ export function linePlot<A extends ContinuousAnnotation, C extends Chart<any>>(
     chart: config.chart,
     annotations: config.annotations,
     rowSpan: config.rowSpan || 1,
-    domainStart: (p: A) => p.minValue,
-    rangeStart: (p: A, c: C) => c.rowHeight * (config.rowSpan || 1),
+    domainStart: (a: A) => a.minValue,
+    rangeStart: (a: A, c: C) => c.rowHeight * (config.rowSpan || 1),
     rangeEnd: () => 0,
   });
+
+  if (config.lowerFillColor || config.lowerFillOpacity) {
+    let areaSelector = selector + "-lower-area";
+    let internalAreaSelector = areaSelector + "-internal";
+
+    let areaBinding = bind<A, C, SVGPathElement>({
+      ...config,
+      selector: areaSelector,
+      internalSelector: internalAreaSelector,
+      elementType: "path",
+    });
+
+    let areaModifier = new LinePlotAreaModifier({
+      ...config,
+      pathData: defaultLowerAreaFn,
+      selector: internalAreaSelector,
+      selection: areaBinding.merge,
+      strokeColor: "none",
+      fillColor: config.lowerFillColor,
+      fillOpacity: config.lowerFillOpacity,
+    });
+    config.chart.addGlyphModifier(areaModifier);
+  }
+
+  if (config.upperFillColor || config.upperFillOpacity) {
+    let areaSelector = selector + "-upper-area";
+    let internalAreaSelector = areaSelector + "-internal";
+
+    let areaBinding = bind<A, C, SVGPathElement>({
+      ...config,
+      selector: areaSelector,
+      internalSelector: internalAreaSelector,
+      elementType: "path",
+    });
+
+    let areaModifier = new LinePlotAreaModifier({
+      ...config,
+      pathData: defaultUpperAreaFn,
+      selector: internalAreaSelector,
+      selection: areaBinding.merge,
+      strokeColor: "none",
+      fillColor: config.upperFillColor,
+      fillOpacity: config.upperFillOpacity,
+    });
+    config.chart.addGlyphModifier(areaModifier);
+  }
 
   let binding = bind<A, C, SVGPathElement>({
     ...config,
