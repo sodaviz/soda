@@ -3,11 +3,12 @@ import { Chart } from "../../charts/chart";
 import * as d3 from "d3";
 import { generateId } from "../../utilities/id-generation";
 import { GlyphConfig } from "../../glyph-utilities/glyph-config";
-import { bind } from "../../glyph-utilities/bind";
-import { setYScales } from "../plots";
+import { AnnotationDatum, bind } from "../../glyph-utilities/bind";
+import { initializePlotGlyphYScales } from "../plots";
 import {
   GlyphModifier,
   GlyphModifierConfig,
+  GlyphProperty,
 } from "../../glyph-utilities/glyph-modifier";
 
 /**
@@ -98,6 +99,22 @@ export interface BarPlotConfig<
   barHeightFn?: (ann: A, point: [number, number]) => number;
   initializeFn?: (this: BarPlotModifier<A, C>) => void;
   zoomFn?: (this: BarPlotModifier<A, C>) => void;
+  /**
+   * The start of the domain of the plot. This defaults to 0.
+   */
+  domainStart?: GlyphProperty<A, C, number>;
+  /**
+   * The start of the domain of the plot. This defaults to the ContinuousAnnotation's maximum value.
+   */
+  domainEnd?: GlyphProperty<A, C, number>;
+  /**
+   * The start of the range of the plot. This defaults to 0.
+   */
+  rangeStart?: GlyphProperty<A, C, number>;
+  /**
+   * The start of the range of the plot. This defaults to Chart.rowHeight * rowSpan.
+   */
+  rangeEnd?: GlyphProperty<A, C, number>;
 }
 
 /**
@@ -110,13 +127,20 @@ export function barPlot<A extends ContinuousAnnotation, C extends Chart<any>>(
   let selector = config.selector || generateId("soda-bar-plot-glyph");
   let internalSelector = selector + "-internal";
 
-  setYScales(barPlotScaleMap, config);
-
   let binding = bind<A, C, SVGGElement>({
     ...config,
     selector,
     internalSelector,
     elementType: "g",
+  });
+
+  let data = binding.g
+    .selectAll<SVGGElement, AnnotationDatum<A, C>>(`g.${internalSelector}`)
+    .data();
+
+  initializePlotGlyphYScales(barPlotScaleMap, {
+    ...config,
+    data,
   });
 
   let modifier = new BarPlotModifier({
