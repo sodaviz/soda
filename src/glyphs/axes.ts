@@ -1,8 +1,5 @@
 import * as d3 from "d3";
 
-export * from "./axes/horizontal-axis";
-export * from "./axes/vertical-axis";
-
 /**
  * A simple enum to serve as an argument for selecting which D3 Axis function to call.
  */

@@ -4,10 +4,6 @@ import { ContinuousAnnotation } from "../annotations/continuous-annotation";
 import { GlyphProperty, resolveValue } from "../glyph-utilities/glyph-modifier";
 import { AnnotationDatum } from "../glyph-utilities/bind";
 
-export * from "./plots/bar-plot";
-export * from "./plots/line-plot";
-export * from "./plots/heatmap";
-
 /**
  * This defines the parameters for a call to the setYScales function.
  * @internal
