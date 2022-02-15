@@ -4,7 +4,7 @@ import * as d3 from "d3";
 import { GlyphConfig } from "../../glyph-utilities/glyph-config";
 import { generateId } from "../../utilities/id-generation";
 import { AnnotationDatum, bind } from "../../glyph-utilities/bind";
-import { setYScales } from "../plots";
+import { initializePlotGlyphYScales } from "../plots";
 import {
   GlyphModifier,
   GlyphModifierConfig,
@@ -60,8 +60,9 @@ export const defaultLowerAreaFn = <
   let curve = d3.curveLinear(buffer);
   curve.lineStart();
 
+  let range = yScale.range();
   // add a dummy point at what is effectively (0,0)
-  curve.point(d.c.xScale(d.a.points[0][0]), d.c.rowHeight * d.a.y + yScale(0));
+  curve.point(d.c.xScale(d.a.points[0][0]), d.c.rowHeight * d.a.y + range[1]);
 
   for (const point of d.a.points) {
     curve.point(d.c.xScale(point[0]), d.c.rowHeight * d.a.y + yScale(point[1]));
@@ -69,7 +70,7 @@ export const defaultLowerAreaFn = <
   // add a dummy point at what is effectively (<end>,0)
   curve.point(
     d.c.xScale(d.a.points[d.a.points.length - 1][0]),
-    d.c.rowHeight * d.a.y + yScale(0)
+    d.c.rowHeight * d.a.y + range[1]
   );
 
   curve.lineEnd();
@@ -95,10 +96,7 @@ export const defaultUpperAreaFn = <
   curve.lineStart();
 
   // add a dummy point at what is effectively (0,<max>)
-  curve.point(
-    d.c.xScale(d.a.points[0][0]),
-    d.c.rowHeight * d.a.y + yScale(d.a.maxValue)
-  );
+  curve.point(d.c.xScale(d.a.points[0][0]), d.c.rowHeight * d.a.y);
 
   for (const point of d.a.points) {
     curve.point(d.c.xScale(point[0]), d.c.rowHeight * d.a.y + yScale(point[1]));
@@ -106,7 +104,7 @@ export const defaultUpperAreaFn = <
   // add a dummy point at what is effectively (<end>,<max>)
   curve.point(
     d.c.xScale(d.a.points[d.a.points.length - 1][0]),
-    d.c.rowHeight * d.a.y + yScale(d.a.maxValue)
+    d.c.rowHeight * d.a.y
   );
 
   curve.lineEnd();
@@ -201,6 +199,14 @@ export interface LinePlotConfig<
   initializeFn?: (this: LinePlotModifier<A, C>) => void;
   zoomFn?: (this: LinePlotModifier<A, C>) => void;
   /**
+   * This defines the domain of the plot.
+   */
+  domain?: GlyphProperty<A, C, [number, number]>;
+  /**
+   * This defines the range of the plot.
+   */
+  range?: GlyphProperty<A, C, [number, number]>;
+  /**
    * Setting this will fill the area above the plot with the color.
    */
   upperFillColor?: GlyphProperty<A, C, string>;
@@ -230,13 +236,22 @@ export function linePlot<A extends ContinuousAnnotation, C extends Chart<any>>(
   let selector = config.selector || generateId("soda-line-plot-glyph");
   let internalSelector = selector + "-internal";
 
-  setYScales(linePlotScaleMap, {
-    chart: config.chart,
-    annotations: config.annotations,
-    rowSpan: config.rowSpan || 1,
-    domainStart: (a: A) => a.minValue,
-    rangeStart: (a: A, c: C) => c.rowHeight * (config.rowSpan || 1),
-    rangeEnd: () => 0,
+  let binding = bind<A, C, SVGPathElement>({
+    ...config,
+    selector,
+    internalSelector,
+    elementType: "path",
+  });
+
+  let data = binding.g
+    .selectAll<SVGPathElement, AnnotationDatum<A, C>>(
+      `path.${internalSelector}`
+    )
+    .data();
+
+  initializePlotGlyphYScales(linePlotScaleMap, {
+    ...config,
+    data,
   });
 
   if (config.lowerFillColor || config.lowerFillOpacity) {
@@ -284,13 +299,6 @@ export function linePlot<A extends ContinuousAnnotation, C extends Chart<any>>(
     });
     config.chart.addGlyphModifier(areaModifier);
   }
-
-  let binding = bind<A, C, SVGPathElement>({
-    ...config,
-    selector,
-    internalSelector,
-    elementType: "path",
-  });
 
   let modifier = new LinePlotModifier({
     ...config,

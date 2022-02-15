@@ -37,7 +37,7 @@ export interface HeatmapConfig<
   /**
    * The domain of the heatmap color scale. This defaults to [0, 1].
    */
-  domain?: [number, number];
+  domain?: GlyphProperty<A, C, [number, number]>;
 }
 
 /**
@@ -65,26 +65,32 @@ export class HeatmapModifier<
   /**
    * The domain of the heatmap color scale. This defaults to [0, 1].
    */
-  domain: [number, number];
-  colorScale: d3.ScaleSequential<string>;
+  domain: GlyphProperty<A, C, [number, number]>;
 
   constructor(config: HeatmapModifierConfig<A, C>) {
     super(config);
     this.strokeColor = config.strokeColor || "none";
     this.colorScheme = config.colorScheme || d3.interpolatePRGn;
     this.domain = config.domain || [0, 1];
-    this.colorScale = d3.scaleSequential(this.colorScheme).domain(this.domain);
   }
 
   defaultInitialize() {
     super.defaultInitialize();
     this.selection.selectAll("rect").remove();
-    this.selection
-      .selectAll("rect")
-      .data((d) => d.a.points)
-      .enter()
-      .append("rect")
-      .attr("fill", (p) => this.colorScale(p[1]));
+
+    this.selection.each((d, i, nodes) => {
+      let tmpColorScale = d3
+        .scaleSequential(this.colorScheme)
+        .domain(resolveValue(this.domain, d));
+
+      d3.select(nodes[i])
+        .selectAll<SVGRectElement, [number, number]>("rect")
+        .data(d.a.points)
+        .enter()
+        .append("rect")
+        .attr("fill", (p) => tmpColorScale(p[1]));
+    });
+
     this.zoom();
   }
 
