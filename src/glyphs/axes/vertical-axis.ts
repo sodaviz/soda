@@ -18,11 +18,11 @@ import {
 export interface VerticalAxisConfig<A extends Annotation, C extends Chart<any>>
   extends GlyphConfig<A, C> {
   /**
-   * This defines the domain of the D3 scale used to create the axis glyph.
+   * This defines the domain of the axis.
    */
   domain?: GlyphProperty<A, C, [number, number]>;
   /**
-   * This defines the range of the D3 scale used to create the axis glyph.
+   * This defines the range of the axis.
    */
   range?: GlyphProperty<A, C, [number, number]>;
   /**

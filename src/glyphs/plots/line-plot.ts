@@ -199,21 +199,13 @@ export interface LinePlotConfig<
   initializeFn?: (this: LinePlotModifier<A, C>) => void;
   zoomFn?: (this: LinePlotModifier<A, C>) => void;
   /**
-   * The start of the domain of the plot. This defaults to 0.
+   * This defines the domain of the plot.
    */
-  domainStart?: GlyphProperty<A, C, number>;
+  domain?: GlyphProperty<A, C, [number, number]>;
   /**
-   * The start of the domain of the plot. This defaults to the ContinuousAnnotation's maximum value.
+   * This defines the range of the plot.
    */
-  domainEnd?: GlyphProperty<A, C, number>;
-  /**
-   * The start of the range of the plot. This defaults to 0.
-   */
-  rangeStart?: GlyphProperty<A, C, number>;
-  /**
-   * The start of the range of the plot. This defaults to Chart.rowHeight * rowSpan.
-   */
-  rangeEnd?: GlyphProperty<A, C, number>;
+  range?: GlyphProperty<A, C, [number, number]>;
   /**
    * Setting this will fill the area above the plot with the color.
    */

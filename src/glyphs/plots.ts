@@ -19,10 +19,8 @@ export interface YScaleConfig<
   chart: C;
   data: AnnotationDatum<A, C>[];
   rowSpan?: number;
-  domainStart?: GlyphProperty<A, C, number>;
-  domainEnd?: GlyphProperty<A, C, number>;
-  rangeStart?: GlyphProperty<A, C, number>;
-  rangeEnd?: GlyphProperty<A, C, number>;
+  domain?: GlyphProperty<A, C, [number, number]>;
+  range?: GlyphProperty<A, C, [number, number]>;
 }
 
 /**
@@ -39,20 +37,19 @@ export function initializePlotGlyphYScales<
   config: YScaleConfig<A, C>
 ): void {
   let rowSpan = config.rowSpan || 1;
-  let domainStart = config.domainStart || (() => 0);
-  let domainEnd =
-    config.domainEnd || ((d: AnnotationDatum<A, C>) => d.a.maxValue);
-  let rangeStart = config.rangeStart || (() => 0);
-  let rangeEnd =
-    config.rangeEnd || ((d: AnnotationDatum<A, C>) => d.c.rowHeight * rowSpan);
+  let domain =
+    config.domain || ((d: AnnotationDatum<A, C>) => [0, d.a.maxValue]);
+  let range =
+    config.range ||
+    ((d: AnnotationDatum<A, C>) => [0, d.c.rowHeight * rowSpan]);
 
   for (const d of config.data) {
     map.set(
       d.a.id,
       d3
         .scaleLinear()
-        .domain([resolveValue(domainStart, d), resolveValue(domainEnd, d)])
-        .range([resolveValue(rangeStart, d), resolveValue(rangeEnd, d)])
+        .domain(resolveValue(domain, d))
+        .range(resolveValue(range, d))
     );
   }
 }
