@@ -161,7 +161,7 @@ export class TextModifier<
     addToTextMaps(config);
     this.fillColor = config.fillColor || "black";
     this.strokeColor = config.strokeColor || "none";
-    this.textAnchor = config.textAnchor || "left";
+    this.textAnchor = config.textAnchor || "start";
     this.fontSize = config.fontSize || 12;
     this.fontWeight = config.fontWeight || "normal";
     this.fontFamily = config.fontFamily || "Titillium Web, Arial, sans-serif";
