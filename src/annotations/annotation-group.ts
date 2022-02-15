@@ -2,6 +2,7 @@ import { Annotation, AnnotationConfig } from "./annotation";
 
 /**
  * An interface that extends AnnotationConfig for initializing AnnotationGroups.
+ * @internal
  */
 export interface AnnotationConfigWithGroup<A extends Annotation>
   extends AnnotationConfig {
