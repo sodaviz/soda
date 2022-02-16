@@ -9,20 +9,20 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _GlyphMapping:
+.. _FullGlyphQueryConfig:
 
-:trst-class:`GlyphMapping`
-==========================
+:trst-class:`FullGlyphQueryConfig`
+==================================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    interface GlyphMapping
+    interface FullGlyphQueryConfig
 
 .. container:: content
 
-  An interface that contains a D3 selection to a glyph and the Chart it's rendered in.
+  
 
 Properties
 ----------
@@ -38,18 +38,31 @@ chart
 
 .. container:: content
 
-  A reference to the Chart that the glyph is rendered in.
+  Constrain the query to Annotations rendered in this Chart.
 
-selection
-*********
+id
+**
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    selection: Selection <any, any, any, any>
+    id: string
 
 .. container:: content
 
-  The D3 selection to the glyph.
+  Constrain the query to Annotations with this ID.
+
+selector
+********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    selector: string
+
+.. container:: content
+
+  Constrain the query to Annotations with this selector.
 

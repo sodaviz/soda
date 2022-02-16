@@ -18,18 +18,14 @@
 
   .. code-block:: typescript
 
-    function queryGlyphMap<C extends Chart>(config: GlyphMapQueryConfig <C>): None
+    function queryGlyphMap(config: GlyphQueryConfig): None
 
 .. container:: content
 
-  This function returns the GlyphMappings for the target Annotation IDs.
-
-  **Type parameters**
-
-  - C: Chart
+  This function returns GlyphMappings. If all three parameters (id, selector, chart) are supplied in the config, the function will return a single D3 selection. Otherwise, the function will return a list of D3 selections.
 
   **Parameters**
 
-  - config: GlyphMapQueryConfig <C>
+  - config: GlyphQueryConfig
 
-  **Returns**: GlyphMapping | GlyphMapping [] | undefined
+  **Returns**: d3.Selection | d3.Selection <any, any, any, any> [] | undefined

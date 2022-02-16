@@ -18,7 +18,7 @@
 
   .. code-block:: typescript
 
-    interface BarPlotConfig<P extends PlotAnnotation, C extends Chart>
+    interface BarPlotConfig<A extends ContinuousAnnotation, C extends Chart>
 
 .. container:: content
 
@@ -26,7 +26,7 @@
 
   **Type parameters**
 
-    - P: PlotAnnotation
+    - A: ContinuousAnnotation
     - C: Chart
 
 Properties
@@ -39,7 +39,7 @@ annotations
 
   .. code-block:: typescript
 
-    annotations: P []
+    annotations: A []
 
 .. container:: content
 
@@ -52,37 +52,11 @@ barHeightFn
 
   .. code-block:: typescript
 
-    barHeightFn: undefined | (ann: P, point: None): number
+    barHeightFn: undefined | (ann: A, point: None): number
 
 .. container:: content
 
   
-
-binSpan
-*******
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    binSpan: undefined | number
-
-.. container:: content
-
-  The number of bins that the plot will span. This defaults to 1, which forces the plot to fit into one row. If an argument is supplied, it will cause the plot to grow downward. It will have no effect if a custom lineFunc is supplied.
-
-bindTarget
-**********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    bindTarget: undefined | Selection <any, any, any, any> | Viewport | Overflow | Defs
-
-.. container:: content
-
-  This determines the parent DOM element in which the glyphs will be rendered. When supplying a BindTarget, the rendering function will find the appropriate parent in the supplied Chart. When supplying a D3 selection, the rendering function will explicitly use the selected element.
 
 chart
 *****
@@ -97,6 +71,19 @@ chart
 
   The Chart object in which the glyphs will be rendered.
 
+domain
+******
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    domain: undefined | None | GlyphCallback <A, C, None>
+
+.. container:: content
+
+  This defines the domain of the plot.
+
 fillColor
 *********
 
@@ -104,7 +91,7 @@ fillColor
 
   .. code-block:: typescript
 
-    fillColor: undefined | string | GlyphCallback <P, C, string>
+    fillColor: undefined | string | GlyphCallback <A, C, string>
 
 .. container:: content
 
@@ -117,7 +104,7 @@ fillOpacity
 
   .. code-block:: typescript
 
-    fillOpacity: undefined | number | GlyphCallback <P, C, number>
+    fillOpacity: undefined | number | GlyphCallback <A, C, number>
 
 .. container:: content
 
@@ -130,7 +117,7 @@ height
 
   .. code-block:: typescript
 
-    height: undefined | number | GlyphCallback <P, C, number>
+    height: undefined | number | GlyphCallback <A, C, number>
 
 .. container:: content
 
@@ -148,6 +135,32 @@ initializeFn
 .. container:: content
 
   A callback function that will be passed to the GlyphModifier that will manage the glyphs created with this config. If provided, this callback function will override the GlyphModifier's initialization method, which typically sets most of the style related properties from the GlyphConfig. Don't use this unless you know what you're doing.
+
+range
+*****
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    range: undefined | None | GlyphCallback <A, C, None>
+
+.. container:: content
+
+  This defines the range of the plot.
+
+rowSpan
+*******
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    rowSpan: undefined | number
+
+.. container:: content
+
+  The number of bins that the plot will span. This defaults to 1, which forces the plot to fit into one row. If an argument is supplied, it will cause the plot to grow downward. It will have no effect if a custom lineFunc is supplied.
 
 selector
 ********
@@ -169,7 +182,7 @@ strokeColor
 
   .. code-block:: typescript
 
-    strokeColor: undefined | string | GlyphCallback <P, C, string>
+    strokeColor: undefined | string | GlyphCallback <A, C, string>
 
 .. container:: content
 
@@ -182,7 +195,7 @@ strokeDashArray
 
   .. code-block:: typescript
 
-    strokeDashArray: undefined | string | GlyphCallback <P, C, string>
+    strokeDashArray: undefined | string | GlyphCallback <A, C, string>
 
 .. container:: content
 
@@ -195,7 +208,7 @@ strokeDashOffset
 
   .. code-block:: typescript
 
-    strokeDashOffset: undefined | string | GlyphCallback <P, C, string>
+    strokeDashOffset: undefined | string | GlyphCallback <A, C, string>
 
 .. container:: content
 
@@ -208,7 +221,7 @@ strokeLineCap
 
   .. code-block:: typescript
 
-    strokeLineCap: undefined | string | GlyphCallback <P, C, string>
+    strokeLineCap: undefined | string | GlyphCallback <A, C, string>
 
 .. container:: content
 
@@ -221,7 +234,7 @@ strokeLineJoin
 
   .. code-block:: typescript
 
-    strokeLineJoin: undefined | string | GlyphCallback <P, C, string>
+    strokeLineJoin: undefined | string | GlyphCallback <A, C, string>
 
 .. container:: content
 
@@ -234,7 +247,7 @@ strokeOpacity
 
   .. code-block:: typescript
 
-    strokeOpacity: undefined | number | GlyphCallback <P, C, number>
+    strokeOpacity: undefined | number | GlyphCallback <A, C, number>
 
 .. container:: content
 
@@ -247,11 +260,24 @@ strokeWidth
 
   .. code-block:: typescript
 
-    strokeWidth: undefined | number | GlyphCallback <P, C, number>
+    strokeWidth: undefined | number | GlyphCallback <A, C, number>
 
 .. container:: content
 
   A callback to define the width of the border around the glyph.
+
+target
+******
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    target: undefined | Selection <any, any, any, any> | Viewport | Overflow | Defs
+
+.. container:: content
+
+  This determines the parent DOM element in which the glyphs will be rendered. When supplying a BindTarget, the rendering function will find the appropriate parent in the supplied Chart. When supplying a D3 selection, the rendering function will explicitly use the selected element.
 
 width
 *****
@@ -260,7 +286,7 @@ width
 
   .. code-block:: typescript
 
-    width: undefined | number | GlyphCallback <P, C, number>
+    width: undefined | number | GlyphCallback <A, C, number>
 
 .. container:: content
 
@@ -273,7 +299,7 @@ x
 
   .. code-block:: typescript
 
-    x: undefined | number | GlyphCallback <P, C, number>
+    x: undefined | number | GlyphCallback <A, C, number>
 
 .. container:: content
 
@@ -286,7 +312,7 @@ y
 
   .. code-block:: typescript
 
-    y: undefined | number | GlyphCallback <P, C, number>
+    y: undefined | number | GlyphCallback <A, C, number>
 
 .. container:: content
 

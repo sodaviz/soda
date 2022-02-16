@@ -13,7 +13,8 @@ Classes
    classes/BedAnnotation
    classes/Chart
    classes/ChartObserver
+   classes/ContinuousAnnotation
    classes/Gff3Annotation
-   classes/PlotAnnotation
+   classes/RadialChart
    classes/SequenceAnnotation
    classes/ZoomSyncer

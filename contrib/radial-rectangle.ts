@@ -11,6 +11,10 @@ import {
 import { RadialChart } from "./radial-chart";
 import { AnnotationDatum } from "../src/glyph-utilities/bind";
 
+/**
+ * @internal
+ * @param d
+ */
 export const defaultRadialRectanglePathFn = <
   A extends Annotation,
   C extends RadialChart<any>
@@ -27,6 +31,10 @@ export const defaultRadialRectanglePathFn = <
   );
 };
 
+/**
+ * @internal
+ * @param d
+ */
 export const defaultRadialRectangleTransformFn = <
   A extends Annotation,
   C extends RadialChart<any>
@@ -34,6 +42,10 @@ export const defaultRadialRectangleTransformFn = <
   d: AnnotationDatum<A, C>
 ) => `translate(${d.c.viewportWidth / 2}, ${d.c.viewportWidth / 2})`;
 
+/**
+ * @internal
+ * @param d
+ */
 export const defaultRadialRectangleVisibilityFn = <
   A extends Annotation,
   C extends RadialChart<any>

@@ -45,19 +45,6 @@ annotations
 
   A list of Annotation objects that will be used to render the glyphs.
 
-bindTarget
-**********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    bindTarget: undefined | Selection <any, any, any, any> | Viewport | Overflow | Defs
-
-.. container:: content
-
-  This determines the parent DOM element in which the glyphs will be rendered. When supplying a BindTarget, the rendering function will find the appropriate parent in the supplied Chart. When supplying a D3 selection, the rendering function will explicitly use the selected element.
-
 chart
 *****
 
@@ -226,6 +213,19 @@ strokeWidth
 .. container:: content
 
   A callback to define the width of the border around the glyph.
+
+target
+******
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    target: undefined | Selection <any, any, any, any> | Viewport | Overflow | Defs
+
+.. container:: content
+
+  This determines the parent DOM element in which the glyphs will be rendered. When supplying a BindTarget, the rendering function will find the appropriate parent in the supplied Chart. When supplying a D3 selection, the rendering function will explicitly use the selected element.
 
 width
 *****

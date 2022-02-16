@@ -9,20 +9,20 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _ChartConfig:
+.. _RadialChartConfig:
 
-:trst-class:`ChartConfig`
-=========================
+:trst-class:`RadialChartConfig`
+===============================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    interface ChartConfig<P extends RenderParams>
+    interface RadialChartConfig<P extends RenderParams>
 
 .. container:: content
 
-  This describes the parameters for configuring and initializing a Chart.
+  A simple interface that defines the parameters that initialize a RadialChart
 
   **Type parameters**
 
@@ -342,6 +342,32 @@ selector
 .. container:: content
 
   A string that can be used to uniquely select the target DOM container.
+
+tickCount
+*********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tickCount: undefined | number
+
+.. container:: content
+
+  The initial number of ticks on the chart axis.
+
+trackHeight
+***********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    trackHeight: undefined | number
+
+.. container:: content
+
+  The "height" of the radial track on which annotations will be rendered. Conceptually, this is equal to to the difference of the radii of two concentric circles that define an annulus.
 
 translateExtent
 ***************

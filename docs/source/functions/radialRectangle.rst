@@ -9,28 +9,28 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _barPlot:
+.. _radialRectangle:
 
-:trst-function:`barPlot`
-========================
+:trst-function:`radialRectangle`
+================================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    function barPlot<A extends ContinuousAnnotation, C extends Chart>(config: BarPlotConfig <A, C>): d3.Selection
+    function radialRectangle<A extends Annotation, C extends RadialChart>(config: RectangleConfig <A, C>): d3.Selection
 
 .. container:: content
 
-  This renders PlotAnnotations as bar plots in a Chart.
+  This renders a list of Annotation objects as rectangles in a RadialChart.
 
   **Type parameters**
 
-  - A: ContinuousAnnotation
-  - C: Chart
+  - A: Annotation
+  - C: RadialChart
 
   **Parameters**
 
-  - config: BarPlotConfig <A, C>
+  - config: RectangleConfig <A, C>
 
   **Returns**: d3.Selection <SVGGElement, string, any, any>

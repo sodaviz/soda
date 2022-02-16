@@ -128,6 +128,19 @@ suppressWarnings
 
   
 
+tag
+***
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tag: undefined | string
+
+.. container:: content
+
+  An optional tag for the annotation. This can be thought of as a something of a secondary ID.
+
 width
 *****
 
@@ -247,7 +260,26 @@ add
 
  .. code-block:: typescript
 
-    add(ann: A): void
+    add(ann: A | A []): void
+
+.. container:: content
+
+  Add an Annotation or list of Annotations to the group.
+
+  **Parameters**
+
+  - ann: A | A []
+
+  **Returns**: void
+
+addAnnotation
+*************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    addAnnotation(ann: A): void
 
 .. container:: content
 

@@ -71,3 +71,16 @@ click
 
   A callback function that will be responsible for executing the click behavior. It will implicitly receive references to both a D3 Selection to the Annotation's representative glyph and the Annotation object itself.
 
+selector
+********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    selector: undefined | string
+
+.. container:: content
+
+  The selector of the glyphs to which the interaction is applied.
+

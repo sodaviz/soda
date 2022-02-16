@@ -84,3 +84,16 @@ mouseover
 
   A callback function that will be responsible for executing the mouseover behavior. It receives a d3 selection of the glyph and the Annotation object it represents as arguments.
 
+selector
+********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    selector: undefined | string
+
+.. container:: content
+
+  The selector of the glyphs to which the interaction is applied.
+

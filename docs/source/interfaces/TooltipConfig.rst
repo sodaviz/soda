@@ -110,6 +110,19 @@ padding
 
   This defines the CSS padding of the tooltip.
 
+selector
+********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    selector: undefined | string
+
+.. container:: content
+
+  The selector of the glyphs to which the interaction is applied.
+
 text
 ****
 

@@ -9,20 +9,20 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _Chart:
+.. _RadialChart:
 
-:trst-class:`Chart`
-===================
+:trst-class:`RadialChart`
+=========================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    class Chart<P extends RenderParams>
+    class RadialChart<P extends RenderParams>
 
 .. container:: content
 
-  This is used to render Annotation objects as glyphs in the browser.
+  This Chart class is designed for rendering features in a circular context, e.g. bacterial genomes.
 
   **Type parameters**
 
@@ -35,7 +35,7 @@ Constructors
 
   .. code-block:: typescript
 
-    (config: ChartConfig <P>): Chart
+    (config: RadialChartConfig <P>): RadialChart
 
 .. container:: content
 
@@ -45,7 +45,7 @@ Constructors
 
   **Parameters**
 
-    - config: ChartConfig
+    - config: RadialChartConfig
 
 Properties
 ----------
@@ -219,6 +219,19 @@ _viewportWidth
 
   The width in pixels of the Chart's SVG viewport.
 
+axisRadius
+**********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    axisRadius: undefined | number
+
+.. container:: content
+
+  The radius of the circle that defines the axis placement.
+
 axisType
 ********
 
@@ -388,6 +401,19 @@ inRender
 
   The second rendering callback function.
 
+innerRadius
+***********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    innerRadius: number
+
+.. container:: content
+
+  The inner radius of the conceptual annulus that defines the Chart annotation track.
+
 leftPadSize
 ***********
 
@@ -426,6 +452,19 @@ observers
 .. container:: content
 
   A list of observers attached to the Chart.
+
+outerRadius
+***********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    outerRadius: number
+
+.. container:: content
+
+  The outer radius of the conceptual annulus that defines the Chart annotation track.
 
 overflowViewportSelection
 *************************
@@ -595,6 +634,45 @@ scaleExtent
 .. container:: content
 
   A list of two numbers that define the extent to which a zoom event is allowed to transform the TrackChart's underlying scale. Simply put, this controls how far in and out a user will be able to zoom. The first number is the maximum zoom-out factor, and the second is the maximum zoom-in factor. For example, setting this to [1, 10] will prevent a user from zooming out past the point at which the chart is initially rendered, and allow them to zoom in by a factor of 10. For more info, see https://github.com/d3/d3-zoom/blob/master/README.md#zoom_scaleExtent
+
+tickCount
+*********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tickCount: number
+
+.. container:: content
+
+  The initial number of ticks to display on the radial axis. D3 usually refuses to use the actual number supplied, and instead it tries really hard to make it even and "pretty."
+
+trackHeight
+***********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    trackHeight: number
+
+.. container:: content
+
+  The "height" of the radial track on which annotations will be rendered. Conceptually, this is equal to to the difference of the radii of two concentric circles that define an annulus.
+
+trackOutlineSelection
+*********************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    trackOutlineSelection: undefined | Selection <any, any, any, any>
+
+.. container:: content
+
+  A d3 selection to the track outline.
 
 translateExtent
 ***************
@@ -908,8 +986,6 @@ addAxis
 
 .. container:: content
 
-  If the Chart.axis property is set to true, this adds a horizontal axis to the Chart above the top row. Alternatively, if the force=true is supplied it will ignore the Chart.axis setting and add an axis anyway.
-
   **Parameters**
 
   - force: boolean
@@ -938,6 +1014,19 @@ addGlyphModifier
 
   - modifier: GlyphModifier <A, C>
   - initialize: boolean
+
+  **Returns**: void
+
+addTrackOutline
+***************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    addTrackOutline(): void
+
+.. container:: content
 
   **Returns**: void
 
@@ -981,8 +1070,6 @@ applyLayoutAndSetRowCount
     applyLayoutAndSetRowCount(params: P): void
 
 .. container:: content
-
-  Selectively apply the layout as defined in the RenderParams argument and set the rowCount property to an appropriate value. If a rowCount is defined in the RenderParams, it will not be overwritten. If the RenderParams are configured such that no layout is applied, rowCount will be set to the max row property of the Annotations in the RenderParams.
 
   **Parameters**
 
@@ -1134,8 +1221,6 @@ clearHighlight
 
 .. container:: content
 
-  Clear highlights from the Chart. If a selector is supplied, only the highlight that matches that selector will be removed. Otherwise, all highlights will be removed.
-
   **Parameters**
 
   - selector: string
@@ -1167,8 +1252,6 @@ configureZoom
     configureZoom(): void
 
 .. container:: content
-
-  This configures the chart's viewport to appropriately handle browser zoom events.
 
   **Returns**: void
 
@@ -1257,6 +1340,19 @@ fitPadHeight
 
   **Returns**: void
 
+fitRadialDimensions
+*******************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    fitRadialDimensions(): void
+
+.. container:: content
+
+  **Returns**: void
+
 fitRowStripes
 *************
 
@@ -1328,8 +1424,6 @@ getSemanticViewRange
 
 .. container:: content
 
-  Get the semantic coordinate range of what is currently shown in the Chart's viewport.
-
   **Returns**: ViewRange
 
 highlight
@@ -1342,8 +1436,6 @@ highlight
     highlight(config: HighlightConfig): string
 
 .. container:: content
-
-  This method highlights a region in the Chart. If no selector is provided, one will be auto generated and returned by the function.
 
   **Parameters**
 
@@ -1362,7 +1454,7 @@ initializeXScale
 
 .. container:: content
 
-  This initializes an x translation scale with the provided coordinates and the dimensions of the Chart.
+  Set the internal d3 scale to map from the provided semantic query range to the Chart's current viewport dimensions.
 
   **Parameters**
 
@@ -1409,6 +1501,32 @@ render
 
   **Returns**: void
 
+renderAxis
+**********
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    renderAxis(): void
+
+.. container:: content
+
+  **Returns**: void
+
+renderTrackOutline
+******************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    renderTrackOutline(): void
+
+.. container:: content
+
+  **Returns**: void
+
 rescaleXScale
 *************
 
@@ -1419,8 +1537,6 @@ rescaleXScale
     rescaleXScale(transformArg: Transform): void
 
 .. container:: content
-
-  This rescales the Chart's x translation scale. If a transform argument is provided, it will use that. Otherwise, it will use the Chart's internal transform object.
 
   **Parameters**
 
@@ -1453,8 +1569,6 @@ resize
     resize(): void
 
 .. container:: content
-
-  This resizes the Chart. If the Chart has resizing enabled, this is called automatically when a browser zoom event occurs.
 
   **Returns**: void
 
@@ -1554,8 +1668,6 @@ zoom
     zoom(): void
 
 .. container:: content
-
-  This is the handler method that will be called when the Chart's viewport receives a browser zoom event.
 
   **Returns**: void
 

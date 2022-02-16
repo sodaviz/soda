@@ -9,23 +9,25 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _generatePlotAnnotations:
+.. _sliceSequenceAnnotation:
 
-:trst-function:`generatePlotAnnotations`
+:trst-function:`sliceSequenceAnnotation`
 ========================================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    function generatePlotAnnotations(conf: AnnotationGenerationConfig): None
+    function sliceSequenceAnnotation(annotation: SequenceAnnotation, start: number, end: number): None
 
 .. container:: content
 
-  A utility function to generate some PlotAnnotation objects. This is intended for testing/prototyping/playing around.
+  
 
   **Parameters**
 
-  - conf: AnnotationGenerationConfig
+  - annotation: SequenceAnnotation
+  - start: number
+  - end: number
 
-  **Returns**: ContinuousAnnotation []
+  **Returns**: SequenceAnnotation | undefined

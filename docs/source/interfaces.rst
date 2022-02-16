@@ -5,8 +5,9 @@ Interfaces
    :maxdepth: 2
 
    interfaces/AggregationConfig
+   interfaces/AlignmentAnnotations
+   interfaces/AlignmentConfig
    interfaces/AnnotationConfig
-   interfaces/AnnotationConfigWithGroup
    interfaces/AnnotationDatum
    interfaces/AnnotationGenerationConfig
    interfaces/ArcConfig
@@ -16,16 +17,19 @@ Interfaces
    interfaces/ChevronLineConfig
    interfaces/ChevronRectangleConfig
    interfaces/ClickConfig
+   interfaces/ContinuousAnnotationConfig
    interfaces/ExportConfig
+   interfaces/FullGlyphQueryConfig
    interfaces/Gff3AnnotationConfig
    interfaces/Gff3Record
    interfaces/GlyphConfig
-   interfaces/GlyphMapping
+   interfaces/GlyphQueryConfig
+   interfaces/HighlightConfig
    interfaces/HorizontalAxisConfig
    interfaces/HoverConfig
    interfaces/LineConfig
    interfaces/LinePlotConfig
-   interfaces/PlotAnnotationConfig
+   interfaces/RadialChartConfig
    interfaces/RectangleConfig
    interfaces/RenderParams
    interfaces/SequenceAnnotationConfig
