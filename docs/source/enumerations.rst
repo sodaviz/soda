@@ -6,6 +6,5 @@ Enumerations
 
    enumerations/AxisType
    enumerations/BindTarget
-   enumerations/ColumnType
    enumerations/GenerationPattern
    enumerations/Orientation

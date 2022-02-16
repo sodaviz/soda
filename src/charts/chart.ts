@@ -7,10 +7,12 @@ import {
 } from "../glyphs/axes/horizontal-axis";
 import { intervalGraphLayout } from "../layout/interval-graph-layout";
 import { rectangle } from "../glyphs/rectangle";
-import { BindTarget } from "../glyphs/bind";
-import { GlyphModifier } from "../glyphs/glyph-modifier";
+import { BindTarget } from "../glyph-utilities/bind";
+import { GlyphModifier } from "../glyph-utilities/glyph-modifier";
 import { generateId } from "../utilities/id-generation";
 import { ChartObserver } from "../observers/chart-observer";
+import { removeGlyphsByQuery } from "../glyph-utilities/glyph-removal";
+import { AxisType } from "../glyphs/axes";
 
 /**
  * This returns a "placeholder" xScale, which is initially used on a Chart before one is properly initialized.
@@ -25,9 +27,7 @@ function buildPlaceholderXScale(
   // @ts-ignore
   let placeholderScale = (() => {
     console.warn(
-      "xScale on chart",
-      chart,
-      "has been used before initialization"
+      `xScale on chart: ${chart.id} has been used before initialization`
     );
     return 0;
   }) as d3.ScaleLinear<number, number>;
@@ -40,13 +40,37 @@ function buildPlaceholderXScale(
   placeholderScale.nice = scale.nice;
   placeholderScale.copy = () => {
     console.warn(
-      "xScale.copy() on chart",
-      chart,
-      "has been used before initialization"
+      `xScale.copy() on chart: ${chart.id} has been used before initialization`
     );
     return placeholderScale;
   };
   return placeholderScale;
+}
+
+/**
+ * This describes the parameters for a call to the Chart.highlight() function.
+ */
+export interface HighlightConfig {
+  /**
+   * The start of the region to be highlighted in semantic coordinates.
+   */
+  start: number;
+  /**
+   * The end of the region to be highlighted in semantic coordinates.
+   */
+  end: number;
+  /**
+   * The selector that will be applied to the highlight object in the DOM. This will be auto generated if not supplied.
+   */
+  selector?: string;
+  /**
+   * The color of the highlight. This defaults to black.
+   */
+  color?: string;
+  /**
+   * The opacity of the highlight. This defaults to 0.1.
+   */
+  opacity?: number;
 }
 
 /**
@@ -110,17 +134,49 @@ export interface ChartConfig<P extends RenderParams> {
    */
   rowCount?: number;
   /**
-   * The height in pixels of the Chart's viewport.
-   */
-  height?: number;
-  /**
-   * The height in pixels of the Chart's viewport.
-   */
-  width?: number;
-  /**
    * The number of pixels of padding around each edge of the Chart.
    */
   padSize?: number;
+  /**
+   * The number of pixels of padding on the left side of the Chart.
+   */
+  leftPadSize?: number;
+  /**
+   * The number of pixels of padding on the right side of the Chart.
+   */
+  rightPadSize?: number;
+  /**
+   * The number of pixels of padding on the top of the Chart.
+   */
+  upperPadSize?: number;
+  /**
+   * The number of pixels of padding on the bottom of the Chart.
+   */
+  lowerPadSize?: number;
+  /**
+   * The height in pixels of the Chart's containing div.
+   */
+  divHeight?: number | string;
+  /**
+   * The width in pixels of the Chart's containing div.
+   */
+  divWidth?: number | string;
+  /**
+   * The CSS overflow-y setting of the Chart's containing div.
+   */
+  divOverflowY?: string;
+  /**
+   * The CSS overflow-x setting of the Chart's containing div.
+   */
+  divOverflowX?: string;
+  /**
+   * The CSS outline property for the Chart's div.
+   */
+  divOutline?: string;
+  /**
+   * The CSS margin property for the Chart's div.
+   */
+  divMargin?: number;
   /**
    * This controls whether or not the rows will be colored in an alternating pattern.
    */
@@ -128,7 +184,7 @@ export interface ChartConfig<P extends RenderParams> {
   /**
    * This controls whether or not the Chart will render a horizontal axis.
    */
-  axis?: boolean;
+  axisType?: AxisType.Top | AxisType.Bottom;
   /**
    * This controls whether or not the Chart will automatically resize itself as it's container changes size. This
    * will cause the Chart to ignore explicit height/width arguments in the config.
@@ -162,6 +218,20 @@ export interface ChartConfig<P extends RenderParams> {
    * @param params
    */
   postRender?: (this: Chart<P>, params: P) => void;
+  /**
+   * The callback function that the Chart executes after zoom() is called.
+   * @param params
+   */
+  postZoom?: (this: Chart<P>) => void;
+  /**
+   * The callback function that the Chart executes after resize() is called.
+   * @param params
+   */
+  postResize?: (this: Chart<P>) => void;
+  /**
+   * If this is set to true, the pad and viewport will be shaded so that they are visible in the browser.
+   */
+  debugShading?: boolean;
 }
 
 /**
@@ -257,9 +327,49 @@ export class Chart<P extends RenderParams> {
    */
   _renderParams: P | undefined;
   /**
+   * The CSS height property of the Chart's div.
+   */
+  divHeight: number | string | undefined;
+  /**
+   * The CSS width property of the Chart's div.
+   */
+  divWidth: number | string | undefined;
+  /**
+   * The CSS overflow-x property of the Chart's div.
+   */
+  divOverflowX: string | undefined;
+  /**
+   * The CSS overflow-y property of the Chart's div.
+   */
+  divOverflowY: string | undefined;
+  /**
+   * The CSS outline property of the Chart's div.
+   */
+  divOutline: string | undefined;
+  /**
+   * The CSS margin property of the Chart's div.
+   */
+  divMargin: number | undefined;
+  /**
    * The number of pixels of padding around each edge of the Chart.
    */
   padSize: number;
+  /**
+   * The number of pixels of padding on the left side of the Chart.
+   */
+  leftPadSize: number;
+  /**
+   * The number of pixels of padding on the right side of the Chart.
+   */
+  rightPadSize: number;
+  /**
+   * The number of pixels of padding on the top of the Chart.
+   */
+  upperPadSize: number;
+  /**
+   * The number of pixels of padding on the bottom of the Chart.
+   */
+  lowerPadSize: number;
   /**
    * The width in pixels of the Chart's SVG pad.
    */
@@ -279,7 +389,7 @@ export class Chart<P extends RenderParams> {
   /**
    * This indicates whether or not the Chart has a horizontal axis.
    */
-  axis: boolean;
+  axisType: AxisType.Top | AxisType.Bottom | undefined;
   /**
    * The Annotation object that is used to render the horizontal axis (if enabled).
    */
@@ -293,9 +403,14 @@ export class Chart<P extends RenderParams> {
    */
   zoomable: boolean;
   /**
-   * A d3 selection to the Chart's DOM container. This is usually a div.
+   * A d3 selection of the Chart's DOM container. This is a pre-existing DOM element (probably a div).
    */
   _containerSelection: d3.Selection<any, any, any, any> | undefined;
+  /**
+   * A d3 selection of the Chart's inner div. This is created when the Chart is instantiated and placed inside of the
+   * selected container in the DOM.
+   */
+  divSelection: d3.Selection<any, any, any, any>;
   /**
    * A d3 selection of the Chart's viewport.
    */
@@ -312,6 +427,10 @@ export class Chart<P extends RenderParams> {
    * A d3 selection of the Chart's defs element. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Element/defs
    */
   defSelection: d3.Selection<any, any, any, any>;
+  /**
+   * A d3 selection of the Chart's highlight.
+   */
+  highlightSelection: d3.Selection<any, any, any, any>;
   /**
    * A D3 selection of the SVG pattern that is used for row striping.
    */
@@ -393,37 +512,25 @@ export class Chart<P extends RenderParams> {
    * The first rendering callback function.
    * @param params
    */
-  preRender: (this: any, params: P) => void = function (
-    this: Chart<P>,
-    params: P
-  ): void {
-    this.applyLayoutAndSetRowCount(params);
-    this.addAxis();
-    this.fitPadHeight();
-    this.fitViewport();
-    this.initializeXScaleFromRenderParams(params);
-  };
+  preRender: (this: any, params: P) => void = this.defaultPreRender;
   /**
    * The second rendering callback function.
    * @param params
    */
-  inRender: (this: any, params: P) => void = function (
-    this: Chart<P>,
-    params: P
-  ): void {
-    rectangle({
-      chart: this,
-      annotations: params.annotations || [],
-      selector: "soda-rect",
-    });
-  };
+  inRender: (this: any, params: P) => void = this.defaultInRender;
   /**
    * The final rendering callback function.
    * @param params
    */
-  postRender: (this: any, params: P) => void = function (this: Chart<P>): void {
-    this.applyGlyphModifiers();
-  };
+  postRender: (this: any, params: P) => void = this.defaultPostRender;
+  /**
+   * The callback function that the Chart executes after zoom() is called.
+   */
+  postZoom: (this: any) => void = () => {};
+  /**
+   * The callback function that the Chart executes after resize() is called.
+   */
+  postResize: (this: any) => void = () => {};
 
   constructor(config: ChartConfig<P> = {}) {
     this.id = config.id || generateId("soda-chart");
@@ -431,33 +538,55 @@ export class Chart<P extends RenderParams> {
     if (config.selector !== undefined) {
       this._selector = config.selector;
       this._containerSelection = d3.select(this._selector);
-      this.padSelection = this._containerSelection.append("svg");
+      this.divSelection = this._containerSelection.append("div");
     } else {
-      this.padSelection = d3.create("svg:svg").style("vertical-align", "top");
+      this.divSelection = d3.create("div");
     }
+    this.padSelection = this.divSelection.append("svg");
     this.padSelection.attr("xmlns", "http://www.w3.org/2000/svg");
+
     this.xScale = buildPlaceholderXScale(this);
     this.xScaleBase = this.xScale;
     this._transform = cloneDeep(d3.zoomIdentity);
     this.padSelection.node().__zoom = this._transform;
+
+    this.highlightSelection = this.padSelection
+      .append("g")
+      .attr("class", "highlight");
+
     this.viewportSelection = this.padSelection
       .append("svg")
-      .style("vertical-align", "top")
       .attr("overflow", "hidden");
 
     this.overflowViewportSelection = this.padSelection
       .append("svg")
-      .style("vertical-align", "top")
       .attr("overflow", "visible");
 
     this.defSelection = this.viewportSelection.append("defs");
-
-    this.padSize = config.padSize || 25;
     this.rowHeight = config.rowHeight || 10;
+
+    this.padSize = config.padSize != undefined ? config.padSize : 25;
+    this.leftPadSize =
+      config.leftPadSize != undefined ? config.leftPadSize : this.padSize;
+    this.rightPadSize =
+      config.rightPadSize != undefined ? config.rightPadSize : this.padSize;
+    this.upperPadSize =
+      config.upperPadSize != undefined ? config.upperPadSize : this.padSize;
+    this.lowerPadSize =
+      config.lowerPadSize != undefined ? config.lowerPadSize : this.padSize;
+
+    this.divHeight = config.divHeight;
+    this.divWidth = config.divWidth;
+    this.divOverflowX = config.divOverflowX || "hidden";
+    this.divOverflowY = config.divOverflowY || "hidden";
+    this.divOutline = config.divOutline;
+    this.divMargin = config.divMargin;
+
+    this.updateDivProperties();
 
     this.padSelection
       .attr("width", "100%")
-      .attr("height", 2 * this.padSize + this.rowHeight);
+      .attr("height", this.upperPadSize + this.lowerPadSize + this.rowHeight);
 
     this.fitViewport();
 
@@ -467,7 +596,7 @@ export class Chart<P extends RenderParams> {
       this.setRowStripes();
     }
 
-    this.axis = config.axis || false;
+    this.axisType = config.axisType;
     this.resizable = config.resizable || false;
     this.zoomable = config.zoomable || false;
 
@@ -482,6 +611,8 @@ export class Chart<P extends RenderParams> {
     this.preRender = config.preRender || this.preRender;
     this.inRender = config.inRender || this.inRender;
     this.postRender = config.postRender || this.postRender;
+    this.postZoom = config.postZoom || this.postZoom;
+    this.postResize = config.postResize || this.postResize;
 
     if (this.zoomable) {
       this.configureZoom();
@@ -490,6 +621,43 @@ export class Chart<P extends RenderParams> {
     if (this.resizable) {
       this.configureResize();
     }
+
+    if (config.debugShading) {
+      this.padSelection
+        .append("rect")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("fill", "blue")
+        .attr("fill-opacity", 0.03);
+
+      this.viewportSelection
+        .append("rect")
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("fill", "red")
+        .attr("fill-opacity", 0.03);
+    }
+  }
+
+  public defaultPreRender(params: P): void {
+    this.applyLayoutAndSetRowCount(params);
+    this.updateDivProperties();
+    this.addAxis();
+    this.fitPadHeight();
+    this.fitViewport();
+    this.initializeXScaleFromRenderParams(params);
+  }
+
+  public defaultInRender<P extends RenderParams>(params: P): void {
+    rectangle({
+      chart: this,
+      annotations: params.annotations || [],
+      selector: "soda-rect",
+    });
+  }
+
+  public defaultPostRender<P extends RenderParams>(): void {
+    this.applyGlyphModifiers();
   }
 
   /**
@@ -497,7 +665,9 @@ export class Chart<P extends RenderParams> {
    */
   get rowStripeRectSelection() {
     if (this._rowStripeRectSelection == undefined) {
-      console.error("_rowStripeRectSelection is not defined on", this);
+      console.error(
+        `_rowStripeRectSelection is not defined on chart: ${this.id}`
+      );
       throw `_rowStripeRectSelection undefined`;
     }
     return this._rowStripeRectSelection;
@@ -508,7 +678,9 @@ export class Chart<P extends RenderParams> {
    */
   get rowStripePatternSelection() {
     if (this._rowStripePatternSelection == undefined) {
-      console.error("_rowStripePatternSelection is not defined on", this);
+      console.error(
+        `_rowStripePatternSelection is not defined on chart: ${this.id}`
+      );
       throw `_rowStripePatternSelection undefined`;
     }
     return this._rowStripePatternSelection;
@@ -561,23 +733,79 @@ export class Chart<P extends RenderParams> {
       .attr("width", this.viewportWidth);
   }
 
+  public updateDivProperties(): void {
+    if (this.divWidth != undefined) {
+      if (typeof this.divWidth == "number") {
+        this.divSelection.style("width", `${this.divWidth}px`);
+      } else {
+        this.divSelection.style("width", this.divWidth);
+      }
+    } else {
+      this.divSelection.style("width", "100%");
+    }
+
+    if (this.divHeight != undefined) {
+      if (typeof this.divHeight == "number") {
+        this.divSelection.style("height", `${this.divHeight}px`);
+      } else {
+        this.divSelection.style("height", this.divHeight);
+      }
+    } else {
+      this.divSelection.style(
+        "height",
+        `${
+          this.rowHeight * this.rowCount + this.upperPadSize + this.lowerPadSize
+        }px`
+      );
+    }
+
+    if (this.divOverflowY != undefined) {
+      this.divSelection.style("overflow-y", this.divOverflowY);
+    } else {
+      this.divSelection.style("overflow-y", null);
+    }
+
+    if (this.divOverflowX != undefined) {
+      this.divSelection.style("overflow-x", this.divOverflowX);
+    } else {
+      this.divSelection.style("overflow-x", null);
+    }
+
+    if (this.divOutline != undefined) {
+      this.divSelection.style("outline", this.divOutline);
+    } else {
+      this.divSelection.style("outline", null);
+    }
+
+    if (this.divMargin != undefined) {
+      this.divSelection.style("margin", this.divMargin);
+    } else {
+      this.divSelection.style("margin", null);
+    }
+  }
+
   /**
    * This fits the Chart's SVG padding based off of the rowCount, rowHeight and padSize properties.
    */
   public fitPadHeight(): void {
-    this.padHeight = this.rowCount * this.rowHeight + 2 * this.padSize;
+    this.padHeight =
+      this.rowCount * this.rowHeight + (this.upperPadSize + this.lowerPadSize);
   }
 
   /**
    * This fits the Chart's SVG viewport based off of the Chart's pad size.
    */
   public fitViewport(): void {
-    this.viewportWidth = this.calculatePadWidth() - 2 * this.padSize;
-    this.viewportHeight = this.calculatePadHeight() - 2 * this.padSize;
-    this.viewportSelection.attr("x", this.padSize).attr("y", this.padSize);
+    this.viewportWidth =
+      this.calculatePadWidth() - (this.leftPadSize + this.rightPadSize);
+    this.viewportHeight =
+      this.calculatePadHeight() - (this.upperPadSize + this.lowerPadSize);
+    this.viewportSelection
+      .attr("x", this.leftPadSize)
+      .attr("y", this.upperPadSize);
     this.overflowViewportSelection
-      .attr("x", this.padSize)
-      .attr("y", this.padSize);
+      .attr("x", this.leftPadSize)
+      .attr("y", this.upperPadSize);
 
     this.fitRowStripes();
   }
@@ -589,9 +817,7 @@ export class Chart<P extends RenderParams> {
   get selector(): string {
     if (this._selector == undefined) {
       console.error(
-        "_selector not defined on",
-        this,
-        "is this Chart detached?"
+        `_selector not defined on chart: ${this.id}, is this chart detached?`
       );
       throw "_selector undefined";
     }
@@ -615,9 +841,7 @@ export class Chart<P extends RenderParams> {
   get containerSelection(): d3.Selection<any, any, any, any> {
     if (this._containerSelection == undefined) {
       console.error(
-        "_containerSelection not defined on",
-        this,
-        "is this Chart detached?"
+        `_containerSelection not defined on chart: ${this.id}, is this chart detached?`
       );
       throw "_containerSelection undefined";
     }
@@ -697,13 +921,26 @@ export class Chart<P extends RenderParams> {
     this.fitViewport();
   }
 
+  public calculateDivDimensions(): DOMRect {
+    return this.divSelection.node().getBoundingClientRect();
+  }
+
+  public squareToDivWidth(): void {
+    let dims = this.calculateDivDimensions();
+    this.divHeight = dims.width;
+    this.padWidth = dims.width;
+    this.padHeight = dims.width;
+    this.fitViewport();
+    this.updateDivProperties();
+  }
+
   /**
    * This returns a DOMRect that describes the pad dimensions.
    */
   public calculatePadDimensions(): DOMRect {
     let padNode = this.padSelection.node();
     if (padNode == null) {
-      console.warn("padSelection is null on", this);
+      console.warn(`padSelection is null on chart: ${this.id}`);
       throw "SVG undefined";
     }
     return padNode.getBoundingClientRect();
@@ -740,7 +977,7 @@ export class Chart<P extends RenderParams> {
   }
 
   /**
-   * Setter for the padWidth property. This actually adjusts the height attribute on the viewport DOM element.
+   * Setter for the padWidth property. This actually adjusts the width attribute on the viewport DOM element.
    * @param width
    */
   set padWidth(width: number) {
@@ -935,6 +1172,7 @@ export class Chart<P extends RenderParams> {
     for (const modifier of this.glyphModifiers) {
       modifier.zoom();
     }
+    this.zoomHighlight();
   }
 
   /**
@@ -945,11 +1183,12 @@ export class Chart<P extends RenderParams> {
     if (d3.event != undefined) {
       transform = d3.event.transform;
     } else {
-      console.warn("d3.event is undefined in zoom() call on", this);
+      console.warn(`d3.event is undefined in zoom() call on chart: ${this.id}`);
     }
     this.rescaleXScale(transform);
     this.applyGlyphModifiers();
     this.alertObservers();
+    this.postZoom();
   }
 
   /**
@@ -959,9 +1198,7 @@ export class Chart<P extends RenderParams> {
   public configureResize(): void {
     if (this._containerSelection == undefined) {
       console.warn(
-        "No containerSelection defined on",
-        this,
-        ", can't run configureResize()"
+        `No containerSelection defined on chart: ${this.id}, can't run configureResize()`
       );
       return;
     }
@@ -988,6 +1225,7 @@ export class Chart<P extends RenderParams> {
     this.resetTransform();
     this.initializeXScale(view.start, view.end);
     this.applyGlyphModifiers();
+    this.postResize();
   }
 
   /**
@@ -1004,7 +1242,7 @@ export class Chart<P extends RenderParams> {
    */
   get renderParams() {
     if (this._renderParams == undefined) {
-      console.error("_renderParams is not defined on", this);
+      console.error(`_renderParams is not defined on chart: ${this.id}`);
       throw `_renderParams undefined`;
     }
     return this._renderParams;
@@ -1024,16 +1262,18 @@ export class Chart<P extends RenderParams> {
    * @param force Override the Chart.axis property setting.
    */
   public addAxis(force?: boolean) {
-    if (this.axis || force) {
+    if (this.axisType != undefined || force == true) {
       if (this._axisAnn == undefined) {
         this._axisAnn = getHorizontalAxisAnnotation(this);
       }
       horizontalAxis({
         chart: this,
+        selector: "soda-default-axis",
         annotations: [this._axisAnn],
-        y: () => -20,
+        y: this.axisType == AxisType.Bottom ? -20 : -5,
         fixed: true,
-        bindTarget: BindTarget.Overflow,
+        axisType: this.axisType || AxisType.Bottom,
+        target: BindTarget.Overflow,
       });
     }
   }
@@ -1060,9 +1300,9 @@ export class Chart<P extends RenderParams> {
    * @param params
    */
   public initializeXScaleFromRenderParams(params: P): void {
-    let start = 0;
-    let end = 0;
     if (params.initializeXScale === undefined || params.initializeXScale) {
+      let start = 0;
+      let end = 0;
       if (hasRange(params)) {
         start = params.start;
         end = params.end;
@@ -1073,13 +1313,12 @@ export class Chart<P extends RenderParams> {
           end = renderRange[1];
         } else {
           console.warn(
-            "no render range provided in call to initializeXScale() on",
-            this
+            `no render range provided in call to initializeXScale() on chart: ${this.id}`
           );
         }
       }
+      this.initializeXScale(start, end);
     }
-    this.initializeXScale(start, end);
   }
 
   /**
@@ -1105,6 +1344,66 @@ export class Chart<P extends RenderParams> {
   }
 
   /**
+   * This method clears all glyphs that have been rendered in the Chart.
+   */
+  public clear(): void {
+    this.glyphModifiers = [];
+    removeGlyphsByQuery({ chart: this });
+  }
+
+  /**
+   * This method highlights a region in the Chart. If no selector is provided, one will be auto generated and
+   * returned by the function.
+   * @param config
+   */
+  public highlight(config: HighlightConfig): string {
+    let selector = config.selector || generateId("highlight");
+    let selection = this.highlightSelection
+      .selectAll<SVGRectElement, string>(`rect.${selector}`)
+      .data([config]);
+
+    let enter = selection
+      .enter()
+      .append("rect")
+      .attr("class", selector)
+      .attr("y", 0)
+      .attr("height", "100%");
+
+    enter
+      .merge(selection)
+      .attr("x", this.xScale(config.start) + this.leftPadSize)
+      .attr("width", this.xScale(config.end) - this.xScale(config.start))
+      .attr("fill", config.color || "black")
+      .attr("fill-opacity", config.opacity || 0.1);
+    selection.exit().remove();
+    return selector;
+  }
+
+  /**
+   * Clear highlights from the Chart. If a selector is supplied, only the highlight that matches that selector will
+   * be removed. Otherwise, all highlights will be removed.
+   */
+  public clearHighlight(selector?: string): void {
+    if (selector == undefined) {
+      this.highlightSelection.selectAll("rect").remove();
+    } else {
+      this.highlightSelection
+        .selectAll<SVGRectElement, string>(`rect.${selector}`)
+        .remove();
+    }
+  }
+
+  public zoomHighlight(): void {
+    this.highlightSelection
+      .selectAll<any, HighlightConfig>("rect")
+      .attr("x", (config) => this.xScale(config.start) + this.leftPadSize)
+      .attr(
+        "width",
+        (config) => this.xScale(config.end) - this.xScale(config.start)
+      );
+  }
+
+  /**
    * This method stores the render parameters on the Chart and calls preRender(), inRender(), and postRender().
    * @param params
    */
@@ -1124,8 +1423,7 @@ export class Chart<P extends RenderParams> {
     if (params.start == undefined || params.end == undefined) {
       if (params.annotations == undefined || params.annotations == []) {
         console.error(
-          "annotations undefined, can't infer range on RenderParams",
-          params
+          `annotations undefined, can't infer range on RenderParams`
         );
       } else {
         let min = Infinity;

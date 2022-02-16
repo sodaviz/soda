@@ -85,14 +85,22 @@ export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
     this.selection = config.selection;
     this.chart = config.chart;
     this.annotations = config.annotations;
-    this.x = config.x || ((d: AnnotationDatum<A, C>) => d.c.xScale(d.a.x));
+    this.x =
+      config.x != undefined
+        ? config.x
+        : (d: AnnotationDatum<A, C>) => d.c.xScale(d.a.x);
     this.y =
-      config.y || ((d: AnnotationDatum<A, C>) => d.a.y * d.c.rowHeight + 2);
+      config.y != undefined
+        ? config.y
+        : (d: AnnotationDatum<A, C>) => d.a.y * d.c.rowHeight + 2;
     this.width =
-      config.width ||
-      ((d: AnnotationDatum<A, C>) => d.c.xScale(d.a.x2) - d.c.xScale(d.a.x));
+      config.width != undefined
+        ? config.width
+        : (d: AnnotationDatum<A, C>) => d.c.xScale(d.a.x2) - d.c.xScale(d.a.x);
     this.height =
-      config.height || ((d: AnnotationDatum<A, C>) => d.c.rowHeight - 4);
+      config.height != undefined
+        ? config.height
+        : (d: AnnotationDatum<A, C>) => d.c.rowHeight - 4;
     this.strokeWidth = config.strokeWidth;
     this.strokeColor = config.strokeColor || "black";
     this.strokeOpacity = config.strokeOpacity;
@@ -128,7 +136,6 @@ export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
    */
   defaultInitialize() {
     this.applyId();
-    this.applyClass();
     this.applyStrokeWidth();
     this.applyStrokeColor();
     this.applyStrokeOpacity();

@@ -74,7 +74,7 @@ _containerSelection
 
 .. container:: content
 
-  A d3 selection to the Chart's DOM container. This is usually a div.
+  A d3 selection of the Chart's DOM container. This is a pre-existing DOM element (probably a div).
 
 _padHeight
 **********
@@ -219,14 +219,14 @@ _viewportWidth
 
   The width in pixels of the Chart's SVG viewport.
 
-axis
-****
+axisType
+********
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    axis: boolean
+    axisType: undefined | Bottom | Top
 
 .. container:: content
 
@@ -245,6 +245,97 @@ defSelection
 
   A d3 selection of the Chart's defs element. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Element/defs
 
+divHeight
+*********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    divHeight: undefined | string | number
+
+.. container:: content
+
+  The CSS height property of the Chart's div.
+
+divMargin
+*********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    divMargin: undefined | number
+
+.. container:: content
+
+  The CSS margin property of the Chart's div.
+
+divOutline
+**********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    divOutline: undefined | string
+
+.. container:: content
+
+  The CSS outline property of the Chart's div.
+
+divOverflowX
+************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    divOverflowX: undefined | string
+
+.. container:: content
+
+  The CSS overflow-x property of the Chart's div.
+
+divOverflowY
+************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    divOverflowY: undefined | string
+
+.. container:: content
+
+  The CSS overflow-y property of the Chart's div.
+
+divSelection
+************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    divSelection: Selection <any, any, any, any>
+
+.. container:: content
+
+  A d3 selection of the Chart's inner div. This is created when the Chart is instantiated and placed inside of the selected container in the DOM.
+
+divWidth
+********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    divWidth: undefined | string | number
+
+.. container:: content
+
+  The CSS width property of the Chart's div.
+
 glyphModifiers
 **************
 
@@ -257,6 +348,19 @@ glyphModifiers
 .. container:: content
 
   A list of GlyphModifiers that control the glyphs rendered in the Chart.
+
+highlightSelection
+******************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    highlightSelection: Selection <any, any, any, any>
+
+.. container:: content
+
+  A d3 selection of the Chart's highlight.
 
 id
 **
@@ -283,6 +387,32 @@ inRender
 .. container:: content
 
   The second rendering callback function.
+
+leftPadSize
+***********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    leftPadSize: number
+
+.. container:: content
+
+  The number of pixels of padding on the left side of the Chart.
+
+lowerPadSize
+************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    lowerPadSize: number
+
+.. container:: content
+
+  The number of pixels of padding on the bottom of the Chart.
 
 observers
 *********
@@ -349,6 +479,32 @@ postRender
 
   The final rendering callback function.
 
+postResize
+**********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    postResize: (): void
+
+.. container:: content
+
+  The callback function that the Chart executes after resize() is called.
+
+postZoom
+********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    postZoom: (): void
+
+.. container:: content
+
+  The callback function that the Chart executes after zoom() is called.
+
 preRender
 *********
 
@@ -374,6 +530,19 @@ resizable
 .. container:: content
 
   This controls whether or not the Chart has automatic resizing enabled.
+
+rightPadSize
+************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    rightPadSize: number
+
+.. container:: content
+
+  The number of pixels of padding on the right side of the Chart.
 
 rowCount
 ********
@@ -439,6 +608,19 @@ translateExtent
 .. container:: content
 
   This is a callback function that is used to set the translate extent (left/right panning) allowed when a zoom event is applied to the TrackChart. It needs to be a callback, because it needs the absolute width of the TrackChart's SVG viewport, which is allowed to change throughout the TrackChart's lifetime. For example, setting this to: (chart) => [[0, 0], [chart.width, chart.height]] will restrict the panning in the TrackChart to exactly the range that was initially rendered. For more info, see https://github.com/d3/d3-zoom/blob/master/README.md#zoom_translateExtent
+
+upperPadSize
+************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    upperPadSize: number
+
+.. container:: content
+
+  The number of pixels of padding on the top of the Chart.
 
 viewportSelection
 *****************
@@ -553,7 +735,7 @@ padWidth
 
 .. container:: content
 
-  Setter for the padWidth property. This actually adjusts the height attribute on the viewport DOM element.
+  Setter for the padWidth property. This actually adjusts the width attribute on the viewport DOM element.
 
 renderEnd
 *********
@@ -823,6 +1005,19 @@ calculateContainerDimensions
 
   **Returns**: DOMRect
 
+calculateDivDimensions
+**********************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    calculateDivDimensions(): DOMRect
+
+.. container:: content
+
+  **Returns**: DOMRect
+
 calculatePadDimensions
 **********************
 
@@ -913,6 +1108,40 @@ calculateViewportWidth
 
   **Returns**: number
 
+clear
+*****
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    clear(): void
+
+.. container:: content
+
+  This method clears all glyphs that have been rendered in the Chart.
+
+  **Returns**: void
+
+clearHighlight
+**************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    clearHighlight(selector: string): void
+
+.. container:: content
+
+  Clear highlights from the Chart. If a selector is supplied, only the highlight that matches that selector will be removed. Otherwise, all highlights will be removed.
+
+  **Parameters**
+
+  - selector: string
+
+  **Returns**: void
+
 configureResize
 ***************
 
@@ -940,6 +1169,61 @@ configureZoom
 .. container:: content
 
   This configures the chart's viewport to appropriately handle browser zoom events.
+
+  **Returns**: void
+
+defaultInRender
+***************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    defaultInRender(params: P): void
+
+.. container:: content
+
+  **Type parameters**
+
+  - P: RenderParams
+
+  **Parameters**
+
+  - params: P
+
+  **Returns**: void
+
+defaultPostRender
+*****************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    defaultPostRender(): void
+
+.. container:: content
+
+  **Type parameters**
+
+  - P: RenderParams
+
+  **Returns**: void
+
+defaultPreRender
+****************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    defaultPreRender(params: P): void
+
+.. container:: content
+
+  **Parameters**
+
+  - params: P
 
   **Returns**: void
 
@@ -1047,6 +1331,25 @@ getSemanticViewRange
   Get the semantic coordinate range of what is currently shown in the Chart's viewport.
 
   **Returns**: ViewRange
+
+highlight
+*********
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    highlight(config: HighlightConfig): string
+
+.. container:: content
+
+  This method highlights a region in the Chart. If no selector is provided, one will be auto generated and returned by the function.
+
+  **Parameters**
+
+  - config: HighlightConfig
+
+  **Returns**: string
 
 initializeXScale
 ****************
@@ -1215,6 +1518,32 @@ squareToContainerWidth
 
   **Returns**: void
 
+squareToDivWidth
+****************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    squareToDivWidth(): void
+
+.. container:: content
+
+  **Returns**: void
+
+updateDivProperties
+*******************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    updateDivProperties(): void
+
+.. container:: content
+
+  **Returns**: void
+
 zoom
 ****
 
@@ -1227,6 +1556,19 @@ zoom
 .. container:: content
 
   This is the handler method that will be called when the Chart's viewport receives a browser zoom event.
+
+  **Returns**: void
+
+zoomHighlight
+*************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    zoomHighlight(): void
+
+.. container:: content
 
   **Returns**: void
 

@@ -2,15 +2,15 @@ import * as d3 from "d3";
 import { Chart } from "../../charts/chart";
 import { Annotation } from "../../annotations/annotation";
 import { AxisType, getAxis } from "../axes";
-import { GlyphConfig } from "../glyph-config";
+import { GlyphConfig } from "../../glyph-utilities/glyph-config";
 import { generateId } from "../../utilities/id-generation";
-import { bind } from "../bind";
+import { bind } from "../../glyph-utilities/bind";
 import {
   GlyphModifier,
   GlyphModifierConfig,
   GlyphProperty,
   resolveValue,
-} from "../glyph-modifier";
+} from "../../glyph-utilities/glyph-modifier";
 
 /**
  * An interface that defines the parameters for a call to the verticalAxis rendering function.
@@ -18,11 +18,11 @@ import {
 export interface VerticalAxisConfig<A extends Annotation, C extends Chart<any>>
   extends GlyphConfig<A, C> {
   /**
-   * This defines the domain of the D3 scale used to create the axis glyph.
+   * This defines the domain of the axis.
    */
   domain?: GlyphProperty<A, C, [number, number]>;
   /**
-   * This defines the range of the D3 scale used to create the axis glyph.
+   * This defines the range of the axis.
    */
   range?: GlyphProperty<A, C, [number, number]>;
   /**
@@ -40,15 +40,11 @@ export interface VerticalAxisConfig<A extends Annotation, C extends Chart<any>>
    */
   axisType?: AxisType.Left | AxisType.Right;
   /**
-   * If this is set to true, the axis glyph will not translate or scale during zoom events.
-   */
-  fixed?: boolean;
-  /**
    * The number of bins that the axis will span. This defaults to 1, which forces the axis to fit into one row. If
    * an argument is supplied, it will cause the axis to grow downward. It will have no effect if a custom domain
    * function is supplied.
    */
-  binSpan?: number;
+  rowSpan?: number;
   initializeFn?: (this: VerticalAxisModifier<A, C>) => void;
   zoomFn?: (this: VerticalAxisModifier<A, C>) => void;
 }
@@ -72,22 +68,20 @@ export class VerticalAxisModifier<
 > extends GlyphModifier<A, C> {
   domain: GlyphProperty<A, C, [number, number]>;
   range: GlyphProperty<A, C, [number, number]>;
-  binSpan: number;
+  rowSpan: number;
   ticks: GlyphProperty<A, C, number>;
   tickSizeOuter: GlyphProperty<A, C, number>;
   axisType: AxisType.Left | AxisType.Right;
-  fixed: boolean;
 
   constructor(config: VerticalAxisModifierConfig<A, C>) {
     super(config);
     this.strokeColor = config.strokeColor || "none";
     this.domain = config.domain || [0, 100];
-    this.binSpan = config.binSpan || 1;
-    this.range = config.range || [0, config.chart.rowHeight * this.binSpan];
+    this.rowSpan = config.rowSpan || 1;
+    this.range = config.range || [0, config.chart.rowHeight * this.rowSpan];
     this.ticks = config.ticks || 5;
     this.tickSizeOuter = config.tickSizeOuter || 6;
     this.axisType = config.axisType || AxisType.Right;
-    this.fixed = config.fixed || false;
   }
 
   defaultZoom(): void {
@@ -116,10 +110,7 @@ export class VerticalAxisModifier<
 
 /**
  * This renders Annotations as vertical axes in a chart. This is intended to be used in conjunction with one of the
- * plotting glyph modules. The vertical axes can be fixed in place, but they are configured to move during zoom
- * events by default.
- * @param chart The Chart in which we will render the axes.
- * @param ann The Annotations to be rendered.
+ * plotting glyph modules.
  * @param config The parameters for configuring the styling of the axes.
  */
 export function verticalAxis<A extends Annotation, C extends Chart<any>>(
@@ -128,7 +119,12 @@ export function verticalAxis<A extends Annotation, C extends Chart<any>>(
   let selector = config.selector || generateId("soda-vertical-axis-glyph");
   let internalSelector = selector + "-internal";
 
-  let binding = bind<A, C, SVGGElement>(selector, "g", config);
+  let binding = bind<A, C, SVGGElement>({
+    ...config,
+    selector,
+    internalSelector,
+    elementType: "g",
+  });
 
   let modifier = new VerticalAxisModifier({
     selector: internalSelector,

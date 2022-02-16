@@ -9,72 +9,86 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _ColumnType:
+.. _AlignmentAnnotations:
 
-ColumnType
-==========
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    enum ColumnType
-
-.. container:: content
-
-  An enum to represent the type of a column in a sequence alignment.
-
-Members
--------
-
-Deletion
-********
+:trst-class:`AlignmentAnnotations`
+==================================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    Deletion: = "2"
+    interface AlignmentAnnotations
 
 .. container:: content
 
-  This represents a gap in a sequence alignment.
+  The return type for the getAlignmentAnnotations() function.
 
-Insertion
-*********
+Properties
+----------
+
+all
+***
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    Insertion: = "3"
+    all: SequenceAnnotation []
 
 .. container:: content
 
-  This represents an insertion in a sequence alignment.
+  
 
-Match
-*****
+gaps
+****
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    Match: = "0"
+    gaps: SequenceAnnotation
 
 .. container:: content
 
-  This represents a match in the sequence alignment.
+  
 
-Substitution
-************
+insertions
+**********
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    Substitution: = "1"
+    insertions: SequenceAnnotation []
 
 .. container:: content
 
-  This represents a substitution in a sequence alignment.
+  
+
+matches
+*******
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    matches: SequenceAnnotation
+
+.. container:: content
+
+  
+
+substitutions
+*************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    substitutions: SequenceAnnotation
+
+.. container:: content
+
+  
+

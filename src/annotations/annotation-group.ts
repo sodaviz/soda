@@ -2,6 +2,7 @@ import { Annotation, AnnotationConfig } from "./annotation";
 
 /**
  * An interface that extends AnnotationConfig for initializing AnnotationGroups.
+ * @internal
  */
 export interface AnnotationConfigWithGroup<A extends Annotation>
   extends AnnotationConfig {
@@ -38,6 +39,7 @@ export class AnnotationGroup<A extends Annotation> extends Annotation {
    */
   group: A[] = [];
   suppressWarnings = true;
+
   constructor(config: AnnotationGroupConfig<A>) {
     super(config);
     if (hasGroup(config)) {
@@ -48,10 +50,24 @@ export class AnnotationGroup<A extends Annotation> extends Annotation {
   }
 
   /**
-   * Add an Annotation to the group.
-   * @param ann The Annotation to be added.
+   * Add an Annotation or list of Annotations to the group.
    */
-  public add(ann: A) {
+  public add(ann: A | A[]): void {
+    if (Array.isArray(ann)) {
+      for (const a of ann) {
+        this.addAnnotation(a);
+      }
+    } else {
+      this.addAnnotation(ann);
+    }
+  }
+
+  /**
+   * Add an Annotation to the group.
+   * @param ann
+   * @protected
+   */
+  protected addAnnotation(ann: A) {
     if (this.group.length == 0) {
       this.start = ann.start;
       this.end = ann.end;

@@ -1,9 +1,10 @@
+import * as d3 from "d3";
 import { Annotation } from "../annotations/annotation";
 import { InteractionCallback } from "./interaction-callback";
 import { Chart } from "../charts/chart";
-import { AnnotationDatum } from "../glyphs/bind";
 import { InteractionConfig } from "./interaction-config";
-import { GlyphMapping, queryGlyphMap } from "../glyphs/glyph-map";
+import { queryGlyphMap } from "../glyph-utilities/glyph-map";
+import { getBehaviorList } from "./interaction-list";
 
 /**
  * @internal
@@ -12,16 +13,11 @@ const clickBehaviorMap: Map<string, Function[]> = new Map();
 
 /**
  * This function returns the list of click behaviors that are associated with an Annotation object.
- * @param ann
  * @internal
+ * @param selection
  */
-function getClickList<A extends Annotation>(ann: A): Function[] {
-  let list = clickBehaviorMap.get(ann.id);
-  if (list == undefined) {
-    list = [];
-    clickBehaviorMap.set(ann.id, list);
-  }
-  return list;
+function getClickList(selection: d3.Selection<any, any, any, any>): Function[] {
+  return getBehaviorList(selection, clickBehaviorMap);
 }
 
 /**
@@ -37,6 +33,17 @@ export interface ClickConfig<A extends Annotation, C extends Chart<any>>
 }
 
 /**
+ * Remove all click behaviors by associated keys.
+ * @internal
+ * @param keys
+ */
+export function removeClickBehaviorsByKeys(keys: string[]): void {
+  for (const key of keys) {
+    clickBehaviorMap.delete(key);
+  }
+}
+
+/**
  * This applies click interactions to a list of Annotations.
  * @param config
  */
@@ -44,58 +51,48 @@ export function clickBehavior<A extends Annotation, C extends Chart<any>>(
   config: ClickConfig<A, C>
 ): void {
   for (const ann of config.annotations) {
-    let mapping = queryGlyphMap({
+    let selection = queryGlyphMap({
       id: ann.id,
+      selector: config.selector,
       chart: config.chart,
     });
 
-    if (mapping == undefined) {
-      console.error("No glyph mapping for Annotation ID", ann.id);
+    if (selection == undefined) {
+      console.warn("No glyph mapping found");
       return;
     }
 
-    let clickList = getClickList(ann);
-    clickList.push(config.click);
-
-    // prettier-ignore
-    if (Array.isArray(mapping)) {
-      for (const map of mapping) {
-        map.selection
-          .on("click", click);
+    if (Array.isArray(selection)) {
+      for (const map of selection) {
+        applyClickCallbacks(map, config);
       }
     } else {
-      mapping.selection
-        .on("click", click);
+      applyClickCallbacks(selection, config);
     }
   }
+}
+
+function applyClickCallbacks(
+  selection: d3.Selection<any, any, any, any>,
+  config: ClickConfig<any, any>
+): void {
+  getClickList(selection).push(config.click);
+  selection.on("click", () => click(selection));
 }
 
 /**
  * A generic function that is actually routed to the click event on a SODA glyph. When called, it will retrieve the
  * list of click behaviors associated with that glyph, and run the callback function for each behavior.
- * @param datum
  * @internal
+ * @param selection
  */
 function click<A extends Annotation, C extends Chart<any>>(
-  datum: AnnotationDatum<A, C>
+  selection: d3.Selection<any, any, any, any>
 ): void {
-  let mapping = queryGlyphMap({
-    id: datum.a.id,
-    chart: datum.c,
-  });
+  let datum = selection.datum();
+  let behaviors = getClickList(selection);
 
-  if (mapping == undefined) {
-    console.error(
-      "GlyphMapping undefined for Annotation ID",
-      datum.a.id,
-      "in call to click()"
-    );
-    return;
-  }
-
-  mapping = <GlyphMapping>mapping;
-  let behaviors = getClickList(datum.a);
   for (const behavior of behaviors) {
-    behavior(mapping.selection, datum);
+    behavior(selection, datum);
   }
 }

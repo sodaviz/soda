@@ -24,3 +24,7 @@ export function getAnnotationById(id: string): Annotation {
   }
   return annotation;
 }
+
+export function unmapAnnotationById(id: string): void {
+  idAnnotationMap.delete(id);
+}

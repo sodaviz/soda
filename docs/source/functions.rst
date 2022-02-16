@@ -16,6 +16,7 @@ Functions
    functions/generateId
    functions/generatePlotAnnotations
    functions/generateSequenceAnnotations
+   functions/getAlignmentAnnotations
    functions/getAllAnnotationIds
    functions/getAnnotationById
    functions/getAxis
@@ -26,6 +27,7 @@ Functions
    functions/horizontalAxis
    functions/hoverBehavior
    functions/intervalGraphLayout
+   functions/keyFromQueryConfig
    functions/line
    functions/linePlot
    functions/parseBed12Record
@@ -37,9 +39,15 @@ Functions
    functions/parseOrientation
    functions/parseRecordsFromString
    functions/queryGlyphMap
+   functions/radialRectangle
    functions/rectangle
+   functions/removeGlyphsByQuery
    functions/resolveValue
    functions/sequence
+   functions/setKeySeparator
+   functions/sliceContinuousAnnotation
+   functions/sliceSequenceAnnotation
    functions/text
    functions/tooltip
+   functions/unmapAnnotationById
    functions/verticalAxis

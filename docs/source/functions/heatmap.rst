@@ -18,7 +18,7 @@
 
   .. code-block:: typescript
 
-    function heatmap<P extends PlotAnnotation, C extends Chart>(config: HeatmapConfig <P, C>): d3.Selection
+    function heatmap<A extends ContinuousAnnotation, C extends Chart>(config: HeatmapConfig <A, C>): d3.Selection
 
 .. container:: content
 
@@ -26,11 +26,11 @@
 
   **Type parameters**
 
-  - P: PlotAnnotation
+  - A: ContinuousAnnotation
   - C: Chart
 
   **Parameters**
 
-  - config: HeatmapConfig <P, C>
+  - config: HeatmapConfig <A, C>
 
   **Returns**: d3.Selection <SVGGElement, string, any, any>

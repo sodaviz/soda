@@ -2,15 +2,15 @@ import * as d3 from "d3";
 import { Chart } from "../../charts/chart";
 import { Annotation } from "../../annotations/annotation";
 import { AxisType, getAxis } from "../axes";
-import { GlyphConfig } from "../glyph-config";
+import { GlyphConfig } from "../../glyph-utilities/glyph-config";
 import { generateId } from "../../utilities/id-generation";
-import { bind } from "../bind";
+import { bind } from "../../glyph-utilities/bind";
 import {
   GlyphModifier,
   GlyphModifierConfig,
   GlyphProperty,
   resolveValue,
-} from "../glyph-modifier";
+} from "../../glyph-utilities/glyph-modifier";
 
 /**
  * @internal
@@ -40,7 +40,7 @@ export function getHorizontalAxisAnnotation(
   return new Annotation({
     id: "soda-horizontal-axis",
     start: 0,
-    width: chart.viewportWidth,
+    width: chart.viewportWidth - 1,
     row: row,
   });
 }
@@ -74,8 +74,11 @@ export class HorizontalAxisModifier<
     if (config.fixed) {
       this.domain =
         config.domain ||
-        ((d) => [d.c.xScale.invert(0), d.c.xScale.invert(d.c.viewportWidth)]);
-      this.range = config.range || ((d) => [0, d.c.viewportWidth]);
+        ((d) => [
+          d.c.xScale.invert(0),
+          d.c.xScale.invert(d.c.viewportWidth - 1),
+        ]);
+      this.range = config.range || ((d) => [0, d.c.viewportWidth - 1]);
     } else {
       this.domain = config.domain || ((d) => [d.a.x, d.a.x + d.a.w]);
       this.range =
@@ -90,7 +93,7 @@ export class HorizontalAxisModifier<
 
   defaultZoom(): void {
     this.selection
-      .attr("transform", (d) => `translate(1, ${resolveValue(this.y, d)})`)
+      .attr("transform", (d) => `translate(0, ${resolveValue(this.y, d)})`)
       .each((d, i, nodes) => {
         let xScale = d3
           .scaleLinear()
@@ -166,9 +169,14 @@ export function horizontalAxis<A extends Annotation, C extends Chart<any>>(
   config: HorizontalAxisConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-horizontal-axis-glyph");
-  let internalSelector = generateId("soda-horizontal-axis-glyph-internal");
+  let internalSelector = selector + "-internal";
 
-  let binding = bind<A, C, SVGGElement>(selector, "g", config);
+  let binding = bind<A, C, SVGGElement>({
+    ...config,
+    selector,
+    internalSelector,
+    elementType: "g",
+  });
 
   let modifier = new HorizontalAxisModifier({
     selector: internalSelector,

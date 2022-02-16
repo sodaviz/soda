@@ -2,13 +2,13 @@ import { Annotation } from "../annotations/annotation";
 import { Chart } from "../charts/chart";
 import * as d3 from "d3";
 import { generateId } from "../utilities/id-generation";
-import { GlyphConfig } from "./glyph-config";
-import { AnnotationDatum, bind } from "./bind";
+import { GlyphConfig } from "../glyph-utilities/glyph-config";
+import { AnnotationDatum, bind } from "../glyph-utilities/bind";
 import {
   GlyphModifier,
   GlyphModifierConfig,
   GlyphProperty,
-} from "./glyph-modifier";
+} from "../glyph-utilities/glyph-modifier";
 
 /**
  * An interface that defines the parameters for a call to the line rendering function.
@@ -93,7 +93,12 @@ export function line<A extends Annotation, C extends Chart<any>>(
   let selector = config.selector || generateId("soda-line-glyph");
   let internalSelector = selector + "-internal";
 
-  let binding = bind<A, C, SVGLineElement>(selector, "line", config);
+  let binding = bind<A, C, SVGLineElement>({
+    ...config,
+    selector,
+    internalSelector,
+    elementType: "line",
+  });
 
   let modifier = new LineModifier({
     ...config,

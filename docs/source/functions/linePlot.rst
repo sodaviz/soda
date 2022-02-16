@@ -18,7 +18,7 @@
 
   .. code-block:: typescript
 
-    function linePlot<P extends PlotAnnotation, C extends Chart>(config: LinePlotConfig <P, C>): d3.Selection
+    function linePlot<A extends ContinuousAnnotation, C extends Chart>(config: LinePlotConfig <A, C>): d3.Selection
 
 .. container:: content
 
@@ -26,11 +26,11 @@
 
   **Type parameters**
 
-  - P: PlotAnnotation
+  - A: ContinuousAnnotation
   - C: Chart
 
   **Parameters**
 
-  - config: LinePlotConfig <P, C>
+  - config: LinePlotConfig <A, C>
 
   **Returns**: d3.Selection <SVGGElement, string, any, any>

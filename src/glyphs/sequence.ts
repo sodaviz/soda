@@ -2,16 +2,16 @@ import { SequenceAnnotation } from "../annotations/sequence-annotation";
 import { Chart } from "../charts/chart";
 import * as d3 from "d3";
 import { generateId } from "../utilities/id-generation";
-import { AnnotationDatum, bind } from "./bind";
+import { AnnotationDatum, bind } from "../glyph-utilities/bind";
 import {
   GlyphModifier,
   GlyphModifierConfig,
-  resolveValue,
-} from "./glyph-modifier";
-import { GlyphConfig } from "./glyph-config";
+  GlyphProperty,
+} from "../glyph-utilities/glyph-modifier";
+import { GlyphConfig } from "../glyph-utilities/glyph-config";
 
 /**
- * An interface that defines the parameters for a call to sequenc rendering function.
+ * An interface that defines the parameters for a call to the sequence rendering function.
  */
 export interface SequenceConfig<
   S extends SequenceAnnotation,
@@ -38,43 +38,61 @@ export class SequenceModifier<
   S extends SequenceAnnotation,
   C extends Chart<any>
 > extends GlyphModifier<S, C> {
+  fontFamily: string;
+  offset: number = 0;
+
   constructor(config: SequenceModifierConfig<S, C>) {
     super(config);
     this.strokeColor = config.strokeColor || "none";
     this.y =
       config.y || ((d: AnnotationDatum<S, C>) => d.c.rowHeight * (d.a.y + 1));
+    this.x =
+      config.x ||
+      ((d: AnnotationDatum<S, C>) => d.c.xScale(d.a.x) - this.offset);
+
+    this.fontFamily = "monospace";
+    this.updateOffset();
   }
 
   defaultInitialize() {
     super.defaultInitialize();
-    this.selection
-      .selectAll("text")
-      .data((d: AnnotationDatum<S, C>) => d.a.characters)
-      .enter()
-      .append("text")
-      .text((c: [number, string]) => c[1])
-      .style("text-anchor", "middle");
+    this.selection.text((d) => d.a.sequence);
+    this.applyFontFamily();
   }
 
   defaultZoom() {
+    this.updateOffset();
+    this.applyTextLength();
     this.applyX();
     this.applyY();
   }
 
-  applyX(): void {
-    this.selection
-      .selectAll<SVGTextElement, [number, string]>("text")
-      .attr("x", (c) => this.chart.xScale(c[0]))
-      .attr("y", 0);
+  updateOffset() {
+    let selection = d3.select("body").append("svg");
+
+    let width = selection
+      .append("text")
+      .text("A")
+      .attr("font-family", this.fontFamily)
+      .node()!
+      .getComputedTextLength();
+
+    selection.remove();
+    this.offset = width / 2;
   }
 
-  applyY(): void {
+  applyFontFamily() {
+    this.applyStyle("font-family", this.fontFamily);
+  }
+
+  applyTextLength() {
     this.applyAttr(
-      "transform",
-      (d) => `translate(0, ${resolveValue(this.y, d)})`
+      "textLength",
+      (d) => d.c.xScale(d.a.x + d.a.w - 1) - d.c.xScale(d.a.x) + 2 * this.offset
     );
   }
 }
+
 /**
  * This renders a list of SequenceAnnotation objects as sequence glyphs in a Chart.
  * @param config
@@ -85,7 +103,12 @@ export function sequence<S extends SequenceAnnotation, C extends Chart<any>>(
   let selector = config.selector || generateId("soda-sequence-glyph");
   let internalSelector = selector + "-internal";
 
-  let binding = bind<S, C, SVGGElement>(selector, "g", config);
+  let binding = bind<S, C, SVGTextElement>({
+    ...config,
+    selector,
+    internalSelector,
+    elementType: "text",
+  });
 
   let modifier = new SequenceModifier({
     ...config,

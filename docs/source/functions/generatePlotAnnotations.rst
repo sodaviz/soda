@@ -28,4 +28,4 @@
 
   - conf: AnnotationGenerationConfig
 
-  **Returns**: PlotAnnotation []
+  **Returns**: ContinuousAnnotation []

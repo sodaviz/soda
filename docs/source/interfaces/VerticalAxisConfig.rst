@@ -58,32 +58,6 @@ axisType
 
   This determines whether the ticks and labels will be placed on the left or the right of the axis.
 
-binSpan
-*******
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    binSpan: undefined | number
-
-.. container:: content
-
-  The number of bins that the axis will span. This defaults to 1, which forces the axis to fit into one row. If an argument is supplied, it will cause the axis to grow downward. It will have no effect if a custom domain function is supplied.
-
-bindTarget
-**********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    bindTarget: undefined | Selection <any, any, any, any> | Viewport | Overflow | Defs
-
-.. container:: content
-
-  This determines the parent DOM element in which the glyphs will be rendered. When supplying a BindTarget, the rendering function will find the appropriate parent in the supplied Chart. When supplying a D3 selection, the rendering function will explicitly use the selected element.
-
 chart
 *****
 
@@ -108,7 +82,7 @@ domain
 
 .. container:: content
 
-  This defines the domain of the D3 scale used to create the axis glyph.
+  This defines the domain of the axis.
 
 fillColor
 *********
@@ -135,19 +109,6 @@ fillOpacity
 .. container:: content
 
   A callback to define the fill opacity of the glyph.
-
-fixed
-*****
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    fixed: undefined | boolean
-
-.. container:: content
-
-  If this is set to true, the axis glyph will not translate or scale during zoom events.
 
 height
 ******
@@ -186,7 +147,20 @@ range
 
 .. container:: content
 
-  This defines the range of the D3 scale used to create the axis glyph.
+  This defines the range of the axis.
+
+rowSpan
+*******
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    rowSpan: undefined | number
+
+.. container:: content
+
+  The number of bins that the axis will span. This defaults to 1, which forces the axis to fit into one row. If an argument is supplied, it will cause the axis to grow downward. It will have no effect if a custom domain function is supplied.
 
 selector
 ********
@@ -291,6 +265,19 @@ strokeWidth
 .. container:: content
 
   A callback to define the width of the border around the glyph.
+
+target
+******
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    target: undefined | Selection <any, any, any, any> | Viewport | Overflow | Defs
+
+.. container:: content
+
+  This determines the parent DOM element in which the glyphs will be rendered. When supplying a BindTarget, the rendering function will find the appropriate parent in the supplied Chart. When supplying a D3 selection, the rendering function will explicitly use the selected element.
 
 tickSizeOuter
 *************

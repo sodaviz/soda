@@ -2,23 +2,19 @@ import * as d3 from "d3";
 import { Annotation, AnnotationConfig } from "./annotation";
 
 /**
- * An interface that defines the parameters for initializing a PlotAnnotation.
+ * An interface that defines the parameters for initializing a ContinuousAnnotation.
  */
-export interface PlotAnnotationConfig extends AnnotationConfig {
+export interface ContinuousAnnotationConfig extends AnnotationConfig {
   /**
-   * The x values of the plot data.
+   * The list of values that describe the continuous data.
    */
-  xValues?: number[];
-  /**
-   * The y values of the plot data.
-   */
-  yValues: number[];
+  values: number[];
 }
 
 /**
  * An Annotation object that can be used to represent data that should be visualized as a plot.
  */
-export class PlotAnnotation extends Annotation {
+export class ContinuousAnnotation extends Annotation {
   /**
    * The individual data points for the plot.
    */
@@ -36,25 +32,25 @@ export class PlotAnnotation extends Annotation {
    */
   pointWidth: number;
 
-  constructor(config: PlotAnnotationConfig) {
+  constructor(config: ContinuousAnnotationConfig) {
     super(config);
-    let xValues;
-    if (config.xValues !== undefined) {
-      xValues = config.xValues;
+    let xValues = distributeXValues(
+      config.values.length,
+      this.start,
+      this.width
+    );
+    this.minValue = Math.min(...config.values.map((y) => y));
+    this.maxValue = Math.max(...config.values.map((y) => y));
+
+    if (config.values.length > 1) {
+      this.pointWidth = xValues[1] - xValues[0];
     } else {
-      xValues = distributeXValues(
-        config.yValues.length,
-        this.start,
-        this.width
-      );
+      this.pointWidth = 1;
     }
-    this.minValue = Math.min(...config.yValues.map((y) => y));
-    this.maxValue = Math.max(...config.yValues.map((y) => y));
-    this.pointWidth = xValues[1] - xValues[0];
 
     this.points = [];
-    for (let i = 0; i < config.yValues.length; i++) {
-      this.points.push([xValues[i], config.yValues[i]]);
+    for (let i = 0; i < config.values.length; i++) {
+      this.points.push([xValues[i], config.values[i]]);
     }
   }
 }
@@ -68,11 +64,11 @@ function distributeXValues(
   start: number,
   width: number
 ): number[] {
-  let values = [...Array(nValues).keys()].map((v) => v + start);
+  let values = [...Array(nValues).keys()];
   const xScale = d3
     .scaleLinear<number, number>()
     .domain([0, nValues])
-    .range([0, width]);
+    .range([start, start + width]);
 
   let xValues = values.map((v) => xScale(v));
   return xValues;

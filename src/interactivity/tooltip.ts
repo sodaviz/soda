@@ -2,8 +2,8 @@ import * as d3 from "d3";
 import { Annotation } from "../annotations";
 import { Chart } from "../charts/chart";
 import { hoverBehavior } from "./hover";
-import { GlyphProperty, resolveValue } from "../glyphs/glyph-modifier";
-import { AnnotationDatum } from "../glyphs/bind";
+import { GlyphProperty, resolveValue } from "../glyph-utilities/glyph-modifier";
+import { AnnotationDatum } from "../glyph-utilities/bind";
 import { InteractionConfig } from "./interaction-config";
 
 /**
@@ -87,7 +87,7 @@ export function tooltip<A extends Annotation, C extends Chart<any>>(
 ) {
   initTooltipDiv();
   hoverBehavior<A, C>({
-    annotations: config.annotations,
+    ...config,
     mouseover: (s, d) => {
       defaultTooltipMouseover(s, d, config);
     },

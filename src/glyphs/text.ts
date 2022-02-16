@@ -1,14 +1,14 @@
 import { Annotation } from "../annotations/annotation";
 import { Chart } from "../charts/chart";
 import * as d3 from "d3";
-import { GlyphConfig } from "./glyph-config";
+import { GlyphConfig } from "../glyph-utilities/glyph-config";
 import { generateId } from "../utilities/id-generation";
-import { bind } from "./bind";
+import { bind } from "../glyph-utilities/bind";
 import {
   GlyphModifier,
   GlyphModifierConfig,
   GlyphProperty,
-} from "./glyph-modifier";
+} from "../glyph-utilities/glyph-modifier";
 
 const textMap: Map<string, string[]> = new Map();
 const thresholdMap: Map<string, number[]> = new Map();
@@ -23,16 +23,16 @@ export function selectText(a: Annotation, c: Chart<any>): string {
   let thresholds = thresholdMap.get(a.id);
   if (thresholds === undefined) {
     console.error(
-      "text thresholds undefined for annotation",
-      a,
-      "returning empty string"
+      `text thresholds undefined for annotation: ${a.id}, returning empty string`
     );
     return "";
   }
 
   let text = textMap.get(a.id);
   if (text === undefined) {
-    console.error("text undefined for annotation", a, "returning empty string");
+    console.error(
+      `text undefined for annotation: ${a.id} returning empty string`
+    );
     return "";
   }
 
@@ -92,7 +92,33 @@ function addToTextMaps<A extends Annotation, C extends Chart<any>>(config: {
  */
 export interface TextConfig<A extends Annotation, C extends Chart<any>>
   extends GlyphConfig<A, C> {
+  /**
+   * The font size of the text.
+   */
+  fontSize?: GlyphProperty<A, C, number>;
+  /**
+   * The weight of the font: normal, bold, bolder, lighter. See:
+   * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-weight
+   */
+  fontWeight?: GlyphProperty<A, C, string>;
+  /**
+   * The font family that will be used. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-family
+   */
+  fontFamily?: GlyphProperty<A, C, string>;
+  /**
+   * The font style: normal, italic, or oblique. See:
+   * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-style
+   */
+  fontStyle?: GlyphProperty<A, C, string>;
+  /**
+   * Where the text is aligned to: start, middle, or end. See:
+   * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor
+   */
   textAnchor?: GlyphProperty<A, C, string>;
+  /**
+   * How the text glyph is aligned with it's parent. See:
+   * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/alignment-baseline
+   */
   alignmentBaseline?: GlyphProperty<A, C, string>;
   /**
    * A callback to extract a list of text to display from the represented Annotation object. It is a list of text
@@ -124,20 +150,32 @@ export class TextModifier<
   C extends Chart<any>
 > extends GlyphModifier<A, C> {
   textAnchor: GlyphProperty<A, C, string>;
+  fontSize: GlyphProperty<A, C, number>;
+  fontWeight: GlyphProperty<A, C, string>;
+  fontFamily: GlyphProperty<A, C, string>;
+  fontStyle: GlyphProperty<A, C, string>;
   alignmentBaseline: GlyphProperty<A, C, string>;
 
   constructor(config: TextModifierConfig<A, C>) {
     super(config);
     addToTextMaps(config);
-
+    this.fillColor = config.fillColor || "black";
     this.strokeColor = config.strokeColor || "none";
-    this.textAnchor = config.textAnchor || "left";
+    this.textAnchor = config.textAnchor || "start";
+    this.fontSize = config.fontSize || 12;
+    this.fontWeight = config.fontWeight || "normal";
+    this.fontFamily = config.fontFamily || "Titillium Web, Arial, sans-serif";
+    this.fontStyle = config.fontStyle || "normal";
     this.alignmentBaseline = config.alignmentBaseline || "hanging";
   }
 
   defaultInitialize(): void {
     super.defaultInitialize();
     this.applyTextAnchor();
+    this.applyFontSize();
+    this.applyFontWeight();
+    this.applyFontFamily();
+    this.applyFontStyle();
     this.applyAlignmentBaseline();
     this.applyText();
   }
@@ -156,6 +194,22 @@ export class TextModifier<
     this.applyStyle("text-anchor", this.textAnchor);
   }
 
+  applyFontSize(): void {
+    this.applyStyle("font-size", this.fontSize);
+  }
+
+  applyFontWeight(): void {
+    this.applyStyle("font-weight", this.fontWeight);
+  }
+
+  applyFontFamily(): void {
+    this.applyStyle("font-family", this.fontFamily);
+  }
+
+  applyFontStyle(): void {
+    this.applyStyle("font-style", this.fontStyle);
+  }
+
   applyAlignmentBaseline(): void {
     this.applyStyle("alignment-baseline", this.alignmentBaseline);
   }
@@ -171,7 +225,12 @@ export function text<A extends Annotation, C extends Chart<any>>(
   let selector = config.selector || generateId("soda-text-glyph");
   let internalSelector = selector + "-internal";
 
-  let binding = bind<A, C, SVGTextElement>(selector, "text", config);
+  let binding = bind<A, C, SVGTextElement>({
+    ...config,
+    selector,
+    internalSelector,
+    elementType: "text",
+  });
 
   let modifier = new TextModifier({
     ...config,
