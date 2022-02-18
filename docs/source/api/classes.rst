@@ -15,6 +15,5 @@ Classes
    classes/ChartObserver
    classes/ContinuousAnnotation
    classes/Gff3Annotation
-   classes/RadialChart
    classes/SequenceAnnotation
    classes/ZoomSyncer
