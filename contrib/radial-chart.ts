@@ -1,5 +1,4 @@
 import * as d3 from "d3";
-// import { axisRadialOuter } from "d3-radial-axis";
 import { axisRadialOuter } from "./radial-axis";
 import {
   Chart,
