@@ -1,6 +1,6 @@
 // This code was adapted from https://github.com/vasturiano/d3-radial-axis
 //
-// For posterity, We will maintain the original license:
+// For posterity, we will maintain the original license:
 //
 // MIT License
 //
@@ -34,21 +34,12 @@ function translate(x: number, y: number) {
   return "translate(" + x + "," + y + ")";
 }
 
-function entering(this: any) {
-  return !this.__axis;
-}
-
-type TickArguments = [] | [number] | [number, string];
-
 function radialAxis(
   angleScale: d3.ScaleLinear<number, number>,
-  startRadius: number,
-  endRadius?: number,
+  radius: number,
   outer?: boolean
 ) {
-  let tickArguments: TickArguments = [];
   let tickValues: number[] | null = null;
-  // The domainValue type might be a bit narrow here, but it should be safe for soda
   let tickFormat: ((domainValue: number, index: number) => string) | null =
     null;
   let tickSizeInner = 6;
@@ -63,31 +54,24 @@ function radialAxis(
     return [Math.sin(angle) * r, -Math.cos(angle) * r];
   }
 
-  function axis(context: d3.Selection<any, any, any, any>) {
-    let isSpiral = endRadius !== undefined && startRadius !== endRadius;
-
-    // endRadius = !isSpiral ? startRadius : endRadius;
-    endRadius = endRadius != undefined ? endRadius : startRadius;
-
+  function axis(selection: d3.Selection<any, any, any, any>) {
     let values =
       tickValues != null
         ? tickValues
         : angleScale.ticks != undefined
-        ? angleScale.ticks(tickArguments[0])
+        ? angleScale.ticks()
         : angleScale.domain();
 
     let format =
       tickFormat != null
         ? tickFormat
         : angleScale.tickFormat
-        ? angleScale.tickFormat.apply(angleScale, tickArguments)
+        ? angleScale.tickFormat()
         : identity;
 
     let spacing = Math.max(tickSizeInner, 0) + tickPadding;
-    let radiusScale = angleScale.copy().range([startRadius, endRadius]);
     let angleRange = angleScale.range();
     let anglePos = identity(angleScale.copy());
-    let selection = context;
     let path = selection.selectAll<any, number>(".domain").data([null]);
     let tick = selection
       .selectAll<any, number>(".tick")
@@ -133,7 +117,8 @@ function radialAxis(
       return (
         "M" +
         polarToCart(startAngle, r).join(",") +
-        (Math.abs(endAngle - startAngle) >= 2 * Math.PI // Full-circle
+        // Full-circle
+        (Math.abs(endAngle - startAngle) >= 2 * Math.PI
           ? "A" +
             [r, r, 0, 1, 1]
               .concat(polarToCart(startAngle + Math.PI, r))
@@ -146,118 +131,86 @@ function radialAxis(
           r,
           r,
           0,
-          Math.abs(endAngle - startAngle) % (2 * Math.PI) > Math.PI ? 1 : 0, // Large arc flag
-          endAngle > startAngle ? 1 : 0, // Sweep (clock-wise) flag
+          // Large arc flag
+          Math.abs(endAngle - startAngle) % (2 * Math.PI) > Math.PI ? 1 : 0,
+          // Sweep (clock-wise) flag
+          endAngle > startAngle ? 1 : 0,
         ]
           .concat(polarToCart(endAngle, r))
           .join(",")
       );
     }
 
-    function getSpiralPath(
-      startAngle: number,
-      endAngle: number,
-      startR: number,
-      endR: number
-    ) {
-      // 40 points per 360 deg
-      let numPoints = ((endAngle - startAngle) / (Math.PI * 2)) * 40;
-
-      let lineGen = d3
-        .lineRadial()
-        //@ts-ignore
-        .angle(d3.scaleLinear().range([startAngle, endAngle]))
-        //@ts-ignore
-        .radius(d3.scaleLinear().range([startR, endR]))
-        .curve(d3.curveNatural);
-
-      return (
-        "M" +
-        polarToCart(startAngle, startR).join(",") +
-        //@ts-ignore
-        lineGen(d3.scaleLinear().ticks(numPoints))
-      );
-    }
-
     path.attr(
       "d",
-      (isSpiral ? getSpiralPath : getArcPath)(
-        angleRange[0],
-        angleRange[1],
-        startRadius,
-        endRadius
-      ) +
-        getTickPath(angleRange[0], startRadius) +
-        getTickPath(angleRange[1], endRadius)
+      getArcPath(angleRange[0], angleRange[1], radius) +
+        getTickPath(angleRange[0], radius) +
+        getTickPath(angleRange[1], radius)
     );
 
-    tick.attr("opacity", 1).attr("transform", function (d: any) {
-      return angleTransform(anglePos(d), radiusScale(d));
-    });
+    tick
+      .attr("opacity", 1)
+      .attr("transform", (d: number) => angleTransform(anglePos(d), radius));
 
     line
       .attr("x1", 0)
       .attr("y1", 0)
-      .attr("x2", function (d: any) {
-        return polarToCart(anglePos(d), tickSizeInner)[0] * (outer ? 1 : -1);
-      })
-      .attr("y2", function (d: any) {
-        return polarToCart(anglePos(d), tickSizeInner)[1] * (outer ? 1 : -1);
-      });
+      .attr(
+        "x2",
+        (d: number) =>
+          polarToCart(anglePos(d), tickSizeInner)[0] * (outer ? 1 : -1)
+      )
+      .attr(
+        "y2",
+        (d: number) =>
+          polarToCart(anglePos(d), tickSizeInner)[1] * (outer ? 1 : -1)
+      );
 
     text
-      .attr("x", function (d: any) {
-        return polarToCart(anglePos(d), spacing)[0] * (outer ? 1 : -1);
-      })
-      .attr("y", function (d: any) {
-        return polarToCart(anglePos(d), spacing)[1] * (outer ? 1 : -1);
-      })
+      .attr(
+        "x",
+        (d: number) => polarToCart(anglePos(d), spacing)[0] * (outer ? 1 : -1)
+      )
+      .attr(
+        "y",
+        (d: number) => polarToCart(anglePos(d), spacing)[1] * (outer ? 1 : -1)
+      )
       .text(format);
 
     selection
-      .filter(entering)
       .attr("fill", "none")
       .attr("font-size", 10)
       .attr("font-family", "sans-serif");
-
-    selection.each(function (this: any) {
-      this.__axis = anglePos;
-    });
   }
 
-  axis.angleScale = function (_: any) {
-    return arguments.length ? ((angleScale = _), axis) : angleScale;
+  axis.angleScale = (scale?: d3.ScaleLinear<number, number>) => {
+    if (scale != undefined) {
+      angleScale = scale;
+      return axis;
+    }
+    return angleScale;
   };
 
-  axis.radius = function (_: any) {
-    return arguments.length
-      ? ((startRadius = endRadius = +_), axis)
-      : startRadius;
+  axis.radius = (value?: number) => {
+    if (value != undefined) {
+      radius = value;
+      return axis;
+    }
+    return radius;
   };
-
-  axis.startRadius = function (radius: number) {
-    return arguments.length ? ((startRadius = radius), axis) : startRadius;
-  };
-
-  axis.endRadius = function (radius: number) {
-    return arguments.length ? ((endRadius = radius), axis) : endRadius;
-  };
-
   return axis;
 }
 
 export function axisRadialInner(
   angleScale: d3.ScaleLinear<number, number>,
-  startRadius: number,
-  endRadius?: number
+  radius: number
 ) {
-  return radialAxis(angleScale, startRadius, endRadius, false);
+  return radialAxis(angleScale, radius, false);
 }
 
 export function axisRadialOuter(
   angleScale: d3.ScaleLinear<number, number>,
-  startRadius: number,
-  endRadius?: number
+  radius: number
 ) {
-  return radialAxis(angleScale, startRadius, endRadius, true);
+  return radialAxis(angleScale, radius, true);
 }
