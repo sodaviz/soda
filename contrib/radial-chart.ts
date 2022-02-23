@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { axisRadialOuter } from "d3-radial-axis";
+import { axisRadialOuter } from "./radial-axis";
 import {
   Chart,
   ChartConfig,
@@ -21,10 +21,6 @@ export interface RadialChartConfig<P extends RenderParams>
    * difference of the radii of two concentric circles that define an annulus.
    */
   trackHeight?: number;
-  /**
-   * The initial number of ticks on the chart axis.
-   */
-  tickCount?: number;
 }
 
 /**
@@ -52,11 +48,6 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
    * A d3 selection to the track outline.
    */
   trackOutlineSelection: d3.Selection<any, any, any, any> | undefined;
-  /**
-   * The initial number of ticks to display on the radial axis. D3 usually refuses to use the actual number
-   * supplied, and instead it tries really hard to make it even and "pretty."
-   */
-  tickCount: number;
 
   public constructor(config: RadialChartConfig<P>) {
     super(config);
@@ -67,7 +58,6 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
     this.innerRadius = this.outerRadius - this.trackHeight;
     this.rowCount = config.rowCount || 1;
     this.rowHeight = this.trackHeight / this.rowCount;
-    this.tickCount = config.tickCount || 10;
 
     this.preRender = function (params): void {
       this.initializeXScaleFromRenderParams(params);
@@ -150,8 +140,8 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
     }
   }
 
-  public addAxis(force?: boolean) {
-    if (this.axisType || force) {
+  public addAxis() {
+    if (this.axisType) {
       this.overflowViewportSelection
         .selectAll("g.radial-axis")
         .data(["radial-axis"])
@@ -165,7 +155,6 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
 
   public renderAxis() {
     let axis = axisRadialOuter(this.xScale, this.outerRadius);
-    axis.ticks(this.tickCount);
 
     this.overflowViewportSelection
       .selectAll("g.radial-axis")
@@ -287,8 +276,8 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       .attr("d", (d) =>
         d3
           .arc<any, HighlightConfig>()
-          .innerRadius((d) => this.innerRadius)
-          .outerRadius((d) => this.outerRadius)
+          .innerRadius(() => this.innerRadius)
+          .outerRadius(() => this.outerRadius)
           .startAngle((d) => Math.max(this.xScale(d.start), 0))
           .endAngle((d) => Math.min(this.xScale(d.end), 2 * Math.PI))(d)
       )
