@@ -1,13 +1,12 @@
-.. _api:
-
-API
+Api
 ===
 
 .. toctree::
    :maxdepth: 2
-   
-   classes
-   interfaces
-   functions
-   enumerations
-   type-aliases
+
+   api/Contrib
+   api/classes
+   api/interfaces
+   api/functions
+   api/type_aliases
+   api/enumerations

@@ -2,7 +2,7 @@ module.exports = {
   mode: "production",
   target: 'node',
   entry: {
-    main: __dirname + "/dist/index.js",
+    main: __dirname + "/dist/src/index.js",
   },
   output: {
     path: __dirname, // this can be any path and directory you want
