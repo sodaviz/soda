@@ -205,10 +205,9 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       theta = Math.PI - theta;
     }
     let semanticTheta = this.xScale.invert(theta);
-    let originalDomain = this.xScaleBase.domain();
     let currentDomain = this.xScale.domain();
 
-    let originalDomainWidth = originalDomain[1] - originalDomain[0];
+    let originalDomainWidth = this.initialDomain[1] - this.initialDomain[0];
     let currentDomainWidth = currentDomain[1] - currentDomain[0];
 
     let newDomain = [currentDomain[0], currentDomain[1]];
@@ -224,17 +223,17 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
 
       newDomain = [semanticTheta - leftDelta, semanticTheta + rightDelta];
 
-      newDomain[0] = Math.max(newDomain[0], originalDomain[0]);
-      newDomain[1] = Math.min(newDomain[1], originalDomain[1]);
+      newDomain[0] = Math.max(newDomain[0], this.initialDomain[0]);
+      newDomain[1] = Math.min(newDomain[1], this.initialDomain[1]);
     } else if (source.type == "mousemove") {
       let radiusFraction = source.movementX / this.outerRadius;
       let deltaTheta = radiusFraction * Math.PI * -1;
       let deltaX = this.xScale.invert(deltaTheta) - this.xScale.invert(0);
 
-      if (newDomain[0] + deltaX <= originalDomain[0]) {
-        deltaX = originalDomain[0] - newDomain[0];
-      } else if (newDomain[1] + deltaX >= originalDomain[1]) {
-        deltaX = originalDomain[1] - newDomain[1];
+      if (newDomain[0] + deltaX <= this.initialDomain[0]) {
+        deltaX = this.initialDomain[0] - newDomain[0];
+      } else if (newDomain[1] + deltaX >= this.initialDomain[1]) {
+        deltaX = this.initialDomain[1] - newDomain[1];
       }
       newDomain[0] += deltaX;
       newDomain[1] += deltaX;
@@ -316,21 +315,7 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       );
   }
 
-  /**
-   * Set the internal d3 scale to map from the provided semantic query range to the Chart's current
-   * viewport dimensions.
-   * @param start
-   * @param end
-   */
-  public initializeXScale(start: number, end: number): void {
-    this._renderStart = start;
-    this._renderEnd = end;
-
-    this.xScaleBase = d3
-      .scaleLinear()
-      .domain([this._renderStart, this._renderEnd])
-      .range([0, 2 * Math.PI]);
-
-    this.xScale = this.xScaleBase;
+  public updateRange(): void {
+    this.xScale.range([0, 2 * Math.PI]);
   }
 }

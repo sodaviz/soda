@@ -22,7 +22,7 @@ export class ZoomSyncer extends ChartObserver {
         chartTransform.x = callerTransform.x;
         chartTransform.y = callerTransform.y;
         chartTransform.k = callerTransform.k;
-        chart.rescaleXScale();
+        // chart.rescaleXScale();
         chart.applyGlyphModifiers();
       }
     }

@@ -444,26 +444,18 @@ export class Chart<P extends RenderParams> {
     | d3.Selection<SVGRectElement, any, any, any>
     | undefined;
   /**
+   * The initialized domain of the Chart when render() is called with the initializeXScale flag.
+   */
+  initialDomain: [number, number] = [0, 0];
+  /**
    * The Transform object that describes the current zoom transformation.
    */
   _transform: Transform;
-  /**
-   * The semantic start coordinate of what is currently rendered.
-   */
-  _renderStart: number = 0;
-  /**
-   * The semantic end coordinate of what is currently rendered.
-   */
-  _renderEnd: number = 0;
   /**
    * A D3 scale that the Chart will use to translate between semantic and viewport coordinates. This scale will be
    * periodically re-scaled after zoom events.
    */
   xScale: d3.ScaleLinear<number, number>;
-  /**
-   * The base D3 scale that will be used to rescale the Chart's xScale.
-   */
-  xScaleBase: d3.ScaleLinear<number, number>;
   /**
    * The height in pixels of a horizontal row in the Chart. This defaults to a value of 10.
    */
@@ -546,7 +538,6 @@ export class Chart<P extends RenderParams> {
     this.padSelection.attr("xmlns", "http://www.w3.org/2000/svg");
 
     this.xScale = buildPlaceholderXScale(this);
-    this.xScaleBase = this.xScale;
     this._transform = cloneDeep(d3.zoomIdentity);
     this.padSelection.node().__zoom = this._transform;
 
@@ -993,22 +984,6 @@ export class Chart<P extends RenderParams> {
   }
 
   /**
-   * Getter for the renderStart property.
-   */
-  get renderStart() {
-    this._renderStart = this.xScale.invert(0);
-    return this._renderStart;
-  }
-
-  /**
-   * Getter for the renderEnd property
-   */
-  get renderEnd() {
-    this._renderEnd = this.xScale.invert(this.viewportWidth);
-    return this._renderEnd;
-  }
-
-  /**
    * This returns a DOMRect that describes the viewport's dimensions.
    */
   public calculateViewportDimensions(): DOMRect {
@@ -1134,16 +1109,6 @@ export class Chart<P extends RenderParams> {
   }
 
   /**
-   * This rescales the Chart's x translation scale. If a transform argument is provided, it will use that.
-   * Otherwise, it will use the Chart's internal transform object.
-   * @param transformArg
-   */
-  public rescaleXScale(transformArg?: Transform): void {
-    let transform = transformArg || this.transform;
-    this.xScale = transform.rescaleX(this.xScaleBase);
-  }
-
-  /**
    * This adds a GlyphModifier to the Chart.
    * @param modifier
    * @param initialize
@@ -1190,51 +1155,90 @@ export class Chart<P extends RenderParams> {
 
     transform.k = Math.max(transform.k, 1);
 
-    let mouseX = source.layerX - this.leftPadSize;
-    let semanticMouseX = this.xScale.invert(mouseX);
-    let originalDomain = this.xScaleBase.domain();
-    let currentDomain = this.xScale.domain();
-
-    let originalDomainWidth = originalDomain[1] - originalDomain[0];
-    let currentDomainWidth = currentDomain[1] - currentDomain[0];
-
-    let newDomain = [currentDomain[0], currentDomain[1]];
+    let newDomain: [number, number] | undefined;
 
     if (source.type == "wheel") {
-      let leftDomainRatio =
-        (semanticMouseX - currentDomain[0]) / currentDomainWidth;
-      let rightDomainRatio =
-        (currentDomain[1] - semanticMouseX) / currentDomainWidth;
-      let newDomainWidth = originalDomainWidth / transform.k;
-      let leftDelta = newDomainWidth * leftDomainRatio;
-      let rightDelta = newDomainWidth * rightDomainRatio;
-
-      newDomain = [semanticMouseX - leftDelta, semanticMouseX + rightDelta];
-
-      newDomain[0] = Math.max(newDomain[0], originalDomain[0]);
-      newDomain[1] = Math.min(newDomain[1], originalDomain[1]);
+      newDomain = this.domainFromWheelEvent(transform, source);
     } else if (source.type == "mousemove") {
-      let deltaX = -(
-        this.xScale.invert(source.movementX) - this.xScale.invert(0)
+      newDomain = this.domainFromPanEvent(transform, source);
+    } else {
+      console.error(
+        `Unhandled event type: ${source.type} in zoom() call on chart: ${this.id}`
       );
-      if (newDomain[0] + deltaX <= originalDomain[0]) {
-        deltaX = originalDomain[0] - newDomain[0];
-      } else if (newDomain[1] + deltaX >= originalDomain[1]) {
-        deltaX = originalDomain[1] - newDomain[1];
-      }
-      newDomain[0] += deltaX;
-      newDomain[1] += deltaX;
     }
 
-    this.xScale = d3
-      .scaleLinear()
-      .domain(newDomain)
-      .range([0, this.viewportWidth]);
-
-    // this.rescaleXScale(transform);
+    if (newDomain != undefined) {
+      this.setDomain(newDomain);
+    }
     this.applyGlyphModifiers();
     this.alertObservers();
     this.postZoom();
+  }
+
+  public domainFromWheelEvent(
+    transform: Transform,
+    sourceEvent: WheelEvent
+  ): [number, number] {
+    let currentDomain = this.xScale.domain();
+    let currentDomainWidth = currentDomain[1] - currentDomain[0];
+    let originalDomainWidth = this.initialDomain[1] - this.initialDomain[0];
+
+    let mouseX = sourceEvent.offsetX - this.leftPadSize;
+    let semanticMouseX = this.xScale.invert(mouseX);
+
+    let leftDomainRatio =
+      (semanticMouseX - currentDomain[0]) / currentDomainWidth;
+
+    let rightDomainRatio =
+      (currentDomain[1] - semanticMouseX) / currentDomainWidth;
+
+    let newDomainWidth = originalDomainWidth / transform.k;
+
+    let leftDelta = newDomainWidth * leftDomainRatio;
+    let rightDelta = newDomainWidth * rightDomainRatio;
+
+    let newDomain: [number, number] = [
+      semanticMouseX - leftDelta,
+      semanticMouseX + rightDelta,
+    ];
+    newDomain[0] = Math.max(newDomain[0], this.initialDomain[0]);
+    newDomain[1] = Math.min(newDomain[1], this.initialDomain[1]);
+    return newDomain;
+  }
+
+  public domainFromPanEvent(
+    transform: Transform,
+    sourceEvent: WheelEvent
+  ): [number, number] {
+    let currentDomain = this.xScale.domain();
+    let newDomain: [number, number] = [currentDomain[0], currentDomain[1]];
+
+    let deltaX = -(
+      this.xScale.invert(sourceEvent.movementX) - currentDomain[0]
+    );
+
+    if (newDomain[0] + deltaX <= this.initialDomain[0]) {
+      deltaX = this.initialDomain[0] - newDomain[0];
+    } else if (newDomain[1] + deltaX >= this.initialDomain[1]) {
+      deltaX = this.initialDomain[1] - newDomain[1];
+    }
+
+    newDomain[0] += deltaX;
+    newDomain[1] += deltaX;
+
+    return newDomain;
+  }
+
+  public setDomain(domain: [number, number]): void {
+    this.xScale.domain(domain);
+  }
+
+  public setRange(range: [number, number]): void {
+    this.xScale.range(range);
+  }
+
+  public updateRange(): void {
+    this.setRange([0, this.viewportWidth]);
   }
 
   /**
@@ -1265,11 +1269,9 @@ export class Chart<P extends RenderParams> {
    * event occurs.
    */
   public resize(): void {
-    let view = this.getSemanticViewRange();
     this.fitPadHeight();
     this.fitViewport();
-    this.resetTransform();
-    this.initializeXScale(view.start, view.end);
+    this.xScale.range([0, this.viewportWidth]);
     this.applyGlyphModifiers();
     this.postResize();
   }
@@ -1330,15 +1332,13 @@ export class Chart<P extends RenderParams> {
    * @param end The end coordinate.
    */
   public initializeXScale(start: number, end: number): void {
-    this._renderStart = start;
-    this._renderEnd = end;
+    this.initialDomain[0] = start;
+    this.initialDomain[1] = end;
 
-    this.xScaleBase = d3
-      .scaleLinear()
-      .domain([this._renderStart, this._renderEnd])
-      .range([0, this.viewportWidth]);
+    this.xScale = d3.scaleLinear();
 
-    this.xScale = this.xScaleBase;
+    this.setDomain([start, end]);
+    this.updateRange();
   }
 
   /**
