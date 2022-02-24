@@ -16,7 +16,6 @@ Functions
    functions/generateId
    functions/generatePlotAnnotations
    functions/generateSequenceAnnotations
-   functions/getAlignmentAnnotations
    functions/getAllAnnotationIds
    functions/getAnnotationById
    functions/getAxis
@@ -39,14 +38,11 @@ Functions
    functions/parseOrientation
    functions/parseRecordsFromString
    functions/queryGlyphMap
-   functions/radialRectangle
    functions/rectangle
    functions/removeGlyphsByQuery
    functions/resolveValue
    functions/sequence
    functions/setKeySeparator
-   functions/sliceContinuousAnnotation
-   functions/sliceSequenceAnnotation
    functions/text
    functions/tooltip
    functions/unmapAnnotationById

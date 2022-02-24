@@ -5,8 +5,6 @@ Interfaces
    :maxdepth: 2
 
    interfaces/AggregationConfig
-   interfaces/AlignmentAnnotations
-   interfaces/AlignmentConfig
    interfaces/AnnotationConfig
    interfaces/AnnotationDatum
    interfaces/AnnotationGenerationConfig
@@ -29,7 +27,6 @@ Interfaces
    interfaces/HoverConfig
    interfaces/LineConfig
    interfaces/LinePlotConfig
-   interfaces/RadialChartConfig
    interfaces/RectangleConfig
    interfaces/RenderParams
    interfaces/SequenceAnnotationConfig
