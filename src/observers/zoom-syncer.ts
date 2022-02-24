@@ -16,14 +16,14 @@ export class ZoomSyncer extends ChartObserver {
    */
   public alert(caller: Chart<any>): void {
     let callerTransform = caller.transform;
+    let callerDomain = caller.xScale.domain();
     for (const chart of this.charts) {
       if (chart.id !== caller.id) {
         let chartTransform = chart.transform;
-        chartTransform.x = callerTransform.x;
-        chartTransform.y = callerTransform.y;
         chartTransform.k = callerTransform.k;
-        // chart.rescaleXScale();
+        chart.setDomain([callerDomain[0], callerDomain[1]]);
         chart.applyGlyphModifiers();
+        chart.postZoom();
       }
     }
   }
