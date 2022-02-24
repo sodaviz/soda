@@ -1201,8 +1201,10 @@ export class Chart<P extends RenderParams> {
       semanticMouseX - leftDelta,
       semanticMouseX + rightDelta,
     ];
+
     newDomain[0] = Math.max(newDomain[0], this.initialDomain[0]);
     newDomain[1] = Math.min(newDomain[1], this.initialDomain[1]);
+
     return newDomain;
   }
 
@@ -1271,7 +1273,7 @@ export class Chart<P extends RenderParams> {
   public resize(): void {
     this.fitPadHeight();
     this.fitViewport();
-    this.xScale.range([0, this.viewportWidth]);
+    this.updateRange();
     this.applyGlyphModifiers();
     this.postResize();
   }
