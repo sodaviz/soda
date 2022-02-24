@@ -6,6 +6,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] - 2022-02-23
+
+### Added
+- Added a modified implementation of d3-radial-axis
+
+### Changed
+- The docs now separate contrib from the core
+
+### Deprecated
+
+### Removed
+- Removed the dependency on d3-radial-axis
+
+### Fixed
+
+### Security
+
 ## [0.8.0] - 2022-02-15
 
 ### Added
