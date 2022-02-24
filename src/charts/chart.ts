@@ -1180,12 +1180,58 @@ export class Chart<P extends RenderParams> {
    */
   public zoom(): void {
     let transform;
+    let source: any;
     if (d3.event != undefined) {
       transform = d3.event.transform;
+      source = d3.event.sourceEvent;
     } else {
       console.warn(`d3.event is undefined in zoom() call on chart: ${this.id}`);
     }
-    this.rescaleXScale(transform);
+
+    transform.k = Math.max(transform.k, 1);
+
+    let mouseX = source.layerX - this.leftPadSize;
+    let semanticMouseX = this.xScale.invert(mouseX);
+    let originalDomain = this.xScaleBase.domain();
+    let currentDomain = this.xScale.domain();
+
+    let originalDomainWidth = originalDomain[1] - originalDomain[0];
+    let currentDomainWidth = currentDomain[1] - currentDomain[0];
+
+    let newDomain = [currentDomain[0], currentDomain[1]];
+
+    if (source.type == "wheel") {
+      let leftDomainRatio =
+        (semanticMouseX - currentDomain[0]) / currentDomainWidth;
+      let rightDomainRatio =
+        (currentDomain[1] - semanticMouseX) / currentDomainWidth;
+      let newDomainWidth = originalDomainWidth / transform.k;
+      let leftDelta = newDomainWidth * leftDomainRatio;
+      let rightDelta = newDomainWidth * rightDomainRatio;
+
+      newDomain = [semanticMouseX - leftDelta, semanticMouseX + rightDelta];
+
+      newDomain[0] = Math.max(newDomain[0], originalDomain[0]);
+      newDomain[1] = Math.min(newDomain[1], originalDomain[1]);
+    } else if (source.type == "mousemove") {
+      let deltaX = -(
+        this.xScale.invert(source.movementX) - this.xScale.invert(0)
+      );
+      if (newDomain[0] + deltaX <= originalDomain[0]) {
+        deltaX = originalDomain[0] - newDomain[0];
+      } else if (newDomain[1] + deltaX >= originalDomain[1]) {
+        deltaX = originalDomain[1] - newDomain[1];
+      }
+      newDomain[0] += deltaX;
+      newDomain[1] += deltaX;
+    }
+
+    this.xScale = d3
+      .scaleLinear()
+      .domain(newDomain)
+      .range([0, this.viewportWidth]);
+
+    // this.rescaleXScale(transform);
     this.applyGlyphModifiers();
     this.alertObservers();
     this.postZoom();
