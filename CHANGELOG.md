@@ -6,6 +6,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2022-02-25
+
+### Added
+
+### Changed
+- Chart.scaleExtent has been replaced with Chart.zoomConstraint
+- Chart.translateExtent has been replaced with Chart.domainConstraint
+- The internal handling of zoom events has been modified
+- The docs have been updated
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
 ## [0.8.1] - 2022-02-23
 
 ### Added
