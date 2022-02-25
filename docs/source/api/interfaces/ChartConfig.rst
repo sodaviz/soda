@@ -135,6 +135,19 @@ divWidth
 
   The width in pixels of the Chart's containing div.
 
+domainConstraint
+****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    domainConstraint: undefined | (chart: Chart <P>): None
+
+.. container:: content
+
+  This constrains the Chart's domain, which in turn constrains both zoom level and panning. The parameter is a callback function that is evaluated after each zoom event to produce an interval that constrains the domain.
+
 id
 **
 
@@ -317,19 +330,6 @@ rowStripes
 
   This controls whether or not the rows will be colored in an alternating pattern.
 
-scaleExtent
-***********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    scaleExtent: undefined | None
-
-.. container:: content
-
-  A range of floats that constrains the zoom level.
-
 selector
 ********
 
@@ -343,19 +343,6 @@ selector
 
   A string that can be used to uniquely select the target DOM container.
 
-translateExtent
-***************
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    translateExtent: undefined | (c: Chart <P>): None
-
-.. container:: content
-
-  A callback function that provides a set of ranges that constrains the horizontal translation of the Chart.
-
 upperPadSize
 ************
 
@@ -368,6 +355,19 @@ upperPadSize
 .. container:: content
 
   The number of pixels of padding on the top of the Chart.
+
+zoomConstraint
+**************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    zoomConstraint: undefined | None
+
+.. container:: content
+
+  A Chart's contents are scaled by a scaling factor k. If a zoomConstraint of the form [min_k, max_k] is provided, the scaling factor will be constrained to that interval. This will not constrain panning.
 
 zoomable
 ********

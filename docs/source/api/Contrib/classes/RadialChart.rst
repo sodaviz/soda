@@ -102,19 +102,6 @@ _padWidth
 
   The width in pixels of the Chart's SVG pad.
 
-_renderEnd
-**********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    _renderEnd: number
-
-.. container:: content
-
-  The semantic end coordinate of what is currently rendered.
-
 _renderParams
 *************
 
@@ -127,19 +114,6 @@ _renderParams
 .. container:: content
 
   The last used render parameters.
-
-_renderStart
-************
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    _renderStart: number
-
-.. container:: content
-
-  The semantic start coordinate of what is currently rendered.
 
 _rowStripePatternSelection
 **************************
@@ -349,6 +323,19 @@ divWidth
 
   The CSS width property of the Chart's div.
 
+domainConstraint
+****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    domainConstraint: (chart: Chart <P>): None
+
+.. container:: content
+
+  This constrains the Chart's domain, which in turn constrains both zoom level and panning. The parameter is a callback function that is evaluated after each zoom event to produce an interval that constrains the domain.
+
 glyphModifiers
 **************
 
@@ -400,6 +387,19 @@ inRender
 .. container:: content
 
   The second rendering callback function.
+
+initialDomain
+*************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    initialDomain: None
+
+.. container:: content
+
+  The initialized domain of the Chart when render() is called with the initializeXScale flag.
 
 innerRadius
 ***********
@@ -622,32 +622,6 @@ rowStripes
 
   This controls whether or not the rows will be colored in an alternating pattern.
 
-scaleExtent
-***********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    scaleExtent: None
-
-.. container:: content
-
-  A list of two numbers that define the extent to which a zoom event is allowed to transform the TrackChart's underlying scale. Simply put, this controls how far in and out a user will be able to zoom. The first number is the maximum zoom-out factor, and the second is the maximum zoom-in factor. For example, setting this to [1, 10] will prevent a user from zooming out past the point at which the chart is initially rendered, and allow them to zoom in by a factor of 10. For more info, see https://github.com/d3/d3-zoom/blob/master/README.md#zoom_scaleExtent
-
-tickCount
-*********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    tickCount: number
-
-.. container:: content
-
-  The initial number of ticks to display on the radial axis. D3 usually refuses to use the actual number supplied, and instead it tries really hard to make it even and "pretty."
-
 trackHeight
 ***********
 
@@ -673,19 +647,6 @@ trackOutlineSelection
 .. container:: content
 
   A d3 selection to the track outline.
-
-translateExtent
-***************
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    translateExtent: (chart: Chart <any>): None
-
-.. container:: content
-
-  This is a callback function that is used to set the translate extent (left/right panning) allowed when a zoom event is applied to the TrackChart. It needs to be a callback, because it needs the absolute width of the TrackChart's SVG viewport, which is allowed to change throughout the TrackChart's lifetime. For example, setting this to: (chart) => [[0, 0], [chart.width, chart.height]] will restrict the panning in the TrackChart to exactly the range that was initially rendered. For more info, see https://github.com/d3/d3-zoom/blob/master/README.md#zoom_translateExtent
 
 upperPadSize
 ************
@@ -726,18 +687,18 @@ xScale
 
   A D3 scale that the Chart will use to translate between semantic and viewport coordinates. This scale will be periodically re-scaled after zoom events.
 
-xScaleBase
-**********
+zoomConstraint
+**************
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    xScaleBase: ScaleLinear <number, number>
+    zoomConstraint: None
 
 .. container:: content
 
-  The base D3 scale that will be used to rescale the Chart's xScale.
+  A Chart's contents are scaled by a scaling factor k. If a zoomConstraint of the form [min_k, max_k] is provided, the scaling factor will be constrained to that range. This will not constrain panning.
 
 zoomable
 ********
@@ -815,19 +776,6 @@ padWidth
 
   Setter for the padWidth property. This actually adjusts the width attribute on the viewport DOM element.
 
-renderEnd
-*********
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    get renderEnd(): number
-
-.. container:: content
-
-  Getter for the renderEnd property
-
 renderParams
 ************
 
@@ -850,19 +798,6 @@ renderParams
 .. container:: content
 
   Setter for the renderParms property.
-
-renderStart
-***********
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    get renderStart(): number
-
-.. container:: content
-
-  Getter for the renderStart property.
 
 rowStripePatternSelection
 *************************
@@ -982,13 +917,9 @@ addAxis
 
  .. code-block:: typescript
 
-    addAxis(force: boolean): void
+    addAxis(): void
 
 .. container:: content
-
-  **Parameters**
-
-  - force: boolean
 
   **Returns**: void
 
@@ -1325,6 +1256,42 @@ disableZoom
 
   **Returns**: void
 
+domainFromMousemoveEvent
+************************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    domainFromMousemoveEvent(transform: Transform, sourceEvent: WheelEvent): None
+
+.. container:: content
+
+  **Parameters**
+
+  - transform: Transform
+  - sourceEvent: WheelEvent
+
+  **Returns**: None
+
+domainFromWheelEvent
+********************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    domainFromWheelEvent(transform: Transform, sourceEvent: WheelEvent): None
+
+.. container:: content
+
+  **Parameters**
+
+  - transform: Transform
+  - sourceEvent: WheelEvent
+
+  **Returns**: None
+
 fitPadHeight
 ************
 
@@ -1454,7 +1421,7 @@ initializeXScale
 
 .. container:: content
 
-  Set the internal d3 scale to map from the provided semantic query range to the Chart's current viewport dimensions.
+  This initializes an x translation scale with the provided coordinates and the dimensions of the Chart.
 
   **Parameters**
 
@@ -1527,23 +1494,6 @@ renderTrackOutline
 
   **Returns**: void
 
-rescaleXScale
-*************
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    rescaleXScale(transformArg: Transform): void
-
-.. container:: content
-
-  **Parameters**
-
-  - transformArg: Transform
-
-  **Returns**: void
-
 resetTransform
 **************
 
@@ -1569,6 +1519,44 @@ resize
     resize(): void
 
 .. container:: content
+
+  **Returns**: void
+
+setDomain
+*********
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    setDomain(domain: None): void
+
+.. container:: content
+
+  Set the domain of the Chart's x scale.
+
+  **Parameters**
+
+  - domain: None
+
+  **Returns**: void
+
+setRange
+********
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    setRange(range: None): void
+
+.. container:: content
+
+  Set the range of the Chart's x scale.
+
+  **Parameters**
+
+  - range: None
 
   **Returns**: void
 
@@ -1653,6 +1641,19 @@ updateDivProperties
  .. code-block:: typescript
 
     updateDivProperties(): void
+
+.. container:: content
+
+  **Returns**: void
+
+updateRange
+***********
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    updateRange(): void
 
 .. container:: content
 

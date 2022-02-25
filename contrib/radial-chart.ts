@@ -171,11 +171,8 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
   }
 
   public resize() {
-    let view = this.getSemanticViewRange();
     this.squareToDivWidth();
     this.fitRadialDimensions();
-    this.resetTransform();
-    this.initializeXScale(view.start, view.end);
     this.renderAxis();
     this.renderTrackOutline();
     this.applyGlyphModifiers();
@@ -183,17 +180,23 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
   }
 
   public zoom() {
-    let transform;
-    let source: any;
-    if (d3.event != undefined) {
-      transform = d3.event.transform;
-      source = d3.event.sourceEvent;
-    } else {
-      console.warn(`d3.event is undefined in zoom() call on chart: ${this.id}`);
-    }
+    super.zoom();
+    this.renderAxis();
+    this.renderTrackOutline();
+  }
 
-    let vertical = source.layerY - this.upperPadSize - this.viewportWidth / 2;
-    let horizontal = source.layerX - this.leftPadSize - this.viewportWidth / 2;
+  public domainFromWheelEvent(
+    transform: Transform,
+    sourceEvent: WheelEvent
+  ): [number, number] {
+    let currentDomain = this.xScale.domain();
+    let currentDomainWidth = currentDomain[1] - currentDomain[0];
+    let originalDomainWidth = this.initialDomain[1] - this.initialDomain[0];
+
+    let vertical =
+      sourceEvent.offsetY - this.upperPadSize - this.viewportWidth / 2;
+    let horizontal =
+      sourceEvent.offsetX - this.leftPadSize - this.viewportWidth / 2;
     let hypotenuse = Math.sqrt(vertical * vertical + horizontal * horizontal);
 
     let theta = Math.asin(horizontal / hypotenuse);
@@ -205,54 +208,54 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       theta = Math.PI - theta;
     }
     let semanticTheta = this.xScale.invert(theta);
-    let originalDomain = this.xScaleBase.domain();
-    let currentDomain = this.xScale.domain();
 
-    let originalDomainWidth = originalDomain[1] - originalDomain[0];
-    let currentDomainWidth = currentDomain[1] - currentDomain[0];
+    let leftDomainRatio =
+      (semanticTheta - currentDomain[0]) / currentDomainWidth;
 
-    let newDomain = [currentDomain[0], currentDomain[1]];
+    let rightDomainRatio =
+      (currentDomain[1] - semanticTheta) / currentDomainWidth;
 
-    if (source.type == "wheel") {
-      let leftDomainRatio =
-        (semanticTheta - currentDomain[0]) / currentDomainWidth;
-      let rightDomainRatio =
-        (currentDomain[1] - semanticTheta) / currentDomainWidth;
-      let newDomainWidth = originalDomainWidth / transform.k;
-      let leftDelta = newDomainWidth * leftDomainRatio;
-      let rightDelta = newDomainWidth * rightDomainRatio;
+    let newDomainWidth = originalDomainWidth / transform.k;
 
-      newDomain = [semanticTheta - leftDelta, semanticTheta + rightDelta];
+    let leftDelta = newDomainWidth * leftDomainRatio;
+    let rightDelta = newDomainWidth * rightDomainRatio;
 
-      newDomain[0] = Math.max(newDomain[0], originalDomain[0]);
-      newDomain[1] = Math.min(newDomain[1], originalDomain[1]);
-    } else if (source.type == "mousemove") {
-      let radiusFraction = source.movementX / this.outerRadius;
-      let deltaTheta = radiusFraction * Math.PI * -1;
-      let deltaX = this.xScale.invert(deltaTheta) - this.xScale.invert(0);
+    let newDomain: [number, number] = [
+      semanticTheta - leftDelta,
+      semanticTheta + rightDelta,
+    ];
 
-      if (newDomain[0] + deltaX <= originalDomain[0]) {
-        deltaX = originalDomain[0] - newDomain[0];
-      } else if (newDomain[1] + deltaX >= originalDomain[1]) {
-        deltaX = originalDomain[1] - newDomain[1];
-      }
-      newDomain[0] += deltaX;
-      newDomain[1] += deltaX;
-    }
+    newDomain[0] = Math.max(newDomain[0], this.initialDomain[0]);
+    newDomain[1] = Math.min(newDomain[1], this.initialDomain[1]);
 
-    this.xScale = d3
-      .scaleLinear()
-      .domain(newDomain)
-      .range([0, 2 * Math.PI]);
-
-    this.renderAxis();
-    this.renderTrackOutline();
-    this.applyGlyphModifiers();
-    this.alertObservers();
-    this.postZoom();
+    return newDomain;
   }
 
-  public rescaleXScale(transformArg?: Transform) {}
+  public domainFromMousemoveEvent(
+    transform: Transform,
+    sourceEvent: WheelEvent
+  ): [number, number] {
+    let currentDomain = this.xScale.domain();
+
+    let newDomain: [number, number] = [currentDomain[0], currentDomain[1]];
+    let radiusFraction = sourceEvent.movementX / this.outerRadius;
+    let deltaTheta = radiusFraction * Math.PI * -1;
+    let deltaX = this.xScale.invert(deltaTheta) - this.xScale.invert(0);
+
+    if (newDomain[0] + deltaX <= this.initialDomain[0]) {
+      deltaX = this.initialDomain[0] - newDomain[0];
+    } else if (newDomain[1] + deltaX >= this.initialDomain[1]) {
+      deltaX = this.initialDomain[1] - newDomain[1];
+    }
+    newDomain[0] += deltaX;
+    newDomain[1] += deltaX;
+
+    return newDomain;
+  }
+
+  public updateRange(): void {
+    this.xScale.range([0, 2 * Math.PI]);
+  }
 
   public highlight(config: HighlightConfig): string {
     let selector = config.selector || generateId("highlight");
@@ -314,23 +317,5 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
           .startAngle((d) => Math.max(this.xScale(d.start), 0))
           .endAngle((d) => Math.min(this.xScale(d.end), 2 * Math.PI))(d)
       );
-  }
-
-  /**
-   * Set the internal d3 scale to map from the provided semantic query range to the Chart's current
-   * viewport dimensions.
-   * @param start
-   * @param end
-   */
-  public initializeXScale(start: number, end: number): void {
-    this._renderStart = start;
-    this._renderEnd = end;
-
-    this.xScaleBase = d3
-      .scaleLinear()
-      .domain([this._renderStart, this._renderEnd])
-      .range([0, 2 * Math.PI]);
-
-    this.xScale = this.xScaleBase;
   }
 }
