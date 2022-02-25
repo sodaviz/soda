@@ -231,7 +231,7 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
     return newDomain;
   }
 
-  public domainFromPanEvent(
+  public domainFromMousemoveEvent(
     transform: Transform,
     sourceEvent: WheelEvent
   ): [number, number] {

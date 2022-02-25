@@ -195,14 +195,16 @@ export interface ChartConfig<P extends RenderParams> {
    */
   zoomable?: boolean;
   /**
-   * A range of floats that constrains the zoom level.
+   * A Chart's contents are scaled by a scaling factor k. If a zoomConstraint of the form [min_k, max_k] is
+   * provided, the scaling factor will be constrained to that interval. This will not constrain panning.
    */
-  scaleExtent?: [number, number];
+  zoomConstraint?: [number, number];
   /**
-   * A callback function that provides a set of ranges that constrains the horizontal translation of the Chart.
-   * @param c
+   * This constrains the Chart's domain, which in turn constrains both zoom level and panning.
+   * The parameter is a callback function that is evaluated after each zoom event to produce an interval that
+   * constrains the domain.
    */
-  translateExtent?: (c: Chart<P>) => [[number, number], [number, number]];
+  domainConstraint?: (chart: Chart<P>) => [number, number];
   /**
    * The first rendering callback function.
    * @param params
@@ -444,6 +446,17 @@ export class Chart<P extends RenderParams> {
     | d3.Selection<SVGRectElement, any, any, any>
     | undefined;
   /**
+   * A Chart's contents are scaled by a scaling factor k. If a zoomConstraint of the form [min_k, max_k] is
+   * provided, the scaling factor will be constrained to that range. This will not constrain panning.
+   */
+  zoomConstraint: [number, number];
+  /**
+   * This constrains the Chart's domain, which in turn constrains both zoom level and panning.
+   * The parameter is a callback function that is evaluated after each zoom event to produce an interval that
+   * constrains the domain.
+   */
+  domainConstraint: (chart: Chart<P>) => [number, number];
+  /**
    * The initialized domain of the Chart when render() is called with the initializeXScale flag.
    */
   initialDomain: [number, number] = [0, 0];
@@ -476,30 +489,6 @@ export class Chart<P extends RenderParams> {
    * A list of GlyphModifiers that control the glyphs rendered in the Chart.
    */
   glyphModifiers: GlyphModifier<any, any>[] = [];
-  /**
-   * A list of two numbers that define the extent to which a zoom event is allowed to transform the TrackChart's
-   * underlying scale. Simply put, this controls how far in and out a user will be able to zoom. The first number
-   * is the maximum zoom-out factor, and the second is the maximum zoom-in factor. For example, setting this to
-   * [1, 10] will prevent a user from zooming out past the point at which the chart is initially rendered, and
-   * allow them to zoom in by a factor of 10.
-   * For more info, see https://github.com/d3/d3-zoom/blob/master/README.md#zoom_scaleExtent
-   */
-  scaleExtent: [number, number] = [0, Infinity];
-  /**
-   * This is a callback function that is used to set the translate extent (left/right panning) allowed when a zoom
-   * event is applied to the TrackChart. It needs to be a callback, because it needs the absolute width of the
-   * TrackChart's SVG viewport, which is allowed to change throughout the TrackChart's lifetime. For example, setting
-   * this to:
-   * (chart) => [[0, 0], [chart.width, chart.height]] will restrict the panning in the TrackChart to exactly the range
-   * that was initially rendered.
-   * For more info, see https://github.com/d3/d3-zoom/blob/master/README.md#zoom_translateExtent
-   * @param chart This callback will receive a reference to the TrackChart that calls it.
-   */
-  translateExtent: (chart: Chart<any>) => [[number, number], [number, number]] =
-    () => [
-      [-Infinity, -Infinity],
-      [Infinity, Infinity],
-    ];
   /**
    * The first rendering callback function.
    * @param params
@@ -591,19 +580,15 @@ export class Chart<P extends RenderParams> {
     this.resizable = config.resizable || false;
     this.zoomable = config.zoomable || false;
 
-    if (config.scaleExtent !== undefined) {
-      this.scaleExtent = config.scaleExtent;
-    }
-
-    if (config.translateExtent !== undefined) {
-      this.translateExtent = config.translateExtent;
-    }
-
     this.preRender = config.preRender || this.preRender;
     this.inRender = config.inRender || this.inRender;
     this.postRender = config.postRender || this.postRender;
     this.postZoom = config.postZoom || this.postZoom;
     this.postResize = config.postResize || this.postResize;
+
+    this.zoomConstraint = config.zoomConstraint || [1, Infinity];
+    this.domainConstraint =
+      config.domainConstraint || ((chart: Chart<P>) => chart.initialDomain);
 
     if (this.zoomable) {
       this.configureZoom();
@@ -1056,10 +1041,6 @@ export class Chart<P extends RenderParams> {
             }
             return true;
           })
-          // set the scale and translate extents of the chart
-          // see: https://github.com/d3/d3-zoom/blob/master/README.md#zoom_scaleExtent
-          .scaleExtent(this.scaleExtent)
-          .translateExtent(this.translateExtent(this))
           .on("zoom", () => self.zoom())
       )
       .on("dblclick.zoom", null);
@@ -1153,14 +1134,33 @@ export class Chart<P extends RenderParams> {
       console.warn(`d3.event is undefined in zoom() call on chart: ${this.id}`);
     }
 
-    transform.k = Math.max(transform.k, 1);
+    let domainConstraint = this.domainConstraint(this);
+    let constrainedWidth = domainConstraint[1] - domainConstraint[0];
+    let originalWidth = this.initialDomain[1] - this.initialDomain[0];
+    let domainConstraintMinK = originalWidth / constrainedWidth;
+
+    let minK = Math.max(this.zoomConstraint[0], domainConstraintMinK);
+
+    if (transform.k < minK) {
+      transform.k = minK;
+    } else if (transform.k > this.zoomConstraint[1]) {
+      transform.k = this.zoomConstraint[1];
+    }
 
     let newDomain: [number, number] | undefined;
 
     if (source.type == "wheel") {
-      newDomain = this.domainFromWheelEvent(transform, source);
+      newDomain = this.domainFromWheelEvent(
+        transform,
+        source,
+        domainConstraint
+      );
     } else if (source.type == "mousemove") {
-      newDomain = this.domainFromPanEvent(transform, source);
+      newDomain = this.domainFromMousemoveEvent(
+        transform,
+        source,
+        domainConstraint
+      );
     } else {
       console.error(
         `Unhandled event type: ${source.type} in zoom() call on chart: ${this.id}`
@@ -1175,9 +1175,16 @@ export class Chart<P extends RenderParams> {
     this.postZoom();
   }
 
+  /**
+   * This method produces a new domain from a browser wheel event.
+   * @param transform
+   * @param sourceEvent
+   * @param domainConstraint
+   */
   public domainFromWheelEvent(
     transform: Transform,
-    sourceEvent: WheelEvent
+    sourceEvent: WheelEvent,
+    domainConstraint: [number, number]
   ): [number, number] {
     let currentDomain = this.xScale.domain();
     let currentDomainWidth = currentDomain[1] - currentDomain[0];
@@ -1202,15 +1209,22 @@ export class Chart<P extends RenderParams> {
       semanticMouseX + rightDelta,
     ];
 
-    newDomain[0] = Math.max(newDomain[0], this.initialDomain[0]);
-    newDomain[1] = Math.min(newDomain[1], this.initialDomain[1]);
+    newDomain[0] = Math.max(newDomain[0], domainConstraint[0]);
+    newDomain[1] = Math.min(newDomain[1], domainConstraint[1]);
 
     return newDomain;
   }
 
-  public domainFromPanEvent(
+  /**
+   * This method produces a new domain from a browser mousemove event.
+   * @param transform
+   * @param sourceEvent
+   * @param domainConstraint
+   */
+  public domainFromMousemoveEvent(
     transform: Transform,
-    sourceEvent: WheelEvent
+    sourceEvent: WheelEvent,
+    domainConstraint: [number, number]
   ): [number, number] {
     let currentDomain = this.xScale.domain();
     let newDomain: [number, number] = [currentDomain[0], currentDomain[1]];
@@ -1219,10 +1233,10 @@ export class Chart<P extends RenderParams> {
       this.xScale.invert(sourceEvent.movementX) - currentDomain[0]
     );
 
-    if (newDomain[0] + deltaX <= this.initialDomain[0]) {
-      deltaX = this.initialDomain[0] - newDomain[0];
-    } else if (newDomain[1] + deltaX >= this.initialDomain[1]) {
-      deltaX = this.initialDomain[1] - newDomain[1];
+    if (newDomain[0] + deltaX <= domainConstraint[0]) {
+      deltaX = domainConstraint[0] - newDomain[0];
+    } else if (newDomain[1] + deltaX >= domainConstraint[1]) {
+      deltaX = domainConstraint[1] - newDomain[1];
     }
 
     newDomain[0] += deltaX;
@@ -1231,14 +1245,25 @@ export class Chart<P extends RenderParams> {
     return newDomain;
   }
 
+  /**
+   * Set the domain of the Chart's x scale.
+   * @param domain
+   */
   public setDomain(domain: [number, number]): void {
     this.xScale.domain(domain);
   }
 
+  /**
+   * Set the range of the Chart's x scale.
+   * @param range
+   */
   public setRange(range: [number, number]): void {
     this.xScale.range(range);
   }
 
+  /**
+   * Set the range of the Chart's x scale to the viewport dimensions.
+   */
   public updateRange(): void {
     this.setRange([0, this.viewportWidth]);
   }
