@@ -1,6 +1,6 @@
 {
   "name": "@sodaviz/soda",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "A library for visualizing biological annotation.",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
