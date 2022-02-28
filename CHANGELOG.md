@@ -4,25 +4,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+<!---
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+-->
+
 ## [Unreleased]
 
-## [0.9.0] - 2022-02-25
+## [0.9.1] - 2022-02-28
 
-### Added
+### Changed
+- Removed some empty sections in this changelog
+
+### Fixed
+- Fixed the link to the API on the docs index
+
+## [0.9.0] - 2022-02-25
 
 ### Changed
 - Chart.scaleExtent has been replaced with Chart.zoomConstraint
 - Chart.translateExtent has been replaced with Chart.domainConstraint
 - The internal handling of zoom events has been modified
 - The docs have been updated
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
 
 ## [0.8.1] - 2022-02-23
 
@@ -32,14 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - The docs now separate contrib from the core
 
-### Deprecated
-
 ### Removed
 - Removed the dependency on d3-radial-axis
-
-### Fixed
-
-### Security
 
 ## [0.8.0] - 2022-02-15
 
@@ -76,10 +77,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed fixed option from vertical axes since it did nothing
 - Range and domain options are more consistent across plot glyphs
 
-### Deprecated
-
-### Removed
-
 ### Fixed
 - Fixed x-value distribution bug on ContinuousAnnotation
 - Sevaral selector-based glyph rendering bugs
@@ -87,5 +84,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Several heatmap cell bugs
 - Fixed Chart padHeight bug
 - Console warnings and errors should no longer cause memory leaks due to object printing
-
-### Security
