@@ -18,7 +18,7 @@ By default, both viewport SVG elements are centered in the SVG pad using the Cha
 
 The SODA rendering API renders glyphs by placing SVG shapes inside either of the SVG viewports.
 The viewports are different only in the way that they treat glyphs positioned outside of their bounding box.
-The viewport hides glyphs that bleed into the SVG pad bounding box, while the overflow viewport does not.
+The **viewport** hides glyphs that bleed into the SVG pad bounding box, while the **overflow viewport** does not.
 Conceptually, we divide Chart viewports vertically into rows, and, by default, glyphs are sized to fit into these rows.
 For more details on the rendering, see the :ref:`rendering section<guide_rendering>`.
 
@@ -32,9 +32,9 @@ Chart configuration
 Charts are configured and instantiated with a :ref:`ChartConfig` object.
 Excluding *selector*, every property on the ChartConfig is optional.
 The *selector* property is used as a CSS selector to identify the target DOM container that the Chart will be placed in.
-Typically, the target of the *selector* should be a div that you explicitly created and positioned to accommodate your Chart viewport.
+Typically, the target of the *selector* should be a div that you explicitly create and position to accommodate your Chart viewport.
 
-For example, a barebones Chart configuration may look something like this:
+For example, a minimal Chart configuration may look something like this:
 
 .. code-block:: typescript
     
@@ -142,10 +142,56 @@ would prevent the Chart from being panned outside of the domain set by the last 
 Resizing
 ++++++++
 
+Charts can be configured to automatically resize themselves as their DOM container resizes by setting the *resizable* property to true on the :ref:`ChartConfig`.
+
+.. code-block:: typescript
+    
+    let chart = new Chart({
+        selector: "div#soda-chart",
+        resizable: true 
+    });
+
+If this is enabled, when the Chart's container is resized (e.g. when the browser window is resized), the Chart will re-render itself to display the same domain in the new range.
+As with zooming, any glyphs rendered with SODA will be affected, but any SVG elements added by other means will remain unaffected.
+
+Zoom and resize callbacks
++++++++++++++++++++++++++
+
+You can optionally supply both a *postZoom* and a *postResize* callback in the :ref:`ChartConfig`, which will be called after zoom/pan events and resize events, respectively.
+
+For example:
+
+.. code-block:: typescript
+    
+    let chart = new Chart({
+        selector: "div#soda-chart",
+        zoomable: true,
+        resizable: true, 
+        postZoom() {
+            console.log(this, "zoomed!");
+        },
+        postResize() {
+            console.log(this, "resized!");
+        }
+    });
+
 Chart scales
 ############
+
+To help position glyphs in the viewport, Charts maintain a couple of scale functions.
+
+The first is the *xScale*, which maps from semantic coordinates (e.g. positions in a sequence) to pixel x-coordinates relative to the origin of the viewports.
+The *xScale* is used extensively by the defaults in the :ref:`rendering<guide_rendering>` API, and also in the zooming, panning, and resizing logic.
+
+The second is the *yScale*, which maps row numbers to the pixel y-coordinates that delineate each of the conceptual rows in the Chart's viewport.
+
+The default *chart.preRender()* function re-initializes the scales during calls to render(), so you may need to explicitly call *Chart.initializeXScale()* and *Chart.initializeYScale()* manually if you are going to make adjustments to the default rendering routine.
 
 Chart observers
 ###############
 
+The Chart observer is a SODA pattern in which an object can respond to changes in a Chart.
+The pattern is currently not very fleshed out, and it is currently only used by the :ref:`ZoomSyncer` object, which synchronizes the zoom level across multiple Charts.
+At some point, we will overhaul this system to make it much more useful, but you may find some use from it in its current state.
 
+You can create an object that extends the abstract class :ref:`ChartObserver`, add Charts to it, and then configure Charts to call *Chart.alertObservers()*.
