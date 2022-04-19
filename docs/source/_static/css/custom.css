@@ -7,10 +7,6 @@ p {
     margin: 0 0 12px;
 }
 
-.section h3 {
-    display: none;
-}
-
 .collapsible {
     cursor: pointer;
     border: none;
@@ -354,7 +350,7 @@ a.btn:hover {
     background-position: center right;
     background-repeat: no-repeat;
     /*background-image: var(--external-reference-icon);*/
-    padding-right: 13px;
+    /*padding-right: 13px;*/
 }
 
 /* Distinguish class reference page links from "user manual" page links with a "ref" badge. */
