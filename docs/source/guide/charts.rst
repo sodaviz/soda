@@ -90,7 +90,7 @@ These details have two consequences:
 #. Adjusting the *padSize* may cause the axis to be positioned such that it is too low or too high.
 #. Adjusting the *preRender()* callback will prevent it from being rendered at all.
 
-If the default horizontal axis doesn't work for your visualization, check out the in depth description of axis glyphs in the :ref:`rendering section<guide_rendering>`.
+If the default horizontal axis doesn't work for your visualization, you can place a horizontal axis wherever you'd like using the :ref:`horizontalAxis` function. 
 
 Zooming and panning
 +++++++++++++++++++
@@ -185,7 +185,7 @@ The *xScale* is used extensively by the defaults in the :ref:`rendering<guide_re
 
 The second is the *yScale*, which maps row numbers to the pixel y-coordinates that delineate each of the conceptual rows in the Chart's viewport.
 
-The default *chart.preRender()* function re-initializes the scales during calls to render(), so you may need to explicitly call *Chart.initializeXScale()* and *Chart.initializeYScale()* manually if you are going to make adjustments to the default rendering routine.
+The default *chart.preRender()* function re-initializes the scales during calls to render(), so you may need to call *Chart.initializeXScale()* and *Chart.initializeYScale()* manually if you are going to make adjustments to the default rendering routine.
 
 Chart observers
 ###############
