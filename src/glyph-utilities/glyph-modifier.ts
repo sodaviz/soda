@@ -73,8 +73,9 @@ export interface GlyphModifier<A extends Annotation, C extends Chart<any>>
  * @internal
  */
 export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
-  y: GlyphProperty<A, C, number>;
   x: GlyphProperty<A, C, number>;
+  row: GlyphProperty<A, C, number>;
+  y: GlyphProperty<A, C, number>;
   width: GlyphProperty<A, C, number>;
   height: GlyphProperty<A, C, number>;
   initializeFn: (this: any) => void;
@@ -88,15 +89,18 @@ export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
     this.x =
       config.x != undefined
         ? config.x
-        : (d: AnnotationDatum<A, C>) => d.c.xScale(d.a.x);
+        : (d: AnnotationDatum<A, C>) => d.c.xScale(d.a.start);
+    this.row = config.row != undefined ? config.row : 0;
     this.y =
       config.y != undefined
         ? config.y
-        : (d: AnnotationDatum<A, C>) => d.a.y * d.c.rowHeight + 2;
+        : (d: AnnotationDatum<A, C>) =>
+            resolveValue(this.row, d) * d.c.rowHeight + 2;
     this.width =
       config.width != undefined
         ? config.width
-        : (d: AnnotationDatum<A, C>) => d.c.xScale(d.a.x2) - d.c.xScale(d.a.x);
+        : (d: AnnotationDatum<A, C>) =>
+            d.c.xScale(d.a.end) - d.c.xScale(d.a.start);
     this.height =
       config.height != undefined
         ? config.height

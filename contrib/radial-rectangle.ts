@@ -7,29 +7,31 @@ import {
   bind,
   GlyphModifierConfig,
   GlyphProperty,
+  resolveValue,
 } from "../src";
 import { RadialChart } from "./radial-chart";
 import { AnnotationDatum } from "../src/glyph-utilities/bind";
 
 /**
  * @internal
- * @param d
  */
-export const defaultRadialRectanglePathFn = <
+export function getDefaultRadialRectanglePathFn<
   A extends Annotation,
   C extends RadialChart<any>
->(
-  d: AnnotationDatum<A, C>
-) => {
-  return (
+>(modifier: RadialRectangleModifier<A, C>): GlyphProperty<A, C, string> {
+  return (d: AnnotationDatum<A, C>) =>
     d3
       .arc<any, AnnotationDatum<A, C>>()
-      .innerRadius((d) => d.c.outerRadius - d.a.y * d.c.rowHeight)
-      .outerRadius((d) => d.c.outerRadius - (d.a.y + 1) * d.c.rowHeight)
+      .innerRadius((d) => d.c.outerRadius - resolveValue(modifier.y, d))
+      .outerRadius(
+        (d) =>
+          d.c.outerRadius -
+          resolveValue(modifier.y, d) +
+          resolveValue(modifier.height, d)
+      )
       .startAngle((d) => Math.max(d.c.xScale(d.a.start), 0))
-      .endAngle((d) => Math.min(d.c.xScale(d.a.end), 2 * Math.PI))(d) || ""
-  );
-};
+      .endAngle((d) => Math.min(d.c.xScale(d.a.end), 2 * Math.PI))(d) || "";
+}
 
 /**
  * @internal
@@ -83,7 +85,7 @@ export class RadialRectangleModifier<
 
   constructor(config: RadialRectangleModifierConfig<A, C>) {
     super(config);
-    this.pathData = defaultRadialRectanglePathFn;
+    this.pathData = getDefaultRadialRectanglePathFn(this);
     this.transform = defaultRadialRectangleTransformFn;
     this.visibility = defaultRadialRectangleVisibilityFn;
   }

@@ -1,4 +1,4 @@
-import { Annotation, ContinuousAnnotation, SequenceAnnotation } from "../src";
+import { Annotation, PlotAnnotation, SequenceAnnotation } from "../src";
 
 /**
  * @internal
@@ -35,11 +35,12 @@ export function getSliceCoordinates(
 ) {
   let leftDelta = start - annotation.start;
   let rightDelta = annotation.end - end;
+  let annotationWidth = annotation.end - annotation.start;
   return {
     start: Math.max(annotation.start, start),
     end: Math.min(annotation.end, end),
     relativeStart: Math.max(0, leftDelta),
-    relativeEnd: Math.min(annotation.width, annotation.width - rightDelta),
+    relativeEnd: Math.min(annotationWidth, annotationWidth - rightDelta),
   };
 }
 
@@ -50,39 +51,36 @@ export function sliceSequenceAnnotation(
 ): SequenceAnnotation | undefined {
   if (annotation.start < end && annotation.end > start) {
     let sliceCoords = getSliceCoordinates(annotation, start, end);
-    return new SequenceAnnotation({
+    return {
       id: annotation.id,
-      tag: annotation.tag,
       start: sliceCoords.start,
       end: sliceCoords.end,
-      row: annotation.row,
       sequence: annotation.sequence.slice(
         sliceCoords.relativeStart,
         sliceCoords.relativeEnd
       ),
-    });
+    };
   } else {
     return undefined;
   }
 }
 
 export function sliceContinuousAnnotation(
-  annotation: ContinuousAnnotation,
+  annotation: PlotAnnotation,
   start: number,
   end: number
-): ContinuousAnnotation | undefined {
+): PlotAnnotation | undefined {
   if (annotation.start < end && annotation.end > start) {
     let sliceCoords = getSliceCoordinates(annotation, start, end);
-    return new ContinuousAnnotation({
+    return {
       id: annotation.id,
-      tag: annotation.tag,
       start: sliceCoords.start,
       end: sliceCoords.end,
-      row: annotation.row,
-      values: annotation.points
-        .map((p) => p[1])
-        .slice(sliceCoords.relativeStart, sliceCoords.relativeEnd),
-    });
+      values: annotation.values.slice(
+        sliceCoords.relativeStart,
+        sliceCoords.relativeEnd
+      ),
+    };
   } else {
     return undefined;
   }

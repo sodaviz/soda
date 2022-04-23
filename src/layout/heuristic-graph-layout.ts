@@ -28,7 +28,7 @@ export function heuristicGraphLayout(
   // the number of colors in the best coloring so far
   let bestColorCnt = Infinity;
   // this maps node->{color in best coloring}
-  let bestColors: Map<string, number> = new Map();
+  let layout: Map<string, number> = new Map();
   // we use integers to enumerate the colors
   let nextColor = -1;
   // this algorithm works as follows:
@@ -69,12 +69,8 @@ export function heuristicGraphLayout(
 
     if (nextColor < bestColorCnt) {
       bestColorCnt = nextColor;
-      bestColors = colors;
+      layout = colors;
     }
-  }
-  for (const vert of bestColors.keys()) {
-    // here we actually set the y values based off of the coloring
-    graph.getAnnotationFromId(vert).y = bestColors.get(vert)!;
   }
   return nextColor;
 }

@@ -1,48 +1,32 @@
-import { Annotation, AnnotationConfig } from "./annotation";
+import { Annotation } from "./annotation";
+import { generateId } from "../utilities/id-generation";
 
-/**
- * An interface that extends AnnotationConfig for initializing AnnotationGroups.
- * @internal
- */
-export interface AnnotationConfigWithGroup<A extends Annotation>
-  extends AnnotationConfig {
-  /**
-   * A list of Annotations to initially fill an AnnotationGroup with.
-   */
-  group: A[];
+export interface AnnotationGroupConfig<A extends Annotation> {
+  id?: string;
+  start?: number;
+  end?: number;
+  group?: A[];
 }
-
-/**
- * @internal
- * @param config
- */
-function hasGroup<A extends Annotation>(
-  config: AnnotationConfig
-): config is AnnotationConfigWithGroup<A> {
-  return (<AnnotationConfigWithGroup<A>>config).group != undefined;
-}
-
-/**
- * A type that is simply the union of AnnotationConfig and AnnotationConfigWithGroup.
- */
-export type AnnotationGroupConfig<A extends Annotation> =
-  | AnnotationConfigWithGroup<A>
-  | AnnotationConfig;
 
 /**
  * An Annotation class that contains a group of Annotations.
  * @typeParam A The type of annotation that will live in this group.
  */
-export class AnnotationGroup<A extends Annotation> extends Annotation {
+export class AnnotationGroup<A extends Annotation> implements Annotation {
+  id: string;
+  start: number;
+  end: number;
   /**
    * The group of Annotations that live in this object.
    */
   group: A[] = [];
-  suppressWarnings = true;
 
   constructor(config: AnnotationGroupConfig<A>) {
-    super(config);
-    if (hasGroup(config)) {
+    this.id =
+      config.id != undefined ? config.id : generateId("annotation-group");
+    this.start = config.start || 0;
+    this.end = config.end || 0;
+    if (config.group != undefined) {
       for (const ann of config.group) {
         this.add(ann);
       }
@@ -77,27 +61,7 @@ export class AnnotationGroup<A extends Annotation> extends Annotation {
       }
       this.start = Math.min(this.start, ann.start);
       this.end = Math.max(this.end, ann.end);
-      this.w = this.end - this.start;
     }
     this.group.push(ann);
-  }
-
-  /**
-   * A convenience setter that sets the row property. It also sets the row property on every member of the group
-   * property.
-   * @param y
-   */
-  set y(y: number) {
-    this.row = y;
-    for (const ann of this.group) {
-      ann.row = y;
-    }
-  }
-
-  /**
-   * A convenience getter that returns the row property.
-   */
-  get y(): number {
-    return this.row;
   }
 }

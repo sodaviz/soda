@@ -1,14 +1,18 @@
-import { Annotation, AnnotationConfig } from "./annotation";
+import { Annotation } from "./annotation";
 import { Orientation } from "./orientation";
+import { generateId } from "../utilities";
 
 /**
  * An interface that describes the fields in a GFF3 record. For more information see http://gmod.org/wiki/GFF3/
  */
 export interface Gff3Record {
+  id: string;
   /**
    * A GFF3 field: "The ID of the landmark used to establish the coordinate system for the current feature..."
    */
   seqid?: string;
+  start: number;
+  end: number;
   /**
    * A GFF3 field: "The source is a free text qualifier intended to describe the algorithm or operating procedure that
    * generated this feature..."
@@ -41,7 +45,7 @@ export interface Gff3Record {
 /**
  * An interface that defines the initialization parameters for a Gff3Annotation.
  */
-export interface Gff3AnnotationConfig extends Gff3Record, AnnotationConfig {}
+export interface Gff3AnnotationConfig extends Gff3Record {}
 
 /**
  * An interface that serves to easily let the Gff3Annotation class inherit the properties in Gff3AnnotationConfig via
@@ -53,9 +57,12 @@ export interface Gff3Annotation extends Gff3Record {}
 /**
  * An Annotation class for storing GFF3 records. For more information see http://gmod.org/wiki/GFF3/
  */
-export class Gff3Annotation extends Annotation {
+export class Gff3Annotation implements Annotation {
+  id: string;
   constructor(config: Gff3AnnotationConfig) {
-    super(config);
+    this.id = config.id;
+    this.start = config.start;
+    this.end = config.end;
     this.seqid = config.seqid;
     this.source = config.source;
     this.type = config.type;

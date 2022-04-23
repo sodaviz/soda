@@ -1,4 +1,4 @@
-import { ContinuousAnnotation } from "../../annotations/continuous-annotation";
+import { PlotAnnotation } from "../../annotations/plot-annotation";
 import { Chart } from "../../charts/chart";
 import * as d3 from "d3";
 import { GlyphConfig } from "../../glyph-utilities/glyph-config";
@@ -9,6 +9,7 @@ import {
   GlyphModifier,
   GlyphModifierConfig,
   GlyphProperty,
+  resolveValue,
 } from "../../glyph-utilities/glyph-modifier";
 
 /**
@@ -16,107 +17,110 @@ import {
  */
 const linePlotScaleMap: Map<string, d3.ScaleLinear<number, number>> = new Map();
 
-/**
- * @internal
- */
-export const defaultLineFn = <
-  A extends ContinuousAnnotation,
-  C extends Chart<any>
->(
-  d: AnnotationDatum<A, C>
-) => {
-  let yScale = linePlotScaleMap.get(d.a.id);
-  if (yScale == undefined) {
-    console.error(
-      `yScale not defined for annotation: ${d.a.id} in call to linePlot()`
+function getDefaultLineFn<A extends PlotAnnotation, C extends Chart<any>>(
+  modifier: LinePlotModifier<A, C>
+) {
+  return (d: AnnotationDatum<A, C>) => {
+    let yScale = linePlotScaleMap.get(d.a.id);
+    if (yScale == undefined) {
+      console.error(
+        `yScale not defined for annotation: ${d.a.id} in call to linePlot()`
+      );
+      return "";
+    }
+    let buffer = d3.path();
+    let curve = d3.curveLinear(buffer);
+    curve.lineStart();
+    for (const [i, value] of d.a.values.entries()) {
+      curve.point(
+        d.c.xScale(d.a.start + i),
+        resolveValue(modifier.row, d) * d.c.rowHeight + yScale(value)
+      );
+    }
+    curve.lineEnd();
+    return buffer.toString();
+  };
+}
+
+function getDefaultLowerAreaFn<A extends PlotAnnotation, C extends Chart<any>>(
+  modifier: LinePlotModifier<A, C>
+) {
+  return (d: AnnotationDatum<A, C>) => {
+    let yScale = linePlotScaleMap.get(d.a.id);
+    if (yScale == undefined) {
+      console.error("yScale not defined for", d.a, "in call to linePlot()");
+      return "";
+    }
+    let buffer = d3.path();
+    let curve = d3.curveLinear(buffer);
+    curve.lineStart();
+
+    let range = yScale.range();
+    // add a dummy point at what is effectively (0,0)
+    curve.point(
+      d.c.xScale(d.a.start),
+      resolveValue(modifier.row, d) * d.c.rowHeight + range[1]
     );
-    return "";
-  }
-  let buffer = d3.path();
-  let curve = d3.curveLinear(buffer);
-  curve.lineStart();
-  for (const point of d.a.points) {
-    curve.point(d.c.xScale(point[0]), d.c.rowHeight * d.a.y + yScale(point[1]));
-  }
-  curve.lineEnd();
-  return buffer.toString();
-};
 
-/**
- * @internal
- */
-export const defaultLowerAreaFn = <
-  A extends ContinuousAnnotation,
-  C extends Chart<any>
->(
-  d: AnnotationDatum<A, C>
-) => {
-  let yScale = linePlotScaleMap.get(d.a.id);
-  if (yScale == undefined) {
-    console.error("yScale not defined for", d.a, "in call to linePlot()");
-    return "";
-  }
-  let buffer = d3.path();
-  let curve = d3.curveLinear(buffer);
-  curve.lineStart();
+    for (const [i, value] of d.a.values.entries()) {
+      curve.point(
+        d.c.xScale(d.a.start + i),
+        resolveValue(modifier.row, d) * d.c.rowHeight + yScale(value)
+      );
+    }
+    // add a dummy point at what is effectively (<end>,0)
+    curve.point(
+      d.c.xScale(d.a.start + d.a.values[d.a.values.length - 1]),
+      resolveValue(modifier.row, d) * d.c.rowHeight + range[1]
+    );
 
-  let range = yScale.range();
-  // add a dummy point at what is effectively (0,0)
-  curve.point(d.c.xScale(d.a.points[0][0]), d.c.rowHeight * d.a.y + range[1]);
+    curve.lineEnd();
+    return buffer.toString();
+  };
+}
 
-  for (const point of d.a.points) {
-    curve.point(d.c.xScale(point[0]), d.c.rowHeight * d.a.y + yScale(point[1]));
-  }
-  // add a dummy point at what is effectively (<end>,0)
-  curve.point(
-    d.c.xScale(d.a.points[d.a.points.length - 1][0]),
-    d.c.rowHeight * d.a.y + range[1]
-  );
+function getDefaultUpperAreaFn<A extends PlotAnnotation, C extends Chart<any>>(
+  modifier: LinePlotModifier<A, C>
+) {
+  return (d: AnnotationDatum<A, C>) => {
+    let yScale = linePlotScaleMap.get(d.a.id);
+    if (yScale == undefined) {
+      console.error("yScale not defined for", d.a, "in call to linePlot()");
+      return "";
+    }
+    let buffer = d3.path();
+    let curve = d3.curveLinear(buffer);
+    curve.lineStart();
 
-  curve.lineEnd();
-  return buffer.toString();
-};
+    // add a dummy point at what is effectively (0,<max>)
+    curve.point(
+      d.c.xScale(d.a.start),
+      resolveValue(modifier.row, d) * d.c.rowHeight
+    );
 
-/**
- * @internal
- */
-export const defaultUpperAreaFn = <
-  A extends ContinuousAnnotation,
-  C extends Chart<any>
->(
-  d: AnnotationDatum<A, C>
-) => {
-  let yScale = linePlotScaleMap.get(d.a.id);
-  if (yScale == undefined) {
-    console.error("yScale not defined for", d.a, "in call to linePlot()");
-    return "";
-  }
-  let buffer = d3.path();
-  let curve = d3.curveLinear(buffer);
-  curve.lineStart();
+    for (const [i, value] of d.a.values.entries()) {
+      curve.point(
+        d.c.xScale(d.a.start + i),
+        resolveValue(modifier.row, d) * d.c.rowHeight + yScale(value)
+      );
+    }
+    // add a dummy point at what is effectively (<end>,<max>)
+    curve.point(
+      d.c.xScale(d.a.start + d.a.values[d.a.values.length - 1]),
+      resolveValue(modifier.row, d) * d.c.rowHeight
+    );
 
-  // add a dummy point at what is effectively (0,<max>)
-  curve.point(d.c.xScale(d.a.points[0][0]), d.c.rowHeight * d.a.y);
-
-  for (const point of d.a.points) {
-    curve.point(d.c.xScale(point[0]), d.c.rowHeight * d.a.y + yScale(point[1]));
-  }
-  // add a dummy point at what is effectively (<end>,<max>)
-  curve.point(
-    d.c.xScale(d.a.points[d.a.points.length - 1][0]),
-    d.c.rowHeight * d.a.y
-  );
-
-  curve.lineEnd();
-  return buffer.toString();
-};
+    curve.lineEnd();
+    return buffer.toString();
+  };
+}
 
 /**
  * An interface that defines the parameters for instantiating a LinePlotModifier.
  * @internal
  */
 export type LinePlotModifierConfig<
-  A extends ContinuousAnnotation,
+  A extends PlotAnnotation,
   C extends Chart<any>
 > = GlyphModifierConfig<A, C> & LinePlotConfig<A, C>;
 
@@ -125,14 +129,14 @@ export type LinePlotModifierConfig<
  * @internal
  */
 export class LinePlotModifier<
-  A extends ContinuousAnnotation,
+  A extends PlotAnnotation,
   C extends Chart<any>
 > extends GlyphModifier<A, C> {
   pathData?: GlyphProperty<A, C, string>;
 
   constructor(config: LinePlotModifierConfig<A, C>) {
     super(config);
-    this.pathData = config.pathData || defaultLineFn;
+    this.pathData = config.pathData || getDefaultLineFn(this);
     this.fillColor = config.fillColor || "none";
   }
 
@@ -150,7 +154,7 @@ export class LinePlotModifier<
  * @internal
  */
 export type LinePlotAreaModifierConfig<
-  A extends ContinuousAnnotation,
+  A extends PlotAnnotation,
   C extends Chart<any>
 > = GlyphModifierConfig<A, C> & LinePlotConfig<A, C>;
 
@@ -159,14 +163,14 @@ export type LinePlotAreaModifierConfig<
  * @internal
  */
 export class LinePlotAreaModifier<
-  A extends ContinuousAnnotation,
+  A extends PlotAnnotation,
   C extends Chart<any>
 > extends GlyphModifier<A, C> {
   pathData?: GlyphProperty<A, C, string>;
 
   constructor(config: LinePlotAreaModifierConfig<A, C>) {
     super(config);
-    this.pathData = config.pathData || defaultLowerAreaFn;
+    this.pathData = config.pathData || getDefaultLowerAreaFn(this);
     this.strokeColor = "none";
   }
 
@@ -182,10 +186,8 @@ export class LinePlotAreaModifier<
 /**
  * An interface that defines the parameters for a call to the linePlot rendering function.
  */
-export interface LinePlotConfig<
-  A extends ContinuousAnnotation,
-  C extends Chart<any>
-> extends GlyphConfig<A, C> {
+export interface LinePlotConfig<A extends PlotAnnotation, C extends Chart<any>>
+  extends GlyphConfig<A, C> {
   /**
    * A callback that returns a string that defines the line's SVG path
    */
@@ -230,7 +232,7 @@ export interface LinePlotConfig<
  * This renders PlotAnnotations as line plots in a Chart.
  * @param config
  */
-export function linePlot<A extends ContinuousAnnotation, C extends Chart<any>>(
+export function linePlot<A extends PlotAnnotation, C extends Chart<any>>(
   config: LinePlotConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-line-plot-glyph");
@@ -267,7 +269,8 @@ export function linePlot<A extends ContinuousAnnotation, C extends Chart<any>>(
 
     let areaModifier = new LinePlotAreaModifier({
       ...config,
-      pathData: defaultLowerAreaFn,
+      // TODO: this needs to be reworked
+      // pathData: defaultLowerAreaFn,
       selector: internalAreaSelector,
       selection: areaBinding.merge,
       strokeColor: "none",
@@ -290,7 +293,8 @@ export function linePlot<A extends ContinuousAnnotation, C extends Chart<any>>(
 
     let areaModifier = new LinePlotAreaModifier({
       ...config,
-      pathData: defaultUpperAreaFn,
+      // TODO: this needs to be reworked
+      // pathData: defaultUpperAreaFn,
       selector: internalAreaSelector,
       selection: areaBinding.merge,
       strokeColor: "none",

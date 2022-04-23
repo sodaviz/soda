@@ -8,7 +8,7 @@ function annotationsOverlap(
   b: Annotation,
   tolerance: number = 0
 ) {
-  return a.x - tolerance <= b.x + b.w && a.x + a.w + tolerance >= b.x;
+  return a.start - tolerance <= b.end && a.end + tolerance >= b.start;
 }
 
 /**

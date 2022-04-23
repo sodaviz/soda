@@ -84,43 +84,43 @@ export function getAlignmentAnnotations(config: AlignmentConfig) {
   let end = config.end || config.start + matchesJoined.length;
   let i = 0;
 
-  let matchAnn = new SequenceAnnotation({
+  let matchAnn = {
     id: config.id + "-matches",
     tag: "matches",
     start: config.start,
     end: end,
     row: config.row,
     sequence: matchesJoined,
-  });
+  };
 
-  let subAnn = new SequenceAnnotation({
+  let subAnn = {
     id: config.id + "-substitutions",
     tag: "substitutions",
     start: config.start,
     end: end,
     row: config.row,
     sequence: substitutionsJoined,
-  });
+  };
 
-  let gapAnn = new SequenceAnnotation({
+  let gapAnn = {
     id: config.id + "-gaps",
     tag: "gaps",
     start: config.start,
     end: end,
     row: config.row,
     sequence: gapsJoined,
-  });
+  };
 
   let insertAnn = insertions.map((insert) => {
     let start = config.start + insert[0] - 0.5;
-    return new SequenceAnnotation({
+    return {
       id: config.id + `-insertion-${i++}`,
       tag: "inserts",
       start,
       end: start + insert[1],
       row: config.row,
       sequence: querySplit.splice(insert[0], insert[1]).join(""),
-    });
+    };
   });
 
   return {

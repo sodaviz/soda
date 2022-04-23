@@ -4,10 +4,15 @@ import { AnnotationGraph } from "./annotation-graph";
 /**
  * @internal
  */
-function sortByX(verts: string[], graph: AnnotationGraph<Annotation>): void {
+function sortByStart(
+  verts: string[],
+  graph: AnnotationGraph<Annotation>
+): void {
   // sorts the vertices by Annotation X coordinates (the start of the annotation)
   verts.sort((v1: string, v2: string) => {
-    if (graph.getAnnotationFromId(v1).x > graph.getAnnotationFromId(v2).x) {
+    if (
+      graph.getAnnotationFromId(v1).start > graph.getAnnotationFromId(v2).start
+    ) {
       return 1;
     } else {
       return -1;
@@ -28,12 +33,14 @@ export function intervalGraphLayout(ann: Annotation[], tolerance: number = 0) {
   }
 
   let graph: AnnotationGraph<Annotation> = new AnnotationGraph(ann, tolerance);
+  let layout: Map<string, number> = new Map();
+
   let colorCount = 0;
   let verts = graph.getVertices();
-  sortByX(verts, graph);
+  sortByStart(verts, graph);
   let colors: Map<number, string[]> = new Map();
   colors.set(0, [verts[0]]);
-  graph.getAnnotationFromId(verts[0]).y = 0;
+  layout.set(verts[0], 0);
   for (const v of verts.slice(1)) {
     let vEdges = graph.getEdges(v)!;
     let vColor = 0;
@@ -55,7 +62,7 @@ export function intervalGraphLayout(ann: Annotation[], tolerance: number = 0) {
       vColors.push(v);
     }
 
-    graph.getAnnotationFromId(v).y = vColor;
+    layout.set(v, vColor);
   }
   return colorCount++;
 }

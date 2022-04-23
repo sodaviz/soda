@@ -34,9 +34,17 @@ export function parseGff3Record(record: string): Gff3Annotation {
     start = parseInt(splitRecord[3]);
   }
 
+  if (start == undefined) {
+    throw "GFF3 start undefined";
+  }
+
   let end: number | undefined;
   if (splitRecord[0] != ".") {
     end = parseInt(splitRecord[4]);
+  }
+
+  if (end == undefined) {
+    throw "GFF3 end undefined";
   }
 
   let score: number | undefined;
@@ -73,7 +81,6 @@ export function parseGff3Record(record: string): Gff3Annotation {
     id: id || generateId("gff3-ann"),
     start,
     end,
-    row: 0,
     seqid,
     source,
     type,

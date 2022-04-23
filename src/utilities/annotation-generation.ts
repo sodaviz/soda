@@ -1,13 +1,7 @@
-import { Annotation, AnnotationConfig } from "../annotations/annotation";
-import {
-  SequenceAnnotation,
-  SequenceAnnotationConfig,
-} from "../annotations/sequence-annotation";
+import { Annotation } from "../annotations/annotation";
+import { SequenceAnnotation } from "../annotations/sequence-annotation";
 import { generateId } from "./id-generation";
-import {
-  ContinuousAnnotation,
-  ContinuousAnnotationConfig,
-} from "../annotations/continuous-annotation";
+import { PlotAnnotation } from "../annotations/plot-annotation";
 
 export enum GenerationPattern {
   Sequential = "sequential",
@@ -28,38 +22,6 @@ export interface AnnotationGenerationConfig {
 }
 
 /**
- * A helper function that creates some Annotation configs.
- * @internal
- * @param conf
- */
-function generateConfigs(conf: AnnotationGenerationConfig): AnnotationConfig[] {
-  let confs: AnnotationConfig[] = [];
-  if (
-    conf.generationPattern == GenerationPattern.Sequential ||
-    conf.generationPattern == undefined
-  ) {
-    for (let i = 0; i < conf.n; i++) {
-      confs.push({
-        id: generateId("soda-gen-ann"),
-        width: conf.width || 100,
-        start: i * ((conf.width || 100) + (conf.pad || 0)),
-        row: (conf.startY || 0) + (i % (conf.maxY || 2)),
-      });
-    }
-  } else if (conf.generationPattern == GenerationPattern.Random) {
-    for (let i = 0; i < conf.n; i++) {
-      confs.push({
-        id: generateId("soda-gen-ann"),
-        width: randInt(conf.width || 100),
-        start: randInt(conf.maxX || 1000),
-        row: 0,
-      });
-    }
-  }
-  return confs;
-}
-
-/**
  * A utility function to generate some uniformly distributed Annotation objects. This is intended for
  * testing/prototyping/playing around.
  * @param conf
@@ -67,9 +29,33 @@ function generateConfigs(conf: AnnotationGenerationConfig): AnnotationConfig[] {
 export function generateAnnotations(
   conf: AnnotationGenerationConfig
 ): Annotation[] {
-  return generateConfigs(conf).map((c) => {
-    return new Annotation(c);
-  });
+  let ann: Annotation[] = [];
+  if (
+    conf.generationPattern == GenerationPattern.Sequential ||
+    conf.generationPattern == undefined
+  ) {
+    for (let i = 0; i < conf.n; i++) {
+      let start = i * ((conf.width || 100) + (conf.pad || 0));
+      let end = start + (conf.width || 100);
+      ann.push({
+        id: generateId("soda-gen-ann"),
+        start,
+        end,
+      });
+    }
+  } else if (conf.generationPattern == GenerationPattern.Random) {
+    for (let i = 0; i < conf.n; i++) {
+      let start = randInt(conf.maxX || 1000);
+      let end = start + randInt(conf.width || 100);
+
+      ann.push({
+        id: generateId("soda-gen-ann"),
+        start,
+        end,
+      });
+    }
+  }
+  return ann;
 }
 
 /**
@@ -85,13 +71,16 @@ const DNA_ALPHABET = ["A", "C", "T", "G"];
 export function generateSequenceAnnotations(
   conf: AnnotationGenerationConfig
 ): SequenceAnnotation[] {
-  let sequenceConf = <SequenceAnnotationConfig[]>generateConfigs(conf);
-  return sequenceConf.map((a) => {
-    a.sequence = "";
+  let ann = generateAnnotations(conf);
+  return ann.map((a) => {
+    let sequence = "";
     for (let i = 0; i < (conf.width || 100); i++) {
-      a.sequence += DNA_ALPHABET[randInt(4)];
+      sequence += DNA_ALPHABET[randInt(4)];
     }
-    return new SequenceAnnotation(a);
+    return {
+      ...a,
+      sequence,
+    };
   });
 }
 
@@ -102,14 +91,17 @@ export function generateSequenceAnnotations(
  */
 export function generatePlotAnnotations(
   conf: AnnotationGenerationConfig
-): ContinuousAnnotation[] {
-  let sequenceConf = <ContinuousAnnotationConfig[]>generateConfigs(conf);
-  return sequenceConf.map((c) => {
-    c.values = [];
+): PlotAnnotation[] {
+  let ann = generateAnnotations(conf);
+  return ann.map((a) => {
+    let values = [];
     for (let i = 0; i < (conf.width || 100); i++) {
-      c.values[i] = randInt(100);
+      values[i] = randInt(100);
     }
-    return new ContinuousAnnotation(c);
+    return {
+      ...a,
+      values,
+    };
   });
 }
 
