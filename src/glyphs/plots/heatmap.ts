@@ -68,7 +68,7 @@ export class HeatmapModifier<
   constructor(config: HeatmapModifierConfig<A, C>) {
     super(config);
     this.strokeColor = config.strokeColor || "none";
-    this.colorScheme = config.colorScheme || d3.interpolatePRGn;
+    this.colorScheme = config.colorScheme || d3.interpolateViridis;
     this.domain = config.domain || [0, 1];
   }
 
@@ -83,10 +83,10 @@ export class HeatmapModifier<
 
       d3.select(nodes[i])
         .selectAll<SVGRectElement, number>("rect")
-        .data(d.a.values)
+        .data(Array.from(d.a.values.entries()))
         .enter()
         .append("rect")
-        .attr("fill", (v) => tmpColorScale(v));
+        .attr("fill", (v) => tmpColorScale(v[1]));
     });
 
     this.zoom();
@@ -95,8 +95,8 @@ export class HeatmapModifier<
   defaultZoom() {
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
-        .selectAll<SVGRectElement, number>("rect")
-        .attr("x", this.chart.xScale(d.a.start + i))
+        .selectAll<SVGRectElement, [number, number]>("rect")
+        .attr("x", (v) => this.chart.xScale(d.a.start + v[0]))
         .attr("y", resolveValue(this.y, d))
         .attr("width", () => this.chart.xScale(1) - this.chart.xScale(0))
         .attr("height", resolveValue(this.height, d));
