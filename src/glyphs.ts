@@ -22,4 +22,5 @@ export { linePlot, LinePlotConfig } from "./glyphs/plots/line-plot";
 export { area, AreaConfig } from "./glyphs/plots/area";
 export { rectangle, RectangleConfig } from "./glyphs/rectangle";
 export { sequence, SequenceConfig } from "./glyphs/sequence";
-export { text, TextConfig } from "./glyphs/text";
+export { dynamicText, DynamicTextConfig } from "./glyphs/text/dynamic-text";
+export { simpleText, SimpleTextConfig } from "./glyphs/text/simple-text";
