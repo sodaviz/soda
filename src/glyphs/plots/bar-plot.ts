@@ -62,7 +62,7 @@ export class BarPlotModifier<
     super.defaultInitialize();
     this.selection
       .selectAll("rect")
-      .data((d) => d.a.values)
+      .data((d) => Array.from(d.a.values.entries()))
       .enter()
       .append("rect")
       .attr("fill", "green");
@@ -72,17 +72,16 @@ export class BarPlotModifier<
   defaultZoom() {
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
-        .selectAll<SVGRectElement, number>("rect")
-        .attr("x", d.c.xScale(d.a.start + i))
+        .selectAll<SVGRectElement, [number, number]>("rect")
+        .attr("x", (v) => d.c.xScale(d.a.start + v[0]))
         .attr(
           "y",
-          // (point) => d.c.rowHeight * (d.a.y + 1) - this.barHeightFn(d.a, point)
-          (value) =>
+          (v) =>
             (resolveValue(this.row, d) + 1) * d.c.rowHeight -
-            this.barHeightFn(d.a, value)
+            this.barHeightFn(d.a, v[1])
         )
         .attr("width", 5)
-        .attr("height", (point) => this.barHeightFn(d.a, point));
+        .attr("height", (v) => this.barHeightFn(d.a, v[1]));
     });
   }
 }

@@ -96,7 +96,7 @@ export function generatePlotAnnotations(
   return ann.map((a) => {
     let values = [];
     for (let i = 0; i < (conf.width || 100); i++) {
-      values[i] = randInt(100);
+      values[i] = randInt(100) / 100;
     }
     return {
       ...a,
