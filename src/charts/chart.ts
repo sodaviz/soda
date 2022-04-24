@@ -16,7 +16,7 @@ import { AxisType } from "../glyphs/axes";
 
 /**
  * This returns a "placeholder" xScale, which is initially used on a Chart before one is properly initialized.
- * If the Chart tries to use the placeholder scale, it should always return 0s and print out warnings to the console.
+ * If the Chart tries to use the placeholder scale, it shoul(d.a.end - d.a.start)ays return 0s and print out warnings to the console.
  * @internal
  * @param chart
  */
@@ -1409,9 +1409,8 @@ export class Chart<P extends RenderParams> {
         let layoutFn = params.layoutFn || intervalGraphLayout;
         this.rowCount = params.rowCount || layoutFn(params.annotations) + 1;
       } else {
-        this.rowCount =
-          params.rowCount ||
-          Math.max(...params.annotations.map((a) => a.row)) + 1;
+        // TODO: this is going to need a rework
+        this.rowCount = params.rowCount || 1;
       }
     }
   }
@@ -1502,8 +1501,8 @@ export class Chart<P extends RenderParams> {
         let min = Infinity;
         let max = 0;
         for (const a of params.annotations) {
-          min = Math.min(a.x, min);
-          max = Math.max(a.x + a.w, max);
+          min = Math.min(a.start, min);
+          max = Math.max(a.end, max);
         }
         start = params.start || min;
         end = params.end || max;

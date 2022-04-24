@@ -57,7 +57,7 @@ export class ArcModifier<
 
   constructor(config: ArcModifierConfig<A, C>) {
     super(config);
-    this.y = (d) => d.c.rowHeight * (d.a.y + 1);
+    this.y = (d) => (resolveValue(this.row, d) + 1) * d.c.rowHeight;
     this.d = buildArcPathDFn(this.x, this.width, this.y, this.height);
     this.fillColor = config.fillColor || "none";
   }

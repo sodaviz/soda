@@ -37,12 +37,11 @@ export function getHorizontalAxisAnnotation(
   chart: Chart<any>,
   row = 0
 ): Annotation {
-  return new Annotation({
+  return {
     id: "soda-horizontal-axis",
     start: 0,
-    width: chart.viewportWidth - 1,
-    row: row,
-  });
+    end: chart.viewportWidth - 1,
+  };
 }
 
 /**
@@ -80,9 +79,15 @@ export class HorizontalAxisModifier<
         ]);
       this.range = config.range || ((d) => [0, d.c.viewportWidth - 1]);
     } else {
-      this.domain = config.domain || ((d) => [d.a.x, d.a.x + d.a.w]);
+      this.domain =
+        config.domain ||
+        ((d) => [d.a.start, d.a.start + (d.a.end - d.a.start)]);
       this.range =
-        config.range || ((d) => [d.c.xScale(d.a.x), d.c.xScale(d.a.x + d.a.w)]);
+        config.range ||
+        ((d) => [
+          d.c.xScale(d.a.start),
+          d.c.xScale(d.a.start + (d.a.end - d.a.start)),
+        ]);
     }
     this.strokeColor = config.strokeColor || "none";
     this.ticks = config.ticks || 5;

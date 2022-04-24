@@ -10,7 +10,11 @@ const DEFAULT_VERTEX_SORT = (
 ) => {
   // the default vertex sort function; it just sorts by annotation width
   verts.sort((v1: string, v2: string) => {
-    if (graph.getAnnotationFromId(v1).w > graph.getAnnotationFromId(v2).w) {
+    let ann1 = graph.getAnnotationFromId(v1);
+    let ann2 = graph.getAnnotationFromId(v2);
+    let w1 = ann1.end - ann1.start;
+    let w2 = ann2.end - ann2.start;
+    if (w1 > w2) {
       return -1;
     } else {
       return 1;
@@ -37,6 +41,7 @@ export function greedyGraphLayout<A extends Annotation>(
     return 0;
   }
   let graph: AnnotationGraph<A> = new AnnotationGraph(ann, tolerance);
+  let layout: Map<string, number> = new Map();
   let nextColor = 0;
   while (graph.edges.size > 0) {
     // we use this map to determine whether or not we
@@ -53,7 +58,7 @@ export function greedyGraphLayout<A extends Annotation>(
     for (const v of verts) {
       if (vertAvailable.get(v)) {
         // take the first node and assign it a color
-        graph.getAnnotationFromId(v).y = nextColor;
+        layout.set(graph.getAnnotationFromId(v).id, nextColor);
 
         for (const v2 of graph.getEdges(v)) {
           // remove all of that nodes adjacent nodes from consideration
