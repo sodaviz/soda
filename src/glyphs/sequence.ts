@@ -47,7 +47,7 @@ export class SequenceModifier<
     this.y =
       config.y ||
       ((d: AnnotationDatum<S, C>) =>
-        (resolveValue(this.row, d) + 1) * d.c.rowHeight);
+        (resolveValue(this.row, d) + 1) * d.c.rowHeight - 2);
     this.x =
       config.x ||
       ((d: AnnotationDatum<S, C>) => d.c.xScale(d.a.start) - this.offset);
