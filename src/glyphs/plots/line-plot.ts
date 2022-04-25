@@ -17,30 +17,29 @@ import {
  */
 const linePlotScaleMap: Map<string, d3.ScaleLinear<number, number>> = new Map();
 
-function getDefaultLineFn<A extends PlotAnnotation, C extends Chart<any>>(
-  modifier: LinePlotModifier<A, C>
-) {
-  return (d: AnnotationDatum<A, C>) => {
-    let yScale = linePlotScaleMap.get(d.a.id);
-    if (yScale == undefined) {
-      console.error(
-        `yScale not defined for annotation: ${d.a.id} in call to linePlot()`
-      );
-      return "";
-    }
-    let buffer = d3.path();
-    let curve = d3.curveLinear(buffer);
-    curve.lineStart();
-    for (const [i, value] of d.a.values.entries()) {
-      curve.point(
-        d.c.xScale(d.a.start + i),
-        resolveValue(modifier.row, d) * d.c.rowHeight + yScale(value)
-      );
-    }
-    curve.lineEnd();
-    return buffer.toString();
-  };
-}
+/**
+ * @internal
+ * @param d
+ */
+const defaultLineFn = <A extends PlotAnnotation, C extends Chart<any>>(
+  d: AnnotationDatum<A, C>
+) => {
+  let yScale = linePlotScaleMap.get(d.a.id);
+  if (yScale == undefined) {
+    console.error(
+      `yScale not defined for annotation: ${d.a.id} in call to linePlot()`
+    );
+    return "";
+  }
+  let buffer = d3.path();
+  let curve = d3.curveLinear(buffer);
+  curve.lineStart();
+  for (const [i, value] of d.a.values.entries()) {
+    curve.point(d.c.xScale(d.a.start + i), yScale(value));
+  }
+  curve.lineEnd();
+  return buffer.toString();
+};
 
 /**
  * An interface that defines the parameters for instantiating a LinePlotModifier.
@@ -63,16 +62,24 @@ export class LinePlotModifier<
 
   constructor(config: LinePlotModifierConfig<A, C>) {
     super(config);
-    this.pathData = config.pathData || getDefaultLineFn(this);
+    this.pathData = config.pathData || defaultLineFn;
     this.fillColor = config.fillColor || "none";
   }
 
   defaultZoom() {
+    this.applyY();
     this.applyD();
   }
 
   applyD(): void {
     this.applyAttr("d", this.pathData);
+  }
+
+  applyY() {
+    this.applyAttr(
+      "transform",
+      (d) => `translate(0, ${resolveValue(this.y, d)})`
+    );
   }
 }
 

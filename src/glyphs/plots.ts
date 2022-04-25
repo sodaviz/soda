@@ -33,7 +33,7 @@ export function initializePlotGlyphYScales<
   let domain = config.domain || [0, 1];
   let range =
     config.range ||
-    ((d: AnnotationDatum<A, C>) => [0, d.c.rowHeight * rowSpan]);
+    ((d: AnnotationDatum<A, C>) => [0, d.c.rowHeight * rowSpan - 4]);
 
   for (const d of config.data) {
     map.set(

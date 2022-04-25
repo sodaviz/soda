@@ -54,6 +54,11 @@ export class BarPlotModifier<
 
   constructor(config: BarPlotModifierConfig<A, C>) {
     super(config);
+    this.y =
+      config.y != undefined
+        ? config.y
+        : (d: AnnotationDatum<A, C>) =>
+            resolveValue(this.row, d) * d.c.rowHeight - 2;
     this.strokeColor = config.strokeColor || "none";
     this.barHeightFn = config.barHeightFn || defaultBarHeightFn;
   }
@@ -64,25 +69,27 @@ export class BarPlotModifier<
       .selectAll("rect")
       .data((d) => Array.from(d.a.values.entries()))
       .enter()
-      .append("rect")
-      .attr("fill", "green");
+      .append("rect");
     this.zoom();
   }
 
   defaultZoom() {
+    this.applyY();
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
         .selectAll<SVGRectElement, [number, number]>("rect")
         .attr("x", (v) => d.c.xScale(d.a.start + v[0]))
-        .attr(
-          "y",
-          (v) =>
-            (resolveValue(this.row, d) + 1) * d.c.rowHeight -
-            this.barHeightFn(d.a, v[1])
-        )
-        .attr("width", 5)
+        .attr("y", (v) => d.c.rowHeight - this.barHeightFn(d.a, v[1]))
+        .attr("width", () => this.chart.xScale(1) - this.chart.xScale(0))
         .attr("height", (v) => this.barHeightFn(d.a, v[1]));
     });
+  }
+
+  applyY() {
+    this.applyAttr(
+      "transform",
+      (d) => `translate(0, ${resolveValue(this.y, d)})`
+    );
   }
 }
 

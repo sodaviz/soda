@@ -44,37 +44,24 @@ function getDefaultAreaFn<A extends PlotAnnotation, C extends Chart<any>>(
 
     if (fillDirection == FillDirection.Down) {
       // add a dummy point at what is effectively (0,0)
-      curve.point(
-        d.c.xScale(d.a.start),
-        resolveValue(modifier.row, d) * d.c.rowHeight + range[1]
-      );
+      curve.point(d.c.xScale(d.a.start), range[1]);
     } else {
       // add a dummy point at what is effectively (0,<max>)
-      curve.point(
-        d.c.xScale(d.a.start),
-        resolveValue(modifier.row, d) * d.c.rowHeight
-      );
+      curve.point(d.c.xScale(d.a.start), d.c.rowHeight);
     }
 
     for (const [i, value] of d.a.values.entries()) {
-      curve.point(
-        d.c.xScale(d.a.start + i),
-        resolveValue(modifier.row, d) * d.c.rowHeight + yScale(value)
-      );
+      curve.point(d.c.xScale(d.a.start + i), yScale(value));
     }
 
     if (fillDirection == FillDirection.Down) {
       // add a dummy point at what is effectively (<end>,0)
-      curve.point(
-        d.c.xScale(d.a.start + d.a.values.length),
-        resolveValue(modifier.row, d) * d.c.rowHeight + range[1]
-      );
+      curve.point(d.c.xScale(d.a.start + d.a.values.length), range[1]);
+      curve.point(d.c.xScale(d.a.start), range[1]);
     } else {
       // add a dummy point at what is effectively (<end>,<max>)
-      curve.point(
-        d.c.xScale(d.a.start + d.a.values.length),
-        resolveValue(modifier.row, d) * d.c.rowHeight
-      );
+      curve.point(d.c.xScale(d.a.start + d.a.values.length), d.c.rowHeight);
+      curve.point(d.c.xScale(d.a.start), d.c.rowHeight);
     }
 
     curve.lineEnd();
@@ -109,11 +96,19 @@ export class AreaModifier<
   }
 
   defaultZoom() {
+    this.applyY();
     this.applyD();
   }
 
   applyD(): void {
     this.applyAttr("d", this.pathData);
+  }
+
+  applyY() {
+    this.applyAttr(
+      "transform",
+      (d) => `translate(0, ${resolveValue(this.y, d)})`
+    );
   }
 }
 

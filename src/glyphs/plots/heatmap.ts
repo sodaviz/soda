@@ -93,14 +93,21 @@ export class HeatmapModifier<
   }
 
   defaultZoom() {
+    this.applyY();
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
         .selectAll<SVGRectElement, [number, number]>("rect")
         .attr("x", (v) => this.chart.xScale(d.a.start + v[0]))
-        .attr("y", resolveValue(this.y, d))
         .attr("width", () => this.chart.xScale(1) - this.chart.xScale(0))
         .attr("height", resolveValue(this.height, d));
     });
+  }
+
+  applyY() {
+    this.applyAttr(
+      "transform",
+      (d) => `translate(0, ${resolveValue(this.y, d)})`
+    );
   }
 }
 
