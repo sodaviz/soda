@@ -88,7 +88,6 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
   }
 
   public applyLayoutAndSetRowCount(params: P) {
-    super.applyLayoutAndSetRowCount(params);
     this.rowHeight = this.trackHeight / this.rowCount;
   }
 

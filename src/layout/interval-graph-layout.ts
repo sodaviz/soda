@@ -1,5 +1,8 @@
 import { Annotation } from "../annotations/annotation";
 import { AnnotationGraph } from "./annotation-graph";
+import { MapVerticalLayout } from "./vertical-layout";
+import { AnnotationDatum } from "../glyph-utilities/bind";
+import { Chart } from "../charts/chart";
 
 /**
  * @internal
@@ -33,14 +36,14 @@ export function intervalGraphLayout(ann: Annotation[], tolerance: number = 0) {
   }
 
   let graph: AnnotationGraph<Annotation> = new AnnotationGraph(ann, tolerance);
-  let layout: Map<string, number> = new Map();
+  let layoutMap: Map<string, number> = new Map();
 
   let colorCount = 0;
   let verts = graph.getVertices();
   sortByStart(verts, graph);
   let colors: Map<number, string[]> = new Map();
   colors.set(0, [verts[0]]);
-  layout.set(verts[0], 0);
+  layoutMap.set(verts[0], 0);
   for (const v of verts.slice(1)) {
     let vEdges = graph.getEdges(v)!;
     let vColor = 0;
@@ -62,7 +65,19 @@ export function intervalGraphLayout(ann: Annotation[], tolerance: number = 0) {
       vColors.push(v);
     }
 
-    layout.set(v, vColor);
+    layoutMap.set(v, vColor);
   }
-  return colorCount++;
+  let layout = <MapVerticalLayout>(
+    function (
+      this: MapVerticalLayout,
+      d: AnnotationDatum<any, Chart<any>>
+    ): number {
+      let row = this.rowMap.get(d.a.id);
+      return row || 0;
+    }
+  );
+  layout.rowMap = layoutMap;
+  layout.rowCount = colorCount++;
+
+  return layout;
 }

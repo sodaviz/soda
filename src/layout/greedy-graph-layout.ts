@@ -1,5 +1,8 @@
 import { Annotation } from "../annotations/annotation";
 import { AnnotationGraph } from "./annotation-graph";
+import { AnnotationDatum } from "../glyph-utilities/bind";
+import { MapVerticalLayout } from "./vertical-layout";
+import { Chart } from "../charts/chart";
 
 /**
  * @internal
@@ -41,7 +44,7 @@ export function greedyGraphLayout<A extends Annotation>(
     return 0;
   }
   let graph: AnnotationGraph<A> = new AnnotationGraph(ann, tolerance);
-  let layout: Map<string, number> = new Map();
+  let colors: Map<string, number> = new Map();
   let nextColor = 0;
   while (graph.edges.size > 0) {
     // we use this map to determine whether or not we
@@ -58,7 +61,7 @@ export function greedyGraphLayout<A extends Annotation>(
     for (const v of verts) {
       if (vertAvailable.get(v)) {
         // take the first node and assign it a color
-        layout.set(graph.getAnnotationFromId(v).id, nextColor);
+        colors.set(graph.getAnnotationFromId(v).id, nextColor);
 
         for (const v2 of graph.getEdges(v)) {
           // remove all of that nodes adjacent nodes from consideration
@@ -71,5 +74,18 @@ export function greedyGraphLayout<A extends Annotation>(
     }
     nextColor++;
   }
-  return nextColor;
+
+  let layout = <MapVerticalLayout>(
+    function (
+      this: MapVerticalLayout,
+      d: AnnotationDatum<Annotation, Chart<any>>
+    ): number {
+      let row = this.rowMap.get(d.a.id);
+      return row || 0;
+    }
+  );
+  layout.rowMap = colors;
+  layout.rowCount = nextColor;
+
+  return layout;
 }

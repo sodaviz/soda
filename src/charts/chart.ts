@@ -5,7 +5,6 @@ import {
   getHorizontalAxisAnnotation,
   horizontalAxis,
 } from "../glyphs/axes/horizontal-axis";
-import { intervalGraphLayout } from "../layout/interval-graph-layout";
 import { rectangle } from "../glyphs/rectangle";
 import { BindTarget } from "../glyph-utilities/bind";
 import { GlyphModifier } from "../glyph-utilities/glyph-modifier";
@@ -13,10 +12,15 @@ import { generateId } from "../utilities/id-generation";
 import { ChartObserver } from "../observers/chart-observer";
 import { removeGlyphsByQuery } from "../glyph-utilities/glyph-removal";
 import { AxisType } from "../glyphs/axes";
+import {
+  getDefaultVerticalLayout,
+  VerticalLayout,
+} from "../layout/vertical-layout";
 
 /**
  * This returns a "placeholder" xScale, which is initially used on a Chart before one is properly initialized.
- * If the Chart tries to use the placeholder scale, it shoul(d.a.end - d.a.start)ays return 0s and print out warnings to the console.
+ * If the Chart tries to use the placeholder scale, it shoul(d.a.end - d.a.start)ays return 0s and print out warnings
+ * to the console.
  * @internal
  * @param chart
  */
@@ -241,6 +245,10 @@ export interface ChartConfig<P extends RenderParams> {
  */
 export interface RenderParams {
   /**
+   * The Annotation objects to be rendered.
+   */
+  annotations?: Annotation[];
+  /**
    * The start coordinate of the region that will be rendered.
    */
   start?: number;
@@ -256,18 +264,6 @@ export interface RenderParams {
    * The number of rows that will be rendered.
    */
   rowCount?: number;
-  /**
-   * The Annotation objects to be rendered.
-   */
-  annotations?: Annotation[];
-  /**
-   * This determines whether or not the Chart will use an automatic layout function.
-   */
-  autoLayout?: boolean;
-  /**
-   * If this is provided, the Chart will use it to define a layout for the provided annotations.
-   */
-  layoutFn?: (ann: Annotation[]) => number;
 }
 
 /**
@@ -470,13 +466,24 @@ export class Chart<P extends RenderParams> {
    */
   xScale: d3.ScaleLinear<number, number>;
   /**
+   * A simple function that maps from row numbers to the pixel y value of the corresponding row.
+   * @param row
+   */
+  yScale: (this: any, row: number) => number = function (
+    this: Chart<P>,
+    row: number
+  ): number {
+    return row * this.rowHeight;
+  };
+  layout: VerticalLayout = getDefaultVerticalLayout();
+  /**
    * The height in pixels of a horizontal row in the Chart. This defaults to a value of 10.
    */
   rowHeight: number = 10;
   /**
    * The number of rows in the Chart.
    */
-  rowCount: number = 0;
+  rowCount: number = 1;
   /**
    * This controls whether or not the rows will be colored in an alternating pattern.
    */
@@ -616,7 +623,8 @@ export class Chart<P extends RenderParams> {
   }
 
   public defaultPreRender(params: P): void {
-    this.applyLayoutAndSetRowCount(params);
+    this.setLayoutFromRenderParams(params);
+    this.setRowCountFromRenderParams(params);
     this.updateDivProperties();
     this.addAxis();
     this.fitPadHeight();
@@ -1395,25 +1403,18 @@ export class Chart<P extends RenderParams> {
   }
 
   /**
-   * Selectively apply the layout as defined in the RenderParams argument and set the rowCount property to an
-   * appropriate value. If a rowCount is defined in the RenderParams, it will not be overwritten. If the
-   * RenderParams are configured such that no layout is applied, rowCount will be set to the max row property of the
-   * Annotations in the RenderParams.
+   *
    * @param params
    */
-  public applyLayoutAndSetRowCount(params: P): void {
-    if (params.annotations == undefined) {
-      this.rowCount = params.rowCount || 1;
-    } else {
-      if (params.autoLayout || params.layoutFn != undefined) {
-        let layoutFn = params.layoutFn || intervalGraphLayout;
-        this.rowCount = params.rowCount || layoutFn(params.annotations) + 1;
-      } else {
-        // TODO: this is going to need a rework
-        this.rowCount = params.rowCount || 1;
-      }
-    }
+  public setRowCountFromRenderParams(params: P): void {
+    this.rowCount =
+      params.rowCount != undefined ? params.rowCount : this.layout.rowCount;
   }
+
+  /**
+   * @param params
+   */
+  public setLayoutFromRenderParams(params: P): void {}
 
   /**
    * This method clears all glyphs that have been rendered in the Chart.
