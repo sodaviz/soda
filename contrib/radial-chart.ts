@@ -139,16 +139,14 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
   }
 
   public addAxis() {
-    if (this.axisType) {
-      this.overflowViewportSelection
-        .selectAll("g.radial-axis")
-        .data(["radial-axis"])
-        .enter()
-        .append("g")
-        .attr("class", "radial-axis");
+    this.overflowViewportSelection
+      .selectAll("g.radial-axis")
+      .data(["radial-axis"])
+      .enter()
+      .append("g")
+      .attr("class", "radial-axis");
 
-      this.renderAxis();
-    }
+    this.renderAxis();
   }
 
   public renderAxis() {

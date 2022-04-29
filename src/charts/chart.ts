@@ -19,40 +19,6 @@ import {
 import { intervalGraphLayout } from "../layout/interval-graph-layout";
 
 /**
- * This returns a "placeholder" xScale, which is initially used on a Chart before one is properly initialized.
- * If the Chart tries to use the placeholder scale, it shoul(d.a.end - d.a.start)ays return 0s and print out warnings
- * to the console.
- * @internal
- * @param chart
- */
-function buildPlaceholderXScale(
-  chart: Chart<any>
-): d3.ScaleLinear<number, number> {
-  let scale = d3.scaleLinear();
-  // @ts-ignore
-  let placeholderScale = (() => {
-    console.warn(
-      `xScale on chart: ${chart.id} has been used before initialization`
-    );
-    return 0;
-  }) as d3.ScaleLinear<number, number>;
-  placeholderScale.invert = scale.invert;
-  placeholderScale.domain = scale.domain;
-  placeholderScale.range = scale.range;
-  placeholderScale.clamp = scale.clamp;
-  placeholderScale.ticks = scale.ticks;
-  placeholderScale.tickFormat = scale.tickFormat;
-  placeholderScale.nice = scale.nice;
-  placeholderScale.copy = () => {
-    console.warn(
-      `xScale.copy() on chart: ${chart.id} has been used before initialization`
-    );
-    return placeholderScale;
-  };
-  return placeholderScale;
-}
-
-/**
  * This describes the parameters for a call to the Chart.highlight() function.
  */
 export interface HighlightConfig {
@@ -195,6 +161,7 @@ export interface ChartConfig<P extends RenderParams> {
   updateLayout?: (this: Chart<P>, params: P) => void;
   updateRowCount?: (this: Chart<P>, params: P) => void;
   updateDimensions?: (this: Chart<P>, params: P) => void;
+  updateDomain?: (this: any, params: P) => void;
   /**
    * The rendering callback that should be responsible for drawing glyphs with the rendering API.
    * @param params
@@ -245,48 +212,6 @@ export interface RenderParams {
    * The number of rows that will be rendered.
    */
   rowCount?: number;
-}
-
-/**
- * This is used for type-narrowing RenderParams objects that explicitly have start and end properties.
- * @internal
- */
-interface RenderParamsWithRange extends RenderParams {
-  /**
-   * The start coordinate of the region that will be rendered.
-   */
-  start: number;
-  /**
-   * The end coordinate of the region that will be rendered.
-   */
-  end: number;
-}
-
-/**
- * This is used for type-narrowing RenderParams objects that have Annotation objects.
- * @internal
- */
-interface RenderParamsWithAnn extends RenderParams {
-  /**
-   * The Annotation objects to be rendered.
-   */
-  annotations: Annotation[];
-}
-
-/**
- * Type guard for RenderParamsWithRange.
- * @internal
- */
-function hasRange(params: RenderParams): params is RenderParamsWithRange {
-  return params.start !== undefined && params.end !== undefined;
-}
-
-/**
- * Type guard for RenderParamsWithAnn.
- * @internal
- */
-function hasAnn(params: RenderParams): params is RenderParamsWithAnn {
-  return params.annotations !== undefined;
 }
 
 /**
@@ -365,14 +290,6 @@ export class Chart<P extends RenderParams> {
    * The height in pixels of the Chart's SVG viewport.
    */
   _viewportHeight: number = 0;
-  /**
-   * This indicates whether or not the Chart has a horizontal axis.
-   */
-  axisType: AxisType.Top | AxisType.Bottom | undefined;
-  /**
-   * The Annotation object that is used to render the horizontal axis (if enabled).
-   */
-  _axisAnn: Annotation | undefined;
   /**
    * This controls whether or not the Chart has automatic resizing enabled.
    */
@@ -481,6 +398,7 @@ export class Chart<P extends RenderParams> {
   updateLayout: (this: any, params: P) => void;
   updateRowCount: (this: any, params: P) => void;
   updateDimensions: (this: any, params: P) => void;
+  updateDomain: (this: any, params: P) => void;
   draw: (this: any, params: P) => void;
 
   /**
@@ -561,7 +479,7 @@ export class Chart<P extends RenderParams> {
 
     this.xScale = d3.scaleLinear();
     this.initializeXScale(0, 1);
-    this.axisType = config.axisType;
+
     this.resizable = config.resizable || false;
     this.zoomable = config.zoomable || false;
 
@@ -569,6 +487,7 @@ export class Chart<P extends RenderParams> {
     this.updateRowCount = config.updateRowCount || this.defaultUpdateRowCount;
     this.updateDimensions =
       config.updateDimensions || this.defaultUpdateDimensions;
+    this.updateDomain = config.updateDomain || this.defaultUpdateDomain;
     this.draw = config.draw || this.defaultDraw;
 
     this.postRender = config.postRender || this.postRender;
@@ -612,8 +531,7 @@ export class Chart<P extends RenderParams> {
     this.updateLayout(params);
     this.updateRowCount(params);
     this.updateDimensions(params);
-    this.addAxis();
-    this.initializeXScaleFromRenderParams(params);
+    this.updateDomain(params);
     this.draw(params);
     this.postRender(params);
   }
@@ -635,7 +553,16 @@ export class Chart<P extends RenderParams> {
     this.updateViewportHeight();
   }
 
+  public defaultUpdateDomain<P extends RenderParams>(params: P): void {
+    if (params.start != undefined && params.end != undefined) {
+      this.setDomain([params.start, params.end]);
+    } else if (params.annotations != undefined) {
+      this.setDomain(Chart.getDomainFromAnnotations(params.annotations));
+    }
+  }
+
   public defaultDraw<P extends RenderParams>(params: P): void {
+    this.addAxis();
     rectangle({
       chart: this,
       annotations: params.annotations || [],
@@ -1239,59 +1166,23 @@ export class Chart<P extends RenderParams> {
   }
 
   /**
-   * Setter for the renderParms property.
+   * Setter for the renderParams property.
    * @param params
    */
   set renderParams(params: P) {
     this._renderParams = params;
   }
 
-  /**
-   * If the Chart.axis property is set to true, this adds a horizontal axis to the Chart above the top row.
-   * Alternatively, if the force=true is supplied it will ignore the Chart.axis setting and add an axis anyway.
-   * @param force Override the Chart.axis property setting.
-   */
-  public addAxis(force?: boolean) {
-    if (this.axisType != undefined || force == true) {
-      if (this._axisAnn == undefined) {
-        this._axisAnn = getHorizontalAxisAnnotation(this);
-      }
-      horizontalAxis({
-        chart: this,
-        selector: "soda-default-axis",
-        annotations: [this._axisAnn],
-        y: this.axisType == AxisType.Bottom ? -20 : -5,
-        fixed: true,
-        axisType: this.axisType || AxisType.Bottom,
-        target: BindTarget.Overflow,
-      });
-    }
-  }
-
-  /**
-   * This initializes an x translation scale with the provided RenderParams and the dimensions of the Chart.
-   * @param params
-   */
-  public initializeXScaleFromRenderParams(params: P): void {
-    if (params.initializeXScale === undefined || params.initializeXScale) {
-      let start = 0;
-      let end = 0;
-      if (hasRange(params)) {
-        start = params.start;
-        end = params.end;
-      } else {
-        if (hasAnn(params)) {
-          let renderRange = Chart.inferRenderRange(params);
-          start = renderRange[0];
-          end = renderRange[1];
-        } else {
-          console.warn(
-            `no render range provided in call to initializeXScale() on chart: ${this.id}`
-          );
-        }
-      }
-      this.initializeXScale(start, end);
-    }
+  public addAxis() {
+    horizontalAxis({
+      chart: this,
+      selector: "soda-default-axis",
+      annotations: [{ id: "axis", start: 0, end: this.xScale.range()[1] }],
+      y: -5,
+      fixed: true,
+      axisType: AxisType.Top,
+      target: BindTarget.Overflow,
+    });
   }
 
   /**
@@ -1354,28 +1245,19 @@ export class Chart<P extends RenderParams> {
       );
   }
 
-  /**
-   * A utility function to attempt to infer a semantic range on RenderParams when no range is explicitly supplied.
-   * @param params
-   */
-  static inferRenderRange<P extends RenderParams>(params: P): [number, number] {
-    let start, end;
-    if (params.start == undefined || params.end == undefined) {
-      if (params.annotations == undefined || params.annotations == []) {
-        console.error(
-          `annotations undefined, can't infer range on RenderParams`
-        );
-      } else {
-        let min = Infinity;
-        let max = 0;
-        for (const a of params.annotations) {
-          min = Math.min(a.start, min);
-          max = Math.max(a.end, max);
-        }
-        start = params.start || min;
-        end = params.end || max;
+  static getDomainFromAnnotations<P extends RenderParams>(
+    annotations: Annotation[]
+  ): [number, number] {
+    if (annotations == undefined || annotations == []) {
+      return [0, 1];
+    } else {
+      let min = Infinity;
+      let max = 0;
+      for (const ann of annotations) {
+        min = Math.min(ann.start, min);
+        max = Math.max(ann.end, max);
       }
+      return [min, max];
     }
-    return [params.start || start || 0, params.end || end || 0];
   }
 }
