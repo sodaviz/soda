@@ -1,10 +1,7 @@
 import * as d3 from "d3";
 import { cloneDeep } from "lodash";
 import { Annotation } from "../annotations/annotation";
-import {
-  getHorizontalAxisAnnotation,
-  horizontalAxis,
-} from "../glyphs/axes/horizontal-axis";
+import { horizontalAxis } from "../glyphs/axes/horizontal-axis";
 import { rectangle } from "../glyphs/rectangle";
 import { BindTarget } from "../glyph-utilities/bind";
 import { GlyphModifier } from "../glyph-utilities/glyph-modifier";
@@ -161,7 +158,7 @@ export interface ChartConfig<P extends RenderParams> {
   updateLayout?: (this: Chart<P>, params: P) => void;
   updateRowCount?: (this: Chart<P>, params: P) => void;
   updateDimensions?: (this: Chart<P>, params: P) => void;
-  updateDomain?: (this: any, params: P) => void;
+  updateDomain?: (this: Chart<P>, params: P) => void;
   /**
    * The rendering callback that should be responsible for drawing glyphs with the rendering API.
    * @param params
@@ -555,10 +552,11 @@ export class Chart<P extends RenderParams> {
 
   public defaultUpdateDomain<P extends RenderParams>(params: P): void {
     if (params.start != undefined && params.end != undefined) {
-      this.setDomain([params.start, params.end]);
+      this.initialDomain = [params.start, params.end];
     } else if (params.annotations != undefined) {
-      this.setDomain(Chart.getDomainFromAnnotations(params.annotations));
+      this.initialDomain = Chart.getDomainFromAnnotations(params.annotations);
     }
+    this.domain = this.initialDomain;
   }
 
   public defaultDraw<P extends RenderParams>(params: P): void {
@@ -997,7 +995,7 @@ export class Chart<P extends RenderParams> {
     }
 
     if (newDomain != undefined) {
-      this.setDomain(newDomain);
+      this.domain = newDomain;
     }
     this.applyGlyphModifiers();
     this.alertObservers();
@@ -1082,8 +1080,8 @@ export class Chart<P extends RenderParams> {
   public initializeXScale(start: number, end: number): void {
     this.initialDomain[0] = start;
     this.initialDomain[1] = end;
-
-    this.setDomain([start, end]);
+    this.xScale = d3.scaleLinear();
+    this.domain = [start, end];
     this.updateRange();
   }
 
@@ -1091,23 +1089,33 @@ export class Chart<P extends RenderParams> {
    * Set the domain of the Chart's x scale.
    * @param domain
    */
-  public setDomain(domain: [number, number]): void {
+  public set domain(domain: [number, number]) {
     this.xScale.domain(domain);
+  }
+
+  public get domain() {
+    let domain = this.xScale.domain();
+    return [domain[0], domain[1]];
   }
 
   /**
    * Set the range of the Chart's x scale.
    * @param range
    */
-  public setRange(range: [number, number]): void {
+  public set range(range: [number, number]) {
     this.xScale.range(range);
+  }
+
+  public get range() {
+    let range = this.xScale.range();
+    return [range[0], range[1]];
   }
 
   /**
    * Set the range of the Chart's x scale to the viewport dimensions.
    */
   public updateRange(): void {
-    this.setRange([0, this.viewportWidth]);
+    this.range = [0, this.viewportWidth];
   }
 
   /**

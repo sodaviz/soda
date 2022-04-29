@@ -21,7 +21,7 @@ export class ZoomSyncer extends ChartObserver {
       if (chart.id !== caller.id) {
         let chartTransform = chart.transform;
         chartTransform.k = callerTransform.k;
-        chart.setDomain([callerDomain[0], callerDomain[1]]);
+        chart.domain = [callerDomain[0], callerDomain[1]];
         chart.applyGlyphModifiers();
         chart.postZoom();
       }
