@@ -16,6 +16,21 @@ import {
 import { intervalGraphLayout } from "../layout/interval-graph-layout";
 
 /**
+ * A utility function for setting DOM element properties. If the value passed in is a number <n>, it is transformed
+ * into the string "<n>px"; otherwise it returns the value unaltered.
+ * @param value
+ */
+function pixelizeValue(value: string | number | undefined): string | undefined {
+  if (value == undefined) {
+    return value;
+  } else if (typeof value == "number") {
+    return `${value}px`;
+  } else {
+    return value;
+  }
+}
+
+/**
  * This describes the parameters for a call to the Chart.highlight() function.
  */
 export interface HighlightConfig {
@@ -73,7 +88,7 @@ export interface ChartConfig<P extends RenderParams> {
   /**
    * A string that can be used to uniquely select the target DOM container.
    */
-  selector?: string;
+  selector: string;
   /**
    * The height in pixels of a horizontal row in the Chart. This defaults to a value of 10.
    */
@@ -125,7 +140,7 @@ export interface ChartConfig<P extends RenderParams> {
   /**
    * The CSS margin property for the Chart's div.
    */
-  divMargin?: number;
+  divMargin?: string | number;
   /**
    * This controls whether or not the rows will be colored in an alternating pattern.
    */
@@ -222,7 +237,7 @@ export class Chart<P extends RenderParams> {
   /**
    * A string that can be used to uniquely select the target DOM container.
    */
-  _selector: string | undefined;
+  selector: string;
   /**
    * The last used render parameters.
    */
@@ -230,27 +245,27 @@ export class Chart<P extends RenderParams> {
   /**
    * The CSS height property of the Chart's div.
    */
-  divHeight: number | string | undefined;
+  _divHeight: number | string | undefined;
   /**
    * The CSS width property of the Chart's div.
    */
-  divWidth: number | string | undefined;
+  _divWidth: number | string | undefined;
   /**
    * The CSS overflow-x property of the Chart's div.
    */
-  divOverflowX: string | undefined;
+  _divOverflowX: string | undefined;
   /**
    * The CSS overflow-y property of the Chart's div.
    */
-  divOverflowY: string | undefined;
+  _divOverflowY: string | undefined;
   /**
    * The CSS outline property of the Chart's div.
    */
-  divOutline: string | undefined;
+  _divOutline: string | undefined;
   /**
    * The CSS margin property of the Chart's div.
    */
-  divMargin: number | undefined;
+  _divMargin: string | number | undefined;
   /**
    * The number of pixels of padding around each edge of the Chart.
    */
@@ -298,9 +313,10 @@ export class Chart<P extends RenderParams> {
   /**
    * A d3 selection of the Chart's DOM container. This is a pre-existing DOM element (probably a div).
    */
-  _containerSelection: d3.Selection<any, any, any, any> | undefined;
+  containerSelection: d3.Selection<any, any, any, any>;
   /**
-   * A d3 selection of the Chart's inner div. This is created when the Chart is instantiated and placed inside of the
+   * A d3 selection of the Chart's div container. This is created when the Chart is instantiated and placed inside
+   * of the
    * selected container in the DOM.
    */
   divSelection: d3.Selection<any, any, any, any>;
@@ -350,7 +366,7 @@ export class Chart<P extends RenderParams> {
   /**
    * The initialized domain of the Chart when render() is called with the initializeXScale flag.
    */
-  initialDomain: [number, number] = [0, 0];
+  initialDomain: [number, number] = [0, 1];
   /**
    * The Transform object that describes the current zoom transformation.
    */
@@ -412,16 +428,13 @@ export class Chart<P extends RenderParams> {
    */
   postResize: (this: any) => void = () => {};
 
-  constructor(config: ChartConfig<P> = {}) {
+  constructor(config: ChartConfig<P>) {
     this.id = config.id || generateId("soda-chart");
 
-    if (config.selector !== undefined) {
-      this._selector = config.selector;
-      this._containerSelection = d3.select(this._selector);
-      this.divSelection = this._containerSelection.append("div");
-    } else {
-      this.divSelection = d3.create("div");
-    }
+    this.selector = config.selector;
+    this.containerSelection = d3.select(this.selector);
+    this.divSelection = this.containerSelection.append("div");
+
     this.padSelection = this.divSelection.append("svg");
     this.padSelection.attr("xmlns", "http://www.w3.org/2000/svg");
 
@@ -460,8 +473,6 @@ export class Chart<P extends RenderParams> {
     this.divOutline = config.divOutline;
     this.divMargin = config.divMargin;
 
-    this.updateDivProperties();
-
     this.padSelection
       .attr("width", "100%")
       .attr("height", this.upperPadSize + this.lowerPadSize + this.rowHeight);
@@ -486,7 +497,6 @@ export class Chart<P extends RenderParams> {
       config.updateDimensions || this.defaultUpdateDimensions;
     this.updateDomain = config.updateDomain || this.defaultUpdateDomain;
     this.draw = config.draw || this.defaultDraw;
-
     this.postRender = config.postRender || this.postRender;
     this.postZoom = config.postZoom || this.postZoom;
     this.postResize = config.postResize || this.postResize;
@@ -645,55 +655,87 @@ export class Chart<P extends RenderParams> {
       .attr("width", this.viewportWidth);
   }
 
-  public updateDivProperties(): void {
-    this.updateDivWidth();
-    this.updateDivHeight();
+  set divHeight(value: string | number | undefined) {
+    value = pixelizeValue(value);
+    this._divHeight = value;
+    this.setDivStyle("height", value);
+  }
 
-    if (this.divOverflowY != undefined) {
-      this.divSelection.style("overflow-y", this.divOverflowY);
-    } else {
-      this.divSelection.style("overflow-y", null);
-    }
+  get divHeight() {
+    return this.divSelection.style("height");
+  }
 
-    if (this.divOverflowX != undefined) {
-      this.divSelection.style("overflow-x", this.divOverflowX);
-    } else {
-      this.divSelection.style("overflow-x", null);
-    }
+  set divWidth(value: string | number | undefined) {
+    value = pixelizeValue(value);
+    this._divWidth = value;
+    this.setDivStyle("width", value);
+  }
 
-    if (this.divOutline != undefined) {
-      this.divSelection.style("outline", this.divOutline);
-    } else {
-      this.divSelection.style("outline", null);
-    }
+  get divWidth() {
+    return this.divSelection.style("width");
+  }
 
-    if (this.divMargin != undefined) {
-      this.divSelection.style("margin", this.divMargin);
+  set divOverflowY(value: string | undefined) {
+    this._divOverflowY = value;
+    this.setDivStyle("overflow-y", value);
+  }
+
+  get divOverflowY() {
+    return this.divSelection.style("overflow-y");
+  }
+
+  set divOverflowX(value: string | undefined) {
+    this._divOverflowX = value;
+    this.setDivStyle("overflow-x", value);
+  }
+
+  get divOverflowX() {
+    return this.divSelection.style("overflow-x");
+  }
+
+  set divOutline(value: string | undefined) {
+    this._divOutline = value;
+    this.setDivStyle("outline", value);
+  }
+
+  get divOutline() {
+    return this.divSelection.style("outline");
+  }
+
+  set divMargin(value: string | number | undefined) {
+    value = pixelizeValue(value);
+    this._divMargin = value;
+    this.setDivStyle("margin", value);
+  }
+
+  get divMargin() {
+    return this.divSelection.style("margin");
+  }
+
+  public setDivStyle(property: string, value: string | undefined) {
+    if (value == undefined) {
+      this.divSelection.style(property, null);
     } else {
-      this.divSelection.style("margin", null);
+      this.divSelection.style(property, value);
     }
   }
 
   public updateDivHeight(): void {
-    if (this.divHeight != undefined) {
-      if (typeof this.divHeight == "number") {
-        this.divSelection.style("height", `${this.divHeight}px`);
-      } else {
-        this.divSelection.style("height", this.divHeight);
-      }
-    } else {
-      let height =
-        this.rowHeight * this.rowCount + this.upperPadSize + this.lowerPadSize;
-      this.divSelection.style("height", `${height}px`);
+    if (this._divHeight != undefined) {
+      return;
     }
+
+    let height =
+      this.rowHeight * this.rowCount + this.upperPadSize + this.lowerPadSize;
+    this.divSelection.style("height", `${height}px`);
   }
 
   public updateDivWidth(): void {
-    if (this.divWidth != undefined) {
-      if (typeof this.divWidth == "number") {
-        this.divSelection.style("width", `${this.divWidth}px`);
+    if (this._divWidth != undefined) {
+      if (typeof this._divWidth == "number") {
+        this.divSelection.style("width", `${this._divWidth}px`);
       } else {
-        this.divSelection.style("width", this.divWidth);
+        this.divSelection.style("width", this._divWidth);
       }
     } else {
       this.divSelection.style("width", "100%");
@@ -731,47 +773,10 @@ export class Chart<P extends RenderParams> {
   }
 
   /**
-   * Get a D3 selection of the Chart's DOM Container. This throws an exception if the value is undefined, which
-   * probably means the entire chart is detached from the DOM.
-   */
-  get containerSelection(): d3.Selection<any, any, any, any> {
-    if (this._containerSelection == undefined) {
-      console.error(
-        `_containerSelection not defined on chart: ${this.id}, is this chart detached?`
-      );
-      throw "_containerSelection undefined";
-    }
-    return this._containerSelection;
-  }
-
-  /**
    * This uses d3 to select the Chart's DOM container and returns a DOMRect that describes that containers dimensions.
    */
   public calculateContainerDimensions(): DOMRect {
-    let containerDimensions: DOMRect;
-    if (this._selector !== undefined) {
-      const containerSelection = d3
-        .select<HTMLElement, any>(this._selector)
-        .node();
-      if (containerSelection == null) {
-        throw `Selector: ${this._selector} returned null selection`;
-      } else {
-        containerDimensions = containerSelection.getBoundingClientRect();
-      }
-    } else {
-      containerDimensions = {
-        bottom: 0,
-        height: 0,
-        left: 0,
-        right: 0,
-        top: 0,
-        width: 0,
-        x: 0,
-        y: 0,
-        toJSON(): any {},
-      };
-    }
-    return containerDimensions;
+    return this.containerSelection.node().getBoundingClientRect();
   }
 
   /**
@@ -1123,7 +1128,7 @@ export class Chart<P extends RenderParams> {
    * maintain the current semantic view range, either stretching or shrinking the current view.
    */
   public configureResize(): void {
-    if (this._containerSelection == undefined) {
+    if (this.containerSelection == undefined) {
       console.warn(
         `No containerSelection defined on chart: ${this.id}, can't run configureResize()`
       );

@@ -163,11 +163,11 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
 
   public squareToDivWidth(): void {
     let dims = this.calculateDivDimensions();
-    this.divHeight = dims.width;
+    this._divHeight = dims.width;
     this.padSelection.attr("width", dims.width);
     this.padSelection.attr("height", dims.height);
     this.updateViewportProperties();
-    this.updateDivProperties();
+    // this.updateDivProperties();
   }
 
   public resize() {
