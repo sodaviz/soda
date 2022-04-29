@@ -6,7 +6,6 @@ import {
   generateId,
   RenderParams,
   Transform,
-  ViewRange,
 } from "../src";
 import { radialRectangle } from "./radial-rectangle";
 import { HighlightConfig } from "../src/charts/chart";
@@ -59,18 +58,18 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
     this.rowCount = config.rowCount || 1;
     this.rowHeight = this.trackHeight / this.rowCount;
 
-    this.preRender = function (params): void {
-      this.initializeXScaleFromRenderParams(params);
-      this.applyLayoutAndSetRowCount(params);
-      this.updateDivProperties();
-      this.addAxis();
-      this.squareToDivWidth();
-      this.fitRadialDimensions();
-      this.renderTrackOutline();
-    };
+    // this.preRender = function (params): void {
+    //   this.initializeXScaleFromRenderParams(params);
+    //   this.applyLayoutAndSetRowCount(params);
+    //   this.updateDivProperties();
+    //   this.addAxis();
+    //   this.squareToDivWidth();
+    //   this.fitRadialDimensions();
+    //   this.renderTrackOutline();
+    // };
 
-    this.inRender =
-      config.inRender ||
+    this.draw =
+      config.draw ||
       function (params): void {
         radialRectangle({
           chart: this,
@@ -164,9 +163,13 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       );
   }
 
-  public getSemanticViewRange(): ViewRange {
-    let domain = this.xScale.domain();
-    return { start: domain[0], end: domain[1], width: domain[1] - domain[0] };
+  public squareToDivWidth(): void {
+    let dims = this.calculateDivDimensions();
+    this.divHeight = dims.width;
+    this.padSelection.attr("width", dims.width);
+    this.padSelection.attr("height", dims.height);
+    this.updateViewportProperties();
+    this.updateDivProperties();
   }
 
   public resize() {

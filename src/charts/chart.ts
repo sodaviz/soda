@@ -13,9 +13,10 @@ import { ChartObserver } from "../observers/chart-observer";
 import { removeGlyphsByQuery } from "../glyph-utilities/glyph-removal";
 import { AxisType } from "../glyphs/axes";
 import {
-  getDefaultVerticalLayout,
+  defaultVerticalLayout,
   VerticalLayout,
 } from "../layout/vertical-layout";
+import { intervalGraphLayout } from "../layout/interval-graph-layout";
 
 /**
  * This returns a "placeholder" xScale, which is initially used on a Chart before one is properly initialized.
@@ -75,25 +76,6 @@ export interface HighlightConfig {
    * The opacity of the highlight. This defaults to 0.1.
    */
   opacity?: number;
-}
-
-/**
- * This describes a range in semantic coordinates (e.g. base pairs). This will typically describe the
- * current rendered view in a Chart.
- */
-export interface ViewRange {
-  /**
-   * The semantic start of the view.
-   */
-  start: number;
-  /**
-   * The semantic end of the view.
-   */
-  end: number;
-  /**
-   * The semantic width of the view.
-   */
-  width: number;
 }
 
 /**
@@ -209,18 +191,17 @@ export interface ChartConfig<P extends RenderParams> {
    * constrains the domain.
    */
   domainConstraint?: (chart: Chart<P>) => [number, number];
+
+  updateLayout?: (this: Chart<P>, params: P) => void;
+  updateRowCount?: (this: Chart<P>, params: P) => void;
+  updateDimensions?: (this: Chart<P>, params: P) => void;
   /**
-   * The first rendering callback function.
+   * The rendering callback that should be responsible for drawing glyphs with the rendering API.
    * @param params
    */
-  preRender?: (this: Chart<P>, params: P) => void;
+  draw?: (this: Chart<P>, params: P) => void;
   /**
-   * The second rendering callback function.
-   * @param params
-   */
-  inRender?: (this: Chart<P>, params: P) => void;
-  /**
-   * The final rendering callback function.
+   * The callback function that the Chart executes after render() is called.
    * @param params
    */
   postRender?: (this: Chart<P>, params: P) => void;
@@ -475,7 +456,7 @@ export class Chart<P extends RenderParams> {
   ): number {
     return row * this.rowHeight;
   };
-  layout: VerticalLayout = getDefaultVerticalLayout();
+  layout: VerticalLayout = defaultVerticalLayout;
   /**
    * The height in pixels of a horizontal row in the Chart. This defaults to a value of 10.
    */
@@ -496,16 +477,12 @@ export class Chart<P extends RenderParams> {
    * A list of GlyphModifiers that control the glyphs rendered in the Chart.
    */
   glyphModifiers: GlyphModifier<any, any>[] = [];
-  /**
-   * The first rendering callback function.
-   * @param params
-   */
-  preRender: (this: any, params: P) => void = this.defaultPreRender;
-  /**
-   * The second rendering callback function.
-   * @param params
-   */
-  inRender: (this: any, params: P) => void = this.defaultInRender;
+
+  updateLayout: (this: any, params: P) => void;
+  updateRowCount: (this: any, params: P) => void;
+  updateDimensions: (this: any, params: P) => void;
+  draw: (this: any, params: P) => void;
+
   /**
    * The final rendering callback function.
    * @param params
@@ -533,7 +510,6 @@ export class Chart<P extends RenderParams> {
     this.padSelection = this.divSelection.append("svg");
     this.padSelection.attr("xmlns", "http://www.w3.org/2000/svg");
 
-    this.xScale = buildPlaceholderXScale(this);
     this._transform = cloneDeep(d3.zoomIdentity);
     this.padSelection.node().__zoom = this._transform;
 
@@ -575,7 +551,7 @@ export class Chart<P extends RenderParams> {
       .attr("width", "100%")
       .attr("height", this.upperPadSize + this.lowerPadSize + this.rowHeight);
 
-    this.fitViewport();
+    this.updateViewportProperties();
 
     this.rowStripes = config.rowStripes || false;
 
@@ -583,12 +559,18 @@ export class Chart<P extends RenderParams> {
       this.setRowStripes();
     }
 
+    this.xScale = d3.scaleLinear();
+    this.initializeXScale(0, 1);
     this.axisType = config.axisType;
     this.resizable = config.resizable || false;
     this.zoomable = config.zoomable || false;
 
-    this.preRender = config.preRender || this.preRender;
-    this.inRender = config.inRender || this.inRender;
+    this.updateLayout = config.updateLayout || this.defaultUpdateLayout;
+    this.updateRowCount = config.updateRowCount || this.defaultUpdateRowCount;
+    this.updateDimensions =
+      config.updateDimensions || this.defaultUpdateDimensions;
+    this.draw = config.draw || this.defaultDraw;
+
     this.postRender = config.postRender || this.postRender;
     this.postZoom = config.postZoom || this.postZoom;
     this.postResize = config.postResize || this.postResize;
@@ -622,17 +604,38 @@ export class Chart<P extends RenderParams> {
     }
   }
 
-  public defaultPreRender(params: P): void {
-    this.setLayoutFromRenderParams(params);
-    this.setRowCountFromRenderParams(params);
-    this.updateDivProperties();
+  /**
+   * @param params
+   */
+  public render(params: P): void {
+    this.renderParams = params;
+    this.updateLayout(params);
+    this.updateRowCount(params);
+    this.updateDimensions(params);
     this.addAxis();
-    this.fitPadHeight();
-    this.fitViewport();
     this.initializeXScaleFromRenderParams(params);
+    this.draw(params);
+    this.postRender(params);
   }
 
-  public defaultInRender<P extends RenderParams>(params: P): void {
+  public defaultUpdateLayout<P extends RenderParams>(params: P): void {
+    if (params.annotations != undefined) {
+      this.layout = intervalGraphLayout(params.annotations);
+    }
+  }
+
+  public defaultUpdateRowCount<P extends RenderParams>(params: P): void {
+    this.rowCount =
+      params.rowCount != undefined ? params.rowCount : this.layout.rowCount;
+  }
+
+  public defaultUpdateDimensions<P extends RenderParams>(params: P): void {
+    this.updateDivHeight();
+    this.updatePadHeight();
+    this.updateViewportHeight();
+  }
+
+  public defaultDraw<P extends RenderParams>(params: P): void {
     rectangle({
       chart: this,
       annotations: params.annotations || [],
@@ -718,30 +721,8 @@ export class Chart<P extends RenderParams> {
   }
 
   public updateDivProperties(): void {
-    if (this.divWidth != undefined) {
-      if (typeof this.divWidth == "number") {
-        this.divSelection.style("width", `${this.divWidth}px`);
-      } else {
-        this.divSelection.style("width", this.divWidth);
-      }
-    } else {
-      this.divSelection.style("width", "100%");
-    }
-
-    if (this.divHeight != undefined) {
-      if (typeof this.divHeight == "number") {
-        this.divSelection.style("height", `${this.divHeight}px`);
-      } else {
-        this.divSelection.style("height", this.divHeight);
-      }
-    } else {
-      this.divSelection.style(
-        "height",
-        `${
-          this.rowHeight * this.rowCount + this.upperPadSize + this.lowerPadSize
-        }px`
-      );
-    }
+    this.updateDivWidth();
+    this.updateDivHeight();
 
     if (this.divOverflowY != undefined) {
       this.divSelection.style("overflow-y", this.divOverflowY);
@@ -768,54 +749,60 @@ export class Chart<P extends RenderParams> {
     }
   }
 
-  /**
-   * This fits the Chart's SVG padding based off of the rowCount, rowHeight and padSize properties.
-   */
-  public fitPadHeight(): void {
-    this.padHeight =
-      this.rowCount * this.rowHeight + (this.upperPadSize + this.lowerPadSize);
+  public updateDivHeight(): void {
+    if (this.divHeight != undefined) {
+      if (typeof this.divHeight == "number") {
+        this.divSelection.style("height", `${this.divHeight}px`);
+      } else {
+        this.divSelection.style("height", this.divHeight);
+      }
+    } else {
+      let height =
+        this.rowHeight * this.rowCount + this.upperPadSize + this.lowerPadSize;
+      this.divSelection.style("height", `${height}px`);
+    }
   }
 
-  /**
-   * This fits the Chart's SVG viewport based off of the Chart's pad size.
-   */
-  public fitViewport(): void {
+  public updateDivWidth(): void {
+    if (this.divWidth != undefined) {
+      if (typeof this.divWidth == "number") {
+        this.divSelection.style("width", `${this.divWidth}px`);
+      } else {
+        this.divSelection.style("width", this.divWidth);
+      }
+    } else {
+      this.divSelection.style("width", "100%");
+    }
+  }
+
+  public updatePadHeight(): void {
+    let height =
+      this.rowCount * this.rowHeight + this.upperPadSize + this.lowerPadSize;
+    this.padSelection.attr("height", height);
+  }
+
+  public updateViewportHeight(): void {
+    this.viewportHeight = this.rowCount * this.rowHeight;
+  }
+
+  public updateViewportWidth(): void {
     this.viewportWidth =
       this.calculatePadWidth() - (this.leftPadSize + this.rightPadSize);
-    this.viewportHeight =
-      this.calculatePadHeight() - (this.upperPadSize + this.lowerPadSize);
+  }
+
+  public updateViewportPosition(): void {
     this.viewportSelection
       .attr("x", this.leftPadSize)
       .attr("y", this.upperPadSize);
     this.overflowViewportSelection
       .attr("x", this.leftPadSize)
       .attr("y", this.upperPadSize);
-
-    this.fitRowStripes();
   }
 
-  /**
-   * A getter for the Chart's selector property. The selector should be able to uniquely select the Chart's DOM
-   * container.
-   */
-  get selector(): string {
-    if (this._selector == undefined) {
-      console.error(
-        `_selector not defined on chart: ${this.id}, is this chart detached?`
-      );
-      throw "_selector undefined";
-    }
-    return this._selector;
-  }
-
-  /**
-   * Get the semantic coordinate range of what is currently shown in the Chart's viewport.
-   */
-  public getSemanticViewRange(): ViewRange {
-    const start = this.xScale.invert(0);
-    const end = this.xScale.invert(this.viewportWidth);
-    const width = end - start;
-    return { start: start, end: end, width: width };
+  public updateViewportProperties(): void {
+    this.updateViewportHeight();
+    this.updateViewportWidth();
+    this.updateViewportPosition();
   }
 
   /**
@@ -876,46 +863,8 @@ export class Chart<P extends RenderParams> {
     return this.calculateContainerDimensions().height;
   }
 
-  /**
-   * This calculates the Chart's DOM container's dimensions and sets the Chart's SVG pad to fill those dimensions.
-   */
-  public setToContainerDimensions(): void {
-    let dims = this.calculateContainerDimensions();
-    this.padWidth = dims.width;
-    this.padHeight = dims.height;
-  }
-
-  /**
-   * This calculates the width of the Chart's DOM container and sets the Chart's SVG pad to a square with that width.
-   */
-  public squareToContainerWidth(): void {
-    let dims = this.calculateContainerDimensions();
-    this.padWidth = dims.width;
-    this.padHeight = dims.width;
-    this.fitViewport();
-  }
-
-  /**
-   * This calculates the height of the Chart's DOM container and sets the Chart's SVG pad to a square with that height.
-   */
-  public squareToContainerHeight(): void {
-    let dims = this.calculateContainerDimensions();
-    this.padWidth = dims.height;
-    this.padHeight = dims.height;
-    this.fitViewport();
-  }
-
   public calculateDivDimensions(): DOMRect {
     return this.divSelection.node().getBoundingClientRect();
-  }
-
-  public squareToDivWidth(): void {
-    let dims = this.calculateDivDimensions();
-    this.divHeight = dims.width;
-    this.padWidth = dims.width;
-    this.padHeight = dims.width;
-    this.fitViewport();
-    this.updateDivProperties();
   }
 
   /**
@@ -945,69 +894,13 @@ export class Chart<P extends RenderParams> {
   }
 
   /**
-   * Setter for the padHeight property. This actually adjusts the height attribute on the viewport DOM element.
-   * @param height
-   */
-  set padHeight(height: number) {
-    this._padHeight = height;
-    this.padSelection.attr("height", height);
-  }
-
-  /**
-   * Getter for the padHeight property.
-   */
-  get padHeight() {
-    return this._padHeight;
-  }
-
-  /**
-   * Setter for the padWidth property. This actually adjusts the width attribute on the viewport DOM element.
-   * @param width
-   */
-  set padWidth(width: number) {
-    this._padWidth = width;
-    this.padSelection.attr("width", width);
-  }
-
-  /**
-   * Getter for the padWidth property.
-   */
-  get padWidth() {
-    return this._padWidth;
-  }
-
-  /**
-   * This returns a DOMRect that describes the viewport's dimensions.
-   */
-  public calculateViewportDimensions(): DOMRect {
-    let viewportNode = this.viewportSelection.node();
-    if (viewportNode == null) {
-      throw "SVG undefined";
-    }
-    return viewportNode.getBoundingClientRect();
-  }
-
-  /**
-   * This calculates the current width of the viewport in the DOM and returns it.
-   */
-  public calculateViewportWidth(): number {
-    return this.calculateViewportDimensions().width;
-  }
-
-  /**
-   * This checks the current height of the viewport in the DOM and returns it.
-   */
-  public calculateViewportHeight(): number {
-    return this.calculateViewportDimensions().height;
-  }
-
-  /**
    * Setter for the viewportHeight property. This actually adjusts the height property on the viewport DOM element.
    * @param height
    */
   set viewportHeight(height: number) {
     this._viewportHeight = height;
     this.viewportSelection.attr("height", height);
+    this.overflowViewportSelection.attr("height", height);
   }
 
   /**
@@ -1024,6 +917,7 @@ export class Chart<P extends RenderParams> {
   set viewportWidth(width: number) {
     this._viewportWidth = width;
     this.viewportSelection.attr("width", width);
+    this.overflowViewportSelection.attr("width", width);
   }
 
   /**
@@ -1254,6 +1148,19 @@ export class Chart<P extends RenderParams> {
   }
 
   /**
+   * This initializes an x translation scale with the provided coordinates and the dimensions of the Chart.
+   * @param start The start coordinate.
+   * @param end The end coordinate.
+   */
+  public initializeXScale(start: number, end: number): void {
+    this.initialDomain[0] = start;
+    this.initialDomain[1] = end;
+
+    this.setDomain([start, end]);
+    this.updateRange();
+  }
+
+  /**
    * Set the domain of the Chart's x scale.
    * @param domain
    */
@@ -1304,8 +1211,8 @@ export class Chart<P extends RenderParams> {
    * event occurs.
    */
   public resize(): void {
-    this.fitPadHeight();
-    this.fitViewport();
+    this.updatePadHeight();
+    this.updateViewportProperties();
     this.updateRange();
     this.applyGlyphModifiers();
     this.postResize();
@@ -1362,21 +1269,6 @@ export class Chart<P extends RenderParams> {
   }
 
   /**
-   * This initializes an x translation scale with the provided coordinates and the dimensions of the Chart.
-   * @param start The start coordinate.
-   * @param end The end coordinate.
-   */
-  public initializeXScale(start: number, end: number): void {
-    this.initialDomain[0] = start;
-    this.initialDomain[1] = end;
-
-    this.xScale = d3.scaleLinear();
-
-    this.setDomain([start, end]);
-    this.updateRange();
-  }
-
-  /**
    * This initializes an x translation scale with the provided RenderParams and the dimensions of the Chart.
    * @param params
    */
@@ -1401,20 +1293,6 @@ export class Chart<P extends RenderParams> {
       this.initializeXScale(start, end);
     }
   }
-
-  /**
-   *
-   * @param params
-   */
-  public setRowCountFromRenderParams(params: P): void {
-    this.rowCount =
-      params.rowCount != undefined ? params.rowCount : this.layout.rowCount;
-  }
-
-  /**
-   * @param params
-   */
-  public setLayoutFromRenderParams(params: P): void {}
 
   /**
    * This method clears all glyphs that have been rendered in the Chart.
@@ -1474,17 +1352,6 @@ export class Chart<P extends RenderParams> {
         "width",
         (config) => this.xScale(config.end) - this.xScale(config.start)
       );
-  }
-
-  /**
-   * This method stores the render parameters on the Chart and calls preRender(), inRender(), and postRender().
-   * @param params
-   */
-  public render(params: P): void {
-    this.renderParams = params;
-    this.preRender(params);
-    this.inRender(params);
-    this.postRender(params);
   }
 
   /**

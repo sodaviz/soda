@@ -38,7 +38,8 @@ export function selectText(a: Annotation, c: Chart<any>): string {
   }
 
   let i = 0;
-  let viewWidth = c.getSemanticViewRange().width;
+  let range = c.xScale.range();
+  let viewWidth = range[1] - range[0];
   for (const thresh of thresholds) {
     if (viewWidth <= thresh) {
       return text[i];

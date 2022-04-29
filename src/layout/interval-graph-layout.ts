@@ -30,11 +30,10 @@ function sortByStart(
  * @param ann
  * @param tolerance
  */
-export function intervalGraphLayout(ann: Annotation[], tolerance: number = 0) {
-  if (ann.length == 0) {
-    return 0;
-  }
-
+export function intervalGraphLayout(
+  ann: Annotation[],
+  tolerance: number = 0
+): MapVerticalLayout {
   let graph: AnnotationGraph<Annotation> = new AnnotationGraph(ann, tolerance);
   let layoutMap: Map<string, number> = new Map();
 
@@ -67,17 +66,15 @@ export function intervalGraphLayout(ann: Annotation[], tolerance: number = 0) {
 
     layoutMap.set(v, vColor);
   }
-  let layout = <MapVerticalLayout>(
-    function (
-      this: MapVerticalLayout,
-      d: AnnotationDatum<any, Chart<any>>
-    ): number {
+
+  let layout = {
+    rowMap: layoutMap,
+    row: function (this, d: AnnotationDatum<any, Chart<any>>): number {
       let row = this.rowMap.get(d.a.id);
       return row || 0;
-    }
-  );
-  layout.rowMap = layoutMap;
-  layout.rowCount = colorCount++;
+    },
+    rowCount: colorCount + 1,
+  };
 
   return layout;
 }

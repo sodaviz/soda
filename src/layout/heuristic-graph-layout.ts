@@ -76,17 +76,14 @@ export function heuristicGraphLayout(
     }
   }
 
-  let layout = <MapVerticalLayout>(
-    function (
-      this: MapVerticalLayout,
-      d: AnnotationDatum<Annotation, Chart<any>>
-    ): number {
+  let layout = {
+    rowMap: bestColors,
+    row: function (this, d: AnnotationDatum<any, Chart<any>>): number {
       let row = this.rowMap.get(d.a.id);
       return row || 0;
-    }
-  );
-  layout.rowMap = bestColors;
-  layout.rowCount = bestColorCnt;
+    },
+    rowCount: bestColorCnt,
+  };
 
   return layout;
 }

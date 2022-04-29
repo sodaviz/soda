@@ -90,7 +90,7 @@ export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
       config.x != undefined
         ? config.x
         : (d: AnnotationDatum<A, C>) => d.c.xScale(d.a.start);
-    this.row = config.row != undefined ? config.row : (d) => d.c.layout(d);
+    this.row = config.row != undefined ? config.row : (d) => d.c.layout.row(d);
     this.y =
       config.y != undefined
         ? config.y

@@ -75,17 +75,14 @@ export function greedyGraphLayout<A extends Annotation>(
     nextColor++;
   }
 
-  let layout = <MapVerticalLayout>(
-    function (
-      this: MapVerticalLayout,
-      d: AnnotationDatum<Annotation, Chart<any>>
-    ): number {
+  let layout = {
+    rowMap: colors,
+    row: function (this, d: AnnotationDatum<any, Chart<any>>): number {
       let row = this.rowMap.get(d.a.id);
       return row || 0;
-    }
-  );
-  layout.rowMap = colors;
-  layout.rowCount = nextColor;
+    },
+    rowCount: nextColor,
+  };
 
   return layout;
 }
