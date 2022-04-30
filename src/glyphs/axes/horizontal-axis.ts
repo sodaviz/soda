@@ -58,10 +58,9 @@ export class HorizontalAxisModifier<
         config.domain ||
         ((d) => [
           d.c.xScale.invert(0),
-          d.c.xScale.invert(d.c.calculateViewportWidth() - 1),
+          d.c.xScale.invert(d.c.viewportWidthPx - 1),
         ]);
-      this.range =
-        config.range || ((d) => [0, d.c.calculateViewportWidth() - 1]);
+      this.range = config.range || ((d) => [0, d.c.viewportWidthPx - 1]);
     } else {
       this.domain =
         config.domain ||

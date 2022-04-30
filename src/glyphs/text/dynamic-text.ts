@@ -82,9 +82,7 @@ function addToTextMaps<A extends Annotation, C extends Chart<any>>(config: {
     textMap.set(a.id, text);
     let thresholds = text.map((t) => {
       let textSize = getTextSize(t);
-      return (
-        ((a.end - a.start) * config.chart.calculateViewportWidth()) / textSize
-      );
+      return ((a.end - a.start) * config.chart.viewportWidthPx) / textSize;
     });
     thresholdMap.set(a.id, thresholds);
   }

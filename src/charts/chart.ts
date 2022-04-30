@@ -540,7 +540,6 @@ export class Chart<P extends RenderParams> {
    * @param params
    */
   public render(params: P): void {
-    console.log("render", this.domain, this.range);
     this.renderParams = params;
     this.updateLayout(params);
     this.updateRowCount(params);
@@ -681,7 +680,6 @@ export class Chart<P extends RenderParams> {
   }
 
   public setViewportAttribute(property: string, value: string | undefined) {
-    console.log(property, value);
     if (value == undefined) {
       this.viewportSelection.attr(property, null);
       this.overflowViewportSelection.attr(property, null);
@@ -772,6 +770,32 @@ export class Chart<P extends RenderParams> {
     return this.viewportSelection.attr("width");
   }
 
+  /**
+   * Set the domain of the Chart's x scale.
+   * @param domain
+   */
+  public set domain(domain: [number, number]) {
+    this.xScale.domain(domain);
+  }
+
+  public get domain() {
+    let domain = this.xScale.domain();
+    return [domain[0], domain[1]];
+  }
+
+  /**
+   * Set the range of the Chart's x scale.
+   * @param range
+   */
+  public set range(range: [number, number]) {
+    this.xScale.range(range);
+  }
+
+  public get range() {
+    let range = this.xScale.range();
+    return [range[0], range[1]];
+  }
+
   //----------//
   // updaters //
   //----------//
@@ -838,6 +862,10 @@ export class Chart<P extends RenderParams> {
     this.updateViewportHeight();
     this.updateViewportWidth();
     this.updateViewportPosition();
+  }
+
+  public updateRange(): void {
+    this.range = [0, this.viewportWidthPx];
   }
 
   //-------------//
@@ -934,9 +962,7 @@ export class Chart<P extends RenderParams> {
         d3
           .zoom()
           .filter(() => false)
-          .on("zoom", () => {
-            console.log("this should not happen");
-          })
+          .on("zoom", () => {})
       )
       .on("dblclick.zoom", null);
   }
@@ -1135,39 +1161,6 @@ export class Chart<P extends RenderParams> {
     this.xScale = d3.scaleLinear();
     this.domain = [start, end];
     this.updateRange();
-  }
-
-  /**
-   * Set the domain of the Chart's x scale.
-   * @param domain
-   */
-  public set domain(domain: [number, number]) {
-    this.xScale.domain(domain);
-  }
-
-  public get domain() {
-    let domain = this.xScale.domain();
-    return [domain[0], domain[1]];
-  }
-
-  /**
-   * Set the range of the Chart's x scale.
-   * @param range
-   */
-  public set range(range: [number, number]) {
-    this.xScale.range(range);
-  }
-
-  public get range() {
-    let range = this.xScale.range();
-    return [range[0], range[1]];
-  }
-
-  /**
-   * Set the range of the Chart's x scale to the viewport dimensions.
-   */
-  public updateRange(): void {
-    this.range = [0, this.viewportWidthPx];
   }
 
   /**
