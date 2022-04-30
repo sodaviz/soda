@@ -4,10 +4,10 @@ import * as d3 from "d3";
  * A simple enum to serve as an argument for selecting which D3 Axis function to call.
  */
 export enum AxisType {
-  Bottom,
-  Top,
-  Left,
-  Right,
+  Bottom = "bottom",
+  Top = "top",
+  Left = "left",
+  Right = "right",
 }
 
 /**

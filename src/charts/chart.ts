@@ -301,21 +301,10 @@ export class Chart<P extends RenderParams> {
    * The number of pixels of padding on the bottom of the Chart.
    */
   lowerPadSize: number;
-  /**
-   * The width in pixels of the Chart's SVG pad.
-   */
   _padWidth: string | undefined;
-  /**
-   * The height in pixels of the Chart's SVG pad.
-   */
   _padHeight: string | undefined;
-  /**
-   * The width in pixels of the Chart's SVG viewport.
-   */
   _viewportWidth: string | undefined;
-  /**
-   * The height in pixels of the Chart's SVG viewport.
-   */
+  viewportWidthPx: number = 0;
   _viewportHeight: string | undefined;
   /**
    * This controls whether or not the Chart has automatic resizing enabled.
@@ -493,15 +482,13 @@ export class Chart<P extends RenderParams> {
       .attr("height", this.upperPadSize + this.lowerPadSize + this.rowHeight);
 
     this.updateViewportProperties();
+    this.xScale = d3.scaleLinear();
+    this.initializeXScale(0, 1);
 
     this.rowStripes = config.rowStripes || false;
-
     if (this.rowStripes) {
       this.setRowStripes();
     }
-
-    this.xScale = d3.scaleLinear();
-    this.initializeXScale(0, 1);
 
     this.resizable = config.resizable || false;
     this.zoomable = config.zoomable || false;
@@ -553,6 +540,7 @@ export class Chart<P extends RenderParams> {
    * @param params
    */
   public render(params: P): void {
+    console.log("render", this.domain, this.range);
     this.renderParams = params;
     this.updateLayout(params);
     this.updateRowCount(params);
@@ -693,6 +681,7 @@ export class Chart<P extends RenderParams> {
   }
 
   public setViewportAttribute(property: string, value: string | undefined) {
+    console.log(property, value);
     if (value == undefined) {
       this.viewportSelection.attr(property, null);
       this.overflowViewportSelection.attr(property, null);
@@ -820,7 +809,8 @@ export class Chart<P extends RenderParams> {
       return;
     }
 
-    this.viewportHeight = this.rowCount * this.rowHeight;
+    let height = `${this.rowCount * this.rowHeight}`;
+    this.setViewportAttribute("height", height);
   }
 
   public updateViewportWidth(): void {
@@ -828,8 +818,11 @@ export class Chart<P extends RenderParams> {
       return;
     }
 
-    this.viewportWidth =
+    let width =
       this.calculatePadWidth() - (this.leftPadSize + this.rightPadSize);
+
+    this.viewportWidthPx = width;
+    this.setViewportAttribute("width", `${width}`);
   }
 
   public updateViewportPosition(): void {
@@ -1174,7 +1167,7 @@ export class Chart<P extends RenderParams> {
    * Set the range of the Chart's x scale to the viewport dimensions.
    */
   public updateRange(): void {
-    this.range = [0, this.calculateViewportWidth()];
+    this.range = [0, this.viewportWidthPx];
   }
 
   /**

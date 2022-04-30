@@ -2,7 +2,6 @@ export { arc, ArcConfig } from "./glyphs/arc";
 export { AxisType } from "./glyphs/axes";
 export {
   horizontalAxis,
-  getHorizontalAxisAnnotation,
   HorizontalAxisConfig,
 } from "./glyphs/axes/horizontal-axis";
 export { verticalAxis, VerticalAxisConfig } from "./glyphs/axes/vertical-axis";
