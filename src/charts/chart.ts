@@ -31,6 +31,21 @@ function pixelizeValue(value: string | number | undefined): string | undefined {
 }
 
 /**
+ * A utility function that returns a D3 Selection's first node's bounding rectangle. It throws an exception if the
+ * call to Selection.node() returns null.
+ * @param selection
+ */
+function getSelectionDomRect(
+  selection: d3.Selection<any, any, any, any>
+): DOMRect {
+  let node = selection.node();
+  if (node == null) {
+    throw "null selection on call to getSelectionDomRect()";
+  }
+  return node.getBoundingClientRect();
+}
+
+/**
  * This describes the parameters for a call to the Chart.highlight() function.
  */
 export interface HighlightConfig {
@@ -245,11 +260,11 @@ export class Chart<P extends RenderParams> {
   /**
    * The CSS height property of the Chart's div.
    */
-  _divHeight: number | string | undefined;
+  _divHeight: string | undefined;
   /**
    * The CSS width property of the Chart's div.
    */
-  _divWidth: number | string | undefined;
+  _divWidth: string | undefined;
   /**
    * The CSS overflow-x property of the Chart's div.
    */
@@ -289,19 +304,19 @@ export class Chart<P extends RenderParams> {
   /**
    * The width in pixels of the Chart's SVG pad.
    */
-  _padWidth: number = 0;
+  _padWidth: string | undefined;
   /**
    * The height in pixels of the Chart's SVG pad.
    */
-  _padHeight: number = 0;
+  _padHeight: string | undefined;
   /**
    * The width in pixels of the Chart's SVG viewport.
    */
-  _viewportWidth: number = 0;
+  _viewportWidth: string | undefined;
   /**
    * The height in pixels of the Chart's SVG viewport.
    */
-  _viewportHeight: number = 0;
+  _viewportHeight: string | undefined;
   /**
    * This controls whether or not the Chart has automatic resizing enabled.
    */
@@ -530,6 +545,10 @@ export class Chart<P extends RenderParams> {
     }
   }
 
+  //-----------//
+  // rendering //
+  //-----------//
+
   /**
    * @param params
    */
@@ -642,18 +661,50 @@ export class Chart<P extends RenderParams> {
       return;
     }
     this.rowStripePatternSelection
-      .attr("width", this.viewportWidth)
+      .attr("width", "100%")
       .attr("height", this.rowHeight * 2);
 
     this.rowStripePatternSelection
       .selectAll("rect")
-      .attr("height", this.rowHeight)
-      .attr("width", this.viewportWidth);
+      .attr("width", "100%")
+      .attr("height", this.rowHeight);
 
-    this.rowStripeRectSelection
-      .attr("height", this.viewportHeight)
-      .attr("width", this.viewportWidth);
+    this.rowStripeRectSelection.attr("width", "100%").attr("height", "100%");
   }
+
+  //---------//
+  // utility //
+  //---------//
+
+  public setDivStyle(property: string, value: string | undefined) {
+    if (value == undefined) {
+      this.divSelection.style(property, null);
+    } else {
+      this.divSelection.style(property, value);
+    }
+  }
+
+  public setPadAttribute(property: string, value: string | undefined) {
+    if (value == undefined) {
+      this.padSelection.attr(property, null);
+    } else {
+      this.padSelection.attr(property, value);
+    }
+  }
+
+  public setViewportAttribute(property: string, value: string | undefined) {
+    if (value == undefined) {
+      this.viewportSelection.attr(property, null);
+      this.overflowViewportSelection.attr(property, null);
+    } else {
+      this.viewportSelection.attr(property, value);
+      this.overflowViewportSelection.attr(property, value);
+    }
+  }
+
+  //-----------//
+  // accessors //
+  //-----------//
 
   set divHeight(value: string | number | undefined) {
     value = pixelizeValue(value);
@@ -712,13 +763,29 @@ export class Chart<P extends RenderParams> {
     return this.divSelection.style("margin");
   }
 
-  public setDivStyle(property: string, value: string | undefined) {
-    if (value == undefined) {
-      this.divSelection.style(property, null);
-    } else {
-      this.divSelection.style(property, value);
-    }
+  set viewportHeight(value: string | number | undefined) {
+    value = pixelizeValue(value);
+    this._viewportHeight = value;
+    this.setViewportAttribute("height", value);
   }
+
+  get viewportHeight() {
+    return this.viewportSelection.attr("height");
+  }
+
+  set viewportWidth(value: string | number | undefined) {
+    value = pixelizeValue(value);
+    this._viewportWidth = value;
+    this.setViewportAttribute("width", value);
+  }
+
+  get viewportWidth() {
+    return this.viewportSelection.attr("width");
+  }
+
+  //----------//
+  // updaters //
+  //----------//
 
   public updateDivHeight(): void {
     if (this._divHeight != undefined) {
@@ -732,27 +799,35 @@ export class Chart<P extends RenderParams> {
 
   public updateDivWidth(): void {
     if (this._divWidth != undefined) {
-      if (typeof this._divWidth == "number") {
-        this.divSelection.style("width", `${this._divWidth}px`);
-      } else {
-        this.divSelection.style("width", this._divWidth);
-      }
-    } else {
-      this.divSelection.style("width", "100%");
+      return;
     }
+
+    this.divSelection.style("width", "100%");
   }
 
   public updatePadHeight(): void {
+    if (this._padHeight != undefined) {
+      return;
+    }
+
     let height =
       this.rowCount * this.rowHeight + this.upperPadSize + this.lowerPadSize;
     this.padSelection.attr("height", height);
   }
 
   public updateViewportHeight(): void {
+    if (this._viewportHeight != undefined) {
+      return;
+    }
+
     this.viewportHeight = this.rowCount * this.rowHeight;
   }
 
   public updateViewportWidth(): void {
+    if (this._viewportWidth != undefined) {
+      return;
+    }
+
     this.viewportWidth =
       this.calculatePadWidth() - (this.leftPadSize + this.rightPadSize);
   }
@@ -772,41 +847,40 @@ export class Chart<P extends RenderParams> {
     this.updateViewportPosition();
   }
 
+  //-------------//
+  // calculators //
+  //-------------//
+
   /**
    * This uses d3 to select the Chart's DOM container and returns a DOMRect that describes that containers dimensions.
    */
   public calculateContainerDimensions(): DOMRect {
-    return this.containerSelection.node().getBoundingClientRect();
+    return getSelectionDomRect(this.containerSelection);
   }
 
   /**
    * This calculates and returns the Chart's DOM container's width in pixels.
    */
-  public getContainerWidth(): number {
+  public calculateContainerWidth(): number {
     return this.calculateContainerDimensions().width;
   }
 
   /**
    * This calculates and returns the Chart's DOM container's height in pixels.
    */
-  public getContainerHeight(): number {
+  public calculateContainerHeight(): number {
     return this.calculateContainerDimensions().height;
   }
 
   public calculateDivDimensions(): DOMRect {
-    return this.divSelection.node().getBoundingClientRect();
+    return getSelectionDomRect(this.divSelection);
   }
 
   /**
    * This returns a DOMRect that describes the pad dimensions.
    */
   public calculatePadDimensions(): DOMRect {
-    let padNode = this.padSelection.node();
-    if (padNode == null) {
-      console.warn(`padSelection is null on chart: ${this.id}`);
-      throw "SVG undefined";
-    }
-    return padNode.getBoundingClientRect();
+    return getSelectionDomRect(this.padSelection);
   }
 
   /**
@@ -823,39 +897,19 @@ export class Chart<P extends RenderParams> {
     return this.calculatePadDimensions().height;
   }
 
-  /**
-   * Setter for the viewportHeight property. This actually adjusts the height property on the viewport DOM element.
-   * @param height
-   */
-  set viewportHeight(height: number) {
-    this._viewportHeight = height;
-    this.viewportSelection.attr("height", height);
-    this.overflowViewportSelection.attr("height", height);
+  public calculateViewportDimensions(): DOMRect {
+    return getSelectionDomRect(this.viewportSelection);
   }
 
-  /**
-   * Getter for the viewportHeight property.
-   */
-  get viewportHeight(): number {
-    return this._viewportHeight;
+  public calculateViewportWidth(): number {
+    return this.calculateViewportDimensions().width;
   }
 
-  /**
-   * Setter for the viewportWidth property. This actually adjusts the width property on the viewport DOM element.
-   * @param width
-   */
-  set viewportWidth(width: number) {
-    this._viewportWidth = width;
-    this.viewportSelection.attr("width", width);
-    this.overflowViewportSelection.attr("width", width);
+  public calculateViewportHeight(): number {
+    return this.calculateViewportDimensions().height;
   }
 
-  /**
-   * Getter for the viewportWidth property.
-   */
-  get viewportWidth() {
-    return this._viewportWidth;
-  }
+  //------------//
 
   /**
    * This configures the chart's viewport to appropriately handle browser zoom events.
@@ -1120,7 +1174,7 @@ export class Chart<P extends RenderParams> {
    * Set the range of the Chart's x scale to the viewport dimensions.
    */
   public updateRange(): void {
-    this.range = [0, this.viewportWidth];
+    this.range = [0, this.calculateViewportWidth()];
   }
 
   /**
