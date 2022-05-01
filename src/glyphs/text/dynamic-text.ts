@@ -4,7 +4,6 @@ import * as d3 from "d3";
 import { generateId } from "../../utilities/id-generation";
 import { bind } from "../../glyph-utilities/bind";
 import {
-  GlyphModifier,
   GlyphModifierConfig,
   GlyphProperty,
   resolveValue,
@@ -38,7 +37,8 @@ export function selectText(a: Annotation, c: Chart<any>): string {
   }
 
   let i = 0;
-  let viewWidth = c.getSemanticViewRange().width;
+  let range = c.xScale.range();
+  let viewWidth = range[1] - range[0];
   for (const thresh of thresholds) {
     if (viewWidth <= thresh) {
       return text[i];
@@ -82,7 +82,7 @@ function addToTextMaps<A extends Annotation, C extends Chart<any>>(config: {
     textMap.set(a.id, text);
     let thresholds = text.map((t) => {
       let textSize = getTextSize(t);
-      return ((a.end - a.start) * config.chart.viewportWidth) / textSize;
+      return ((a.end - a.start) * config.chart.viewportWidthPx) / textSize;
     });
     thresholdMap.set(a.id, thresholds);
   }

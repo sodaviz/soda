@@ -28,23 +28,6 @@ const horizontalAxisScaleMap: Map<
 > = new Map();
 
 /**
- * A utility function that returns an Annotation object that is convenient to use for rendering a horizontal axis
- * that spans a Chart's viewport.
- * @param chart
- * @param row
- */
-export function getHorizontalAxisAnnotation(
-  chart: Chart<any>,
-  row = 0
-): Annotation {
-  return {
-    id: "soda-horizontal-axis",
-    start: 0,
-    end: chart.viewportWidth - 1,
-  };
-}
-
-/**
  * An interface that defines the parameters for instantiating a HorizontalAxisModifier.
  * @internal
  */
@@ -75,9 +58,9 @@ export class HorizontalAxisModifier<
         config.domain ||
         ((d) => [
           d.c.xScale.invert(0),
-          d.c.xScale.invert(d.c.viewportWidth - 1),
+          d.c.xScale.invert(d.c.viewportWidthPx - 1),
         ]);
-      this.range = config.range || ((d) => [0, d.c.viewportWidth - 1]);
+      this.range = config.range || ((d) => [0, d.c.viewportWidthPx - 1]);
     } else {
       this.domain =
         config.domain ||

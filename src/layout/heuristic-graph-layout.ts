@@ -1,6 +1,9 @@
 import { cloneDeep } from "lodash";
 import { Annotation } from "../annotations/annotation";
 import { AnnotationGraph } from "./annotation-graph";
+import { MapVerticalLayout } from "./vertical-layout";
+import { AnnotationDatum } from "../glyph-utilities/bind";
+import { Chart } from "../charts/chart";
 
 /**
  * This function takes a list of Annotation objects and uses a non-deterministic greedy graph coloring heuristic to
@@ -14,7 +17,7 @@ export function heuristicGraphLayout(
   ann: Annotation[],
   nIters: number = 100,
   tolerance: number = 0
-): number {
+) {
   if (ann.length == 0) {
     return 0;
   }
@@ -28,7 +31,7 @@ export function heuristicGraphLayout(
   // the number of colors in the best coloring so far
   let bestColorCnt = Infinity;
   // this maps node->{color in best coloring}
-  let layout: Map<string, number> = new Map();
+  let bestColors: Map<string, number> = new Map();
   // we use integers to enumerate the colors
   let nextColor = -1;
   // this algorithm works as follows:
@@ -69,10 +72,20 @@ export function heuristicGraphLayout(
 
     if (nextColor < bestColorCnt) {
       bestColorCnt = nextColor;
-      layout = colors;
+      bestColors = colors;
     }
   }
-  return nextColor;
+
+  let layout = {
+    rowMap: bestColors,
+    row: function (this, d: AnnotationDatum<any, Chart<any>>): number {
+      let row = this.rowMap.get(d.a.id);
+      return row || 0;
+    },
+    rowCount: bestColorCnt,
+  };
+
+  return layout;
 }
 
 /**

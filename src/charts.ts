@@ -1,7 +1,1 @@
-export {
-  ChartConfig,
-  Chart,
-  RenderParams,
-  Transform,
-  ViewRange,
-} from "./charts/chart";
+export { ChartConfig, Chart, RenderParams, Transform } from "./charts/chart";

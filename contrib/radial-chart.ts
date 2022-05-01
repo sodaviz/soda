@@ -6,7 +6,6 @@ import {
   generateId,
   RenderParams,
   Transform,
-  ViewRange,
 } from "../src";
 import { radialRectangle } from "./radial-rectangle";
 import { HighlightConfig } from "../src/charts/chart";
@@ -52,25 +51,25 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
   public constructor(config: RadialChartConfig<P>) {
     super(config);
 
-    this.trackHeight = config.trackHeight || this.viewportWidth / 4;
+    this.trackHeight = config.trackHeight || this.viewportWidthPx / 4;
 
-    this.outerRadius = this.viewportWidth / 2;
+    this.outerRadius = this.viewportWidthPx / 2;
     this.innerRadius = this.outerRadius - this.trackHeight;
     this.rowCount = config.rowCount || 1;
     this.rowHeight = this.trackHeight / this.rowCount;
 
-    this.preRender = function (params): void {
-      this.initializeXScaleFromRenderParams(params);
-      this.applyLayoutAndSetRowCount(params);
-      this.updateDivProperties();
-      this.addAxis();
-      this.squareToDivWidth();
-      this.fitRadialDimensions();
-      this.renderTrackOutline();
-    };
+    // this.preRender = function (params): void {
+    //   this.initializeXScaleFromRenderParams(params);
+    //   this.applyLayoutAndSetRowCount(params);
+    //   this.updateDivProperties();
+    //   this.addAxis();
+    //   this.squareToDivWidth();
+    //   this.fitRadialDimensions();
+    //   this.renderTrackOutline();
+    // };
 
-    this.inRender =
-      config.inRender ||
+    this.draw =
+      config.draw ||
       function (params): void {
         radialRectangle({
           chart: this,
@@ -81,14 +80,13 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
   }
 
   public fitRadialDimensions(): void {
-    this.trackHeight = this.viewportWidth / 4;
-    this.outerRadius = this.viewportWidth / 2;
+    this.trackHeight = this.viewportWidthPx / 4;
+    this.outerRadius = this.viewportWidthPx / 2;
     this.innerRadius = this.outerRadius - this.trackHeight;
     this.rowHeight = this.trackHeight / this.rowCount;
   }
 
   public applyLayoutAndSetRowCount(params: P) {
-    super.applyLayoutAndSetRowCount(params);
     this.rowHeight = this.trackHeight / this.rowCount;
   }
 
@@ -126,7 +124,7 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       this.trackOutlineSelection
         .attr(
           "transform",
-          `translate(${this.viewportWidth / 2}, ${this.viewportWidth / 2})`
+          `translate(${this.viewportWidthPx / 2}, ${this.viewportWidthPx / 2})`
         )
         .attr(
           "d",
@@ -141,16 +139,14 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
   }
 
   public addAxis() {
-    if (this.axisType) {
-      this.overflowViewportSelection
-        .selectAll("g.radial-axis")
-        .data(["radial-axis"])
-        .enter()
-        .append("g")
-        .attr("class", "radial-axis");
+    this.overflowViewportSelection
+      .selectAll("g.radial-axis")
+      .data(["radial-axis"])
+      .enter()
+      .append("g")
+      .attr("class", "radial-axis");
 
-      this.renderAxis();
-    }
+    this.renderAxis();
   }
 
   public renderAxis() {
@@ -161,13 +157,17 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       .call(axis)
       .attr(
         "transform",
-        `translate(${this.viewportWidth / 2}, ${this.viewportWidth / 2})`
+        `translate(${this.viewportWidthPx / 2}, ${this.viewportWidthPx / 2})`
       );
   }
 
-  public getSemanticViewRange(): ViewRange {
-    let domain = this.xScale.domain();
-    return { start: domain[0], end: domain[1], width: domain[1] - domain[0] };
+  public squareToDivWidth(): void {
+    let dims = this.calculateDivDimensions();
+    this._divHeight = `${dims.width}px`;
+    this.padSelection.attr("width", dims.width);
+    this.padSelection.attr("height", dims.height);
+    this.updateViewportProperties();
+    // this.updateDivProperties();
   }
 
   public resize() {
@@ -194,9 +194,9 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
     let originalDomainWidth = this.initialDomain[1] - this.initialDomain[0];
 
     let vertical =
-      sourceEvent.offsetY - this.upperPadSize - this.viewportWidth / 2;
+      sourceEvent.offsetY - this.upperPadSize - this.viewportWidthPx / 2;
     let horizontal =
-      sourceEvent.offsetX - this.leftPadSize - this.viewportWidth / 2;
+      sourceEvent.offsetX - this.leftPadSize - this.viewportWidthPx / 2;
     let hypotenuse = Math.sqrt(vertical * vertical + horizontal * horizontal);
 
     let theta = Math.asin(horizontal / hypotenuse);
@@ -269,8 +269,8 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       .attr("class", selector)
       .attr(
         "transform",
-        `translate(${this.viewportWidth / 2 + this.leftPadSize}, ${
-          this.viewportWidth / 2 + this.upperPadSize
+        `translate(${this.viewportWidthPx / 2 + this.leftPadSize}, ${
+          this.viewportWidthPx / 2 + this.upperPadSize
         })`
       );
 
@@ -305,8 +305,8 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       .selectAll<any, HighlightConfig>("path")
       .attr(
         "transform",
-        `translate(${this.viewportWidth / 2 + this.leftPadSize}, ${
-          this.viewportWidth / 2 + this.upperPadSize
+        `translate(${this.viewportWidthPx / 2 + this.leftPadSize}, ${
+          this.viewportWidthPx / 2 + this.upperPadSize
         })`
       )
       .attr("d", (d) =>

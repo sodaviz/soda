@@ -42,7 +42,10 @@ export const defaultRadialRectangleTransformFn = <
   C extends RadialChart<any>
 >(
   d: AnnotationDatum<A, C>
-) => `translate(${d.c.viewportWidth / 2}, ${d.c.viewportWidth / 2})`;
+) =>
+  `translate(${d.c.calculateViewportWidth() / 2}, ${
+    d.c.calculateViewportWidth() / 2
+  })`;
 
 /**
  * @internal
