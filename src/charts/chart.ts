@@ -159,9 +159,13 @@ export interface ChartConfig<P extends RenderParams> {
    */
   divMargin?: string | number;
   /**
-   * This controls whether or not the rows will be colored in an alternating pattern.
+   * A list of colors that will color the Chart's rows in a repeating pattern.
    */
-  rowStripes?: boolean;
+  rowColors?: string[];
+  /**
+   * The opacity of the colored row stripes.
+   */
+  rowOpacity?: number;
   /**
    * This controls whether or not the Chart will render a horizontal axis.
    */
@@ -377,18 +381,6 @@ export class Chart<P extends RenderParams> {
    */
   highlightSelection: d3.Selection<any, any, any, any>;
   /**
-   * A D3 selection of the SVG pattern that is used for row striping.
-   */
-  _rowStripePatternSelection:
-    | d3.Selection<SVGPatternElement, any, any, any>
-    | undefined;
-  /**
-   * A D3 Selection of the SVG rectangle that is used for row striping.
-   */
-  _rowStripeRectSelection:
-    | d3.Selection<SVGRectElement, any, any, any>
-    | undefined;
-  /**
    * A Chart's contents are scaled by a scaling factor k. If a zoomConstraint of the form [min_k, max_k] is
    * provided, the scaling factor will be constrained to that range. This will not constrain panning.
    */
@@ -432,9 +424,13 @@ export class Chart<P extends RenderParams> {
    */
   rowCount: number;
   /**
-   * This controls whether or not the rows will be colored in an alternating pattern.
+   * A list of colors that will color the Chart's rows in a repeating pattern.
    */
-  rowStripes: boolean;
+  rowColors: string[] | undefined;
+  /**
+   * The opacity of the colored row stripes.
+   */
+  rowOpacity: number = 1;
   /**
    * A list of observers attached to the Chart.
    */
@@ -536,10 +532,10 @@ export class Chart<P extends RenderParams> {
     this.xScale = d3.scaleLinear();
     this.initializeXScale(0, 1);
 
-    this.rowStripes = config.rowStripes || false;
-    if (this.rowStripes) {
-      this.setRowStripes();
-    }
+    this.rowColors = config.rowColors;
+    this.rowOpacity =
+      config.rowOpacity != undefined ? config.rowOpacity : this.rowOpacity;
+    this.addRowStripes();
 
     this.resizable = config.resizable || false;
     this.zoomable = config.zoomable || false;
@@ -672,74 +668,50 @@ export class Chart<P extends RenderParams> {
   }
 
   /**
-   * A getter for the rowStripeSelection property. This serves as a null guard.
+   * If they have been added, this method removes row stripes from the Chart.
    */
-  get rowStripeRectSelection() {
-    if (this._rowStripeRectSelection == undefined) {
-      console.error(
-        `_rowStripeRectSelection is not defined on chart: ${this.id}`
-      );
-      throw `_rowStripeRectSelection undefined`;
-    }
-    return this._rowStripeRectSelection;
+  public removeRowStripes(): void {
+    this.defSelection.selectAll("pattern#row-stripes-pattern").remove();
+    this.viewportSelection.selectAll("rect#row-stripes-rect").remove();
   }
 
   /**
-   * A getter for the rowStripePatternSelection property. This serves as a null guard.
+   * If the rowColors property has been defined, this method adds row stripes to the Chart.
    */
-  get rowStripePatternSelection() {
-    if (this._rowStripePatternSelection == undefined) {
-      console.error(
-        `_rowStripePatternSelection is not defined on chart: ${this.id}`
-      );
-      throw `_rowStripePatternSelection undefined`;
+  public addRowStripes(): void {
+    if (this.rowColors == undefined) {
+      console.warn(`rowColors are not defined on chart: ${this.id}`);
+      return;
     }
-    return this._rowStripePatternSelection;
-  }
 
-  /**
-   * This initializes the DOM elements that form the row stripes in the Chart, if enabled.
-   */
-  public setRowStripes() {
-    this._rowStripePatternSelection = this.defSelection
+    this.removeRowStripes();
+
+    let patternSelection = this.defSelection
       .append("pattern")
-      .attr("id", "row-stripes")
+      .attr("id", "row-stripes-pattern")
+      .attr("height", this.rowColors.length * this.rowHeight)
+      .attr("width", "100%")
       .attr("patternUnits", "userSpaceOnUse")
       .attr("preserveAspectRatio", "xMinYMid meet");
 
-    this._rowStripePatternSelection.append("rect").style("fill", "#E5E4E2");
-
-    this._rowStripePatternSelection
-      .append("rect")
-      .style("y", this.rowHeight)
-      .style("fill", "#B2BEB5");
-
-    this._rowStripeRectSelection = this.viewportSelection
-      .append("rect")
-      .attr("id", "row-stripes-rect")
-      .style("fill", `url(#row-stripes)`)
-      .style("fill-opacity", 0.5);
-
-    this.fitRowStripes();
-  }
-
-  /**
-   * This automatically sets the dimensions of the row stripe DOM elements.
-   */
-  public fitRowStripes() {
-    if (!this.rowStripes) {
-      return;
-    }
-    this.rowStripePatternSelection
-      .attr("width", "100%")
-      .attr("height", this.rowHeight * 2);
-
-    this.rowStripePatternSelection
+    patternSelection
       .selectAll("rect")
-      .attr("width", "100%")
-      .attr("height", this.rowHeight);
+      .data(this.rowColors)
+      .enter()
+      .append("rect")
+      .style("fill", (d) => d)
+      .style("fill-opacity", this.rowOpacity)
+      .attr("y", (d, i) => i * this.rowHeight)
+      .attr("height", this.rowHeight)
+      .attr("width", "100%");
 
-    this.rowStripeRectSelection.attr("width", "100%").attr("height", "100%");
+    this.viewportSelection
+      .insert("rect", ":first-child")
+      .attr("id", "row-stripes-rect")
+      .style("fill", `url(#row-stripes-pattern)`)
+      .style("fill-opacity", 0.5)
+      .attr("height", "100%")
+      .attr("width", "100%");
   }
 
   //---------//
@@ -1126,6 +1098,7 @@ export class Chart<P extends RenderParams> {
   public calculateViewportWidth(): number {
     return this.calculateViewportDimensions().width;
   }
+
   /**
    * This calculates and returns the height of the SVG viewport in pixels.
    */
