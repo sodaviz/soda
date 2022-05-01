@@ -60,58 +60,6 @@ export function parseGff3Records(records: string | string[]): Gff3Annotation[] {
 
     if (splitRecord.length < 9) {
       console.warn("GFF3 split length less than 9");
-      continue;
-    }
-
-    let seqid: string | undefined;
-    if (splitRecord[0] != ".") {
-      seqid = splitRecord[0];
-    }
-
-    let source: string | undefined;
-    if (splitRecord[0] != ".") {
-      source = splitRecord[1];
-    }
-
-    let type: string | undefined;
-    if (splitRecord[0] != ".") {
-      type = splitRecord[2];
-    }
-
-    let start: number | undefined;
-    if (splitRecord[0] != ".") {
-      start = parseInt(splitRecord[3]);
-    }
-
-    if (start == undefined) {
-      throw "GFF3 start undefined";
-    }
-
-    let end: number | undefined;
-    if (splitRecord[0] != ".") {
-      end = parseInt(splitRecord[4]);
-    }
-
-    if (end == undefined) {
-      throw "GFF3 end undefined";
-    }
-
-    let score: number | undefined;
-    if (splitRecord[0] != ".") {
-      score = parseFloat(splitRecord[5]);
-    }
-
-    let strand: Orientation | undefined;
-    if (splitRecord[0] != ".") {
-      strand = parseOrientation(splitRecord[6]);
-    }
-
-    let phase: 1 | 2 | 3 | undefined;
-    if (splitRecord[0] != ".") {
-      let phaseParsed = parseInt(splitRecord[7]);
-      if (phaseParsed == (1 | 2 | 3)) {
-        phase = <1 | 2 | 3>phaseParsed;
-      }
     }
 
     let attributes: Map<string, string> | undefined;
@@ -127,17 +75,44 @@ export function parseGff3Records(records: string | string[]): Gff3Annotation[] {
     }
     annotations.push({
       id: id || generateId("gff3-annotation"),
-      start,
-      end,
-      seqid,
-      source,
-      type,
-      score,
-      strand,
-      phase,
+      start:
+        splitRecord[3] != undefined && splitRecord[0] != "."
+          ? parseInt(splitRecord[3])
+          : 0,
+      end:
+        splitRecord[4] != undefined && splitRecord[4] != "."
+          ? parseInt(splitRecord[4])
+          : 0,
+      seqid: splitRecord[0] != "." ? splitRecord[0] : undefined,
+      source: splitRecord[1] != "." ? splitRecord[1] : undefined,
+      type: splitRecord[2] != "." ? splitRecord[2] : undefined,
+      score:
+        splitRecord[5] != undefined && splitRecord[5] != "."
+          ? parseFloat(splitRecord[5])
+          : undefined,
+      strand:
+        splitRecord[6] != undefined && splitRecord[6] != "."
+          ? parseOrientation(splitRecord[6])
+          : undefined,
+      phase:
+        splitRecord[7] != undefined && splitRecord[7] != "."
+          ? parsePhase(splitRecord[7])
+          : undefined,
       attributes,
     });
   }
 
   return annotations;
+}
+
+/**
+ * @internal
+ * @param phase
+ */
+function parsePhase(phase: string): 1 | 2 | 3 | undefined {
+  let value = parseInt(phase);
+  if (value == 1 || value == 2 || value == 3) {
+    return value;
+  }
+  return undefined;
 }
