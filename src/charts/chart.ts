@@ -668,6 +668,21 @@ export class Chart<P extends RenderParams> {
   }
 
   /**
+   * This adds a horizontal axis glyph to the top of the Chart.
+   */
+  public addAxis() {
+    horizontalAxis({
+      chart: this,
+      selector: "soda-default-axis",
+      annotations: [{ id: "axis", start: 0, end: this.xScale.range()[1] }],
+      y: -5,
+      fixed: true,
+      axisType: AxisType.Top,
+      target: BindTarget.Overflow,
+    });
+  }
+
+  /**
    * If they have been added, this method removes row stripes from the Chart.
    */
   public removeRowStripes(): void {
@@ -1400,18 +1415,6 @@ export class Chart<P extends RenderParams> {
    */
   set renderParams(params: P) {
     this._renderParams = params;
-  }
-
-  public addAxis() {
-    horizontalAxis({
-      chart: this,
-      selector: "soda-default-axis",
-      annotations: [{ id: "axis", start: 0, end: this.xScale.range()[1] }],
-      y: -5,
-      fixed: true,
-      axisType: AxisType.Top,
-      target: BindTarget.Overflow,
-    });
   }
 
   /**
