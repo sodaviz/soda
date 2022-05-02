@@ -1,5 +1,4 @@
 import * as d3 from "d3";
-import { cloneDeep } from "lodash";
 import { Annotation } from "../annotations/annotation";
 import { horizontalAxis } from "../glyphs/axes/horizontal-axis";
 import { rectangle } from "../glyphs/rectangle";
@@ -14,6 +13,7 @@ import {
   VerticalLayout,
 } from "../layout/vertical-layout";
 import { intervalGraphLayout } from "../layout/interval-graph-layout";
+import { Transform } from "./transform";
 
 /**
  * A utility function for setting DOM element properties. If the value passed in is a number <n>, it is transformed
@@ -71,27 +71,6 @@ export interface HighlightConfig {
    * The opacity of the highlight. This defaults to 0.1.
    */
   opacity?: number;
-}
-
-/**
- * A re-export of d3.ZoomTransform, with the x, y, and k properties overwritten as public variables. D3 strongly
- * advises against messing with its transform objects directly, but we actually want to do that in SODA sometimes.
- *
- * Transform objects are used to describe and perform transformations on glyphs.
- */
-export interface Transform extends d3.ZoomTransform {
-  /**
-   * The x translation described by the Transform.
-   */
-  x: number;
-  /**
-   * The y translation described by the Transform.
-   */
-  y: number;
-  /**
-   * The scaling factor described by the Transform.
-   */
-  k: number;
 }
 
 /**
@@ -488,7 +467,7 @@ export class Chart<P extends RenderParams> {
     this.padSelection = this.divSelection.append("svg");
     this.padSelection.attr("xmlns", "http://www.w3.org/2000/svg");
 
-    this._transform = cloneDeep(d3.zoomIdentity);
+    this._transform = new Transform(1, 0, 0);
     this.padSelection.node().__zoom = this._transform;
 
     this.highlightSelection = this.padSelection

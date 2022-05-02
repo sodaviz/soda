@@ -26,7 +26,7 @@
       "url": "https://github.com/jackroddy"
     }
   ],
-  "license": "Apache-2.0",
+  "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/sodaviz/soda/issues"
   },
@@ -35,12 +35,11 @@
   ],
   "homepage": "https://sodaviz.org",
   "dependencies": {
-    "@types/resize-observer-browser": "^0.1.6",
     "d3": "^5.15.0",
-    "file-saver": "^2.0.5",
-    "lodash": "^4.17.21"
+    "file-saver": "^2.0.5"
   },
   "devDependencies": {
+    "@types/resize-observer-browser": "^0.1.6",
     "@types/d3": "5.7.2",
     "@types/file-saver": "^2.0.3",
     "@types/lodash": "4.14.161",

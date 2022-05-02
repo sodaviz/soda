@@ -1,7 +1,5 @@
-import { cloneDeep } from "lodash";
 import { Annotation } from "../annotations/annotation";
 import { AnnotationGraph } from "./annotation-graph";
-import { MapVerticalLayout } from "./vertical-layout";
 import { AnnotationDatum } from "../glyph-utilities/bind";
 import { Chart } from "../charts/chart";
 
@@ -26,7 +24,7 @@ export function heuristicGraphLayout(
 
   // we will make copies of the maps, since the
   // algorithm clobbers them in each iteration
-  let edgesCopy = cloneDeep(graph.edges);
+  let edgesCopy = copyEdges(graph.edges);
 
   // the number of colors in the best coloring so far
   let bestColorCnt = Infinity;
@@ -68,7 +66,7 @@ export function heuristicGraphLayout(
       }
       nextColor++;
     }
-    edgesCopy = cloneDeep(graph.edges);
+    edgesCopy = copyEdges(graph.edges);
 
     if (nextColor < bestColorCnt) {
       bestColorCnt = nextColor;
@@ -86,6 +84,18 @@ export function heuristicGraphLayout(
   };
 
   return layout;
+}
+
+/**
+ *
+ * @param edges
+ */
+function copyEdges(edges: Map<string, string[]>) {
+  let edgesCopy: Map<string, string[]> = new Map();
+  for (const key of edges.keys()) {
+    edgesCopy.set(key, edges.get(key)!);
+  }
+  return edgesCopy;
 }
 
 /**
