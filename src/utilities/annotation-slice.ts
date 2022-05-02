@@ -1,4 +1,4 @@
-import { Annotation, PlotAnnotation, SequenceAnnotation } from "../src";
+import { Annotation, PlotAnnotation, SequenceAnnotation } from "../index";
 
 /**
  * @internal
@@ -65,7 +65,7 @@ export function sliceSequenceAnnotation(
   }
 }
 
-export function sliceContinuousAnnotation(
+export function slicePlotAnnotation(
   annotation: PlotAnnotation,
   start: number,
   end: number

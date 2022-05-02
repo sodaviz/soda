@@ -8,9 +8,9 @@ import {
   GlyphModifierConfig,
   GlyphProperty,
   resolveValue,
-} from "../src";
-import { RadialChart } from "./radial-chart";
-import { AnnotationDatum } from "../src/glyph-utilities/bind";
+} from "../../index";
+import { RadialChart } from "../../charts/radial-chart";
+import { AnnotationDatum } from "../../glyph-utilities/bind";
 
 /**
  * @internal

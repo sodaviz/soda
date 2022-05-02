@@ -1,4 +1,4 @@
-import { SequenceAnnotation } from "../src";
+import { SequenceAnnotation } from "../index";
 
 let blank = "\u2000";
 

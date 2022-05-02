@@ -19,6 +19,7 @@ export { barPlot, BarPlotConfig } from "./glyphs/plots/bar-plot";
 export { heatmap, HeatmapConfig } from "./glyphs/plots/heatmap";
 export { linePlot, LinePlotConfig } from "./glyphs/plots/line-plot";
 export { area, AreaConfig } from "./glyphs/plots/area";
+export { radialRectangle } from "./glyphs/radial/radial-rectangle";
 export { rectangle, RectangleConfig } from "./glyphs/rectangle";
 export { sequence, SequenceConfig } from "./glyphs/sequence";
 export { dynamicText, DynamicTextConfig } from "./glyphs/text/dynamic-text";

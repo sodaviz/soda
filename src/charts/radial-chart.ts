@@ -1,14 +1,14 @@
 import * as d3 from "d3";
-import { axisRadialOuter } from "./radial-axis";
+import { axisRadialOuter } from "../glyphs/radial/radial-axis";
 import {
   Chart,
   ChartConfig,
   generateId,
   RenderParams,
   Transform,
-} from "../src";
-import { radialRectangle } from "./radial-rectangle";
-import { HighlightConfig } from "../src/charts/chart";
+} from "../index";
+import { radialRectangle } from "../glyphs/radial/radial-rectangle";
+import { HighlightConfig } from "./chart";
 
 /**
  * A simple interface that defines the parameters that initialize a RadialChart
