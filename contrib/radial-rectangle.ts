@@ -26,8 +26,7 @@ export function getDefaultRadialRectanglePathFn<
       .outerRadius(
         (d) =>
           d.c.outerRadius -
-          resolveValue(modifier.y, d) +
-          resolveValue(modifier.height, d)
+          (resolveValue(modifier.y, d) + resolveValue(modifier.height, d))
       )
       .startAngle((d) => Math.max(d.c.xScale(d.a.start), 0))
       .endAngle((d) => Math.min(d.c.xScale(d.a.end), 2 * Math.PI))(d) || "";
@@ -42,10 +41,7 @@ export const defaultRadialRectangleTransformFn = <
   C extends RadialChart<any>
 >(
   d: AnnotationDatum<A, C>
-) =>
-  `translate(${d.c.calculateViewportWidth() / 2}, ${
-    d.c.calculateViewportWidth() / 2
-  })`;
+) => `translate(${d.c.viewportWidthPx / 2}, ${d.c.viewportWidthPx / 2})`;
 
 /**
  * @internal
