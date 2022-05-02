@@ -190,6 +190,7 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
 
   public resize() {
     this.squareToDivWidth();
+    this.updateViewportProperties();
     this.fitRadialDimensions();
     this.renderAxis();
     this.renderTrackOutline();
