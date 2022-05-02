@@ -58,19 +58,21 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
     this.rowCount = config.rowCount || 1;
     this.rowHeight = this.trackHeight / this.rowCount;
 
-    // this.preRender = function (params): void {
-    //   this.initializeXScaleFromRenderParams(params);
-    //   this.applyLayoutAndSetRowCount(params);
-    //   this.updateDivProperties();
-    //   this.addAxis();
-    //   this.squareToDivWidth();
-    //   this.fitRadialDimensions();
-    //   this.renderTrackOutline();
-    // };
+    this.setPadAttribute("height", "100%");
+
+    this.updateDimensions =
+      config.updateDimensions ||
+      function (this): void {
+        this.squareToDivWidth();
+        this.updateViewportProperties();
+        this.fitRadialDimensions();
+        this.renderTrackOutline();
+      };
 
     this.draw =
       config.draw ||
-      function (params): void {
+      function (this, params): void {
+        this.addAxis();
         radialRectangle({
           chart: this,
           annotations: params.annotations || [],
@@ -83,10 +85,6 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
     this.trackHeight = this.viewportWidthPx / 4;
     this.outerRadius = this.viewportWidthPx / 2;
     this.innerRadius = this.outerRadius - this.trackHeight;
-    this.rowHeight = this.trackHeight / this.rowCount;
-  }
-
-  public applyLayoutAndSetRowCount(params: P) {
     this.rowHeight = this.trackHeight / this.rowCount;
   }
 
@@ -163,15 +161,36 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
 
   public squareToDivWidth(): void {
     let dims = this.calculateDivDimensions();
-    this._divHeight = `${dims.width}px`;
-    this.padSelection.attr("width", dims.width);
-    this.padSelection.attr("height", dims.height);
-    this.updateViewportProperties();
-    // this.updateDivProperties();
+    this.divHeight = dims.width;
+  }
+
+  public updateViewportHeight(): void {
+    if (this._viewportHeight != undefined) {
+      return;
+    }
+
+    let height =
+      this.calculatePadHeight() - (this.upperPadSize + this.lowerPadSize);
+
+    this.viewportHeightPx = height;
+    this.setViewportAttribute("height", `${height}`);
+  }
+
+  public updateViewportWidth(): void {
+    if (this._viewportWidth != undefined) {
+      return;
+    }
+
+    let width =
+      this.calculatePadWidth() - (this.leftPadSize + this.rightPadSize);
+
+    this.viewportWidthPx = width;
+    this.setViewportAttribute("width", `${width}`);
   }
 
   public resize() {
     this.squareToDivWidth();
+    this.updateViewportProperties();
     this.fitRadialDimensions();
     this.renderAxis();
     this.renderTrackOutline();
