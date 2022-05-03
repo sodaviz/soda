@@ -15,6 +15,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.10.0] - 2022-05-03
+
+### Added
+- Added a high level guide to the docs
+- Added the area() glyph function
+- Added simpleText() glyph
+- Added VerticalLayout interface
+- Added a copy-cat implementation of D3.Transform
+ 
+### Changed
+- The Contrib directory has been removed
+- Annotation objects have been replaced with interfaces
+- ContinuousAnnotation has been renamed back to PlotAnnotation
+- The text() glyph function has become dynamicText()
+- The Chart rendering routine has been split at a finer grain:
+  - Chart.updateLayout
+  - Chart.updateRowCount
+  - Chart.updateDimensions
+  - Chart.updateDomain
+  - Chart.draw()
+- The Chart DOM element dimensions now have more consistent accessors
+- Chart row stripes are now more configurable with new ChartConfig properties:
+  - Chart.rowColors
+  - Chart.rowOpacity
+- The selector property is no longer optional on ChartConfig
+- Charts now have a layout property which is used by the rendering API
+- The BED and GFF3 parsing functions now work on both string and string[]
+ 
+### Removed
+- Removed the multiple incarnations of BedAnnotation
+- Removed the dependency on lodash
+ 
+### Fixed
+- The default positioning of all glyphs has been fine-tuned to fit more neatly into Chart rows
+
 ## [0.9.1] - 2022-02-28
 
 ### Changed
