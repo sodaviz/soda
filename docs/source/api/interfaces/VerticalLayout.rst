@@ -9,72 +9,47 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _AxisType:
+.. _VerticalLayout:
 
-AxisType
-========
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    enum AxisType
-
-.. container:: content
-
-  A simple enum to serve as an argument for selecting which D3 Axis function to call.
-
-Members
--------
-
-Bottom
-******
+:trst-class:`VerticalLayout`
+============================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    Bottom: = "bottom"
+    interface VerticalLayout
 
 .. container:: content
 
   
 
-Left
-****
+Properties
+----------
 
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    Left: = "left"
-
-.. container:: content
-
-  
-
-Right
-*****
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    Right: = "right"
-
-.. container:: content
-
-  
-
-Top
+row
 ***
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    Top: = "top"
+    row: GlyphCallback <Annotation, Chart <any>, number>
 
 .. container:: content
 
   
+
+rowCount
+********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    rowCount: number
+
+.. container:: content
+
+  
+

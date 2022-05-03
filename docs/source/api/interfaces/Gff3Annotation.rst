@@ -9,16 +9,16 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _Gff3Record:
+.. _Gff3Annotation:
 
-:trst-class:`Gff3Record`
-========================
+:trst-class:`Gff3Annotation`
+============================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    interface Gff3Record
+    interface Gff3Annotation
 
 .. container:: content
 
@@ -38,7 +38,33 @@ attributes
 
 .. container:: content
 
-  A horrifying GFF3 field that is essentially an anything goes set of key value pairs describing anything anybody every wants to add to a GFF3 record.
+  A GFF3 field that is essentially an anything goes set of key value pairs describing anything anybody every wants to add to a GFF3 record.
+
+end
+***
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    end: number
+
+.. container:: content
+
+  
+
+id
+**
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    id: string
+
+.. container:: content
+
+  
 
 phase
 *****
@@ -91,6 +117,19 @@ source
 .. container:: content
 
   A GFF3 field: "The source is a free text qualifier intended to describe the algorithm or operating procedure that generated this feature..."
+
+start
+*****
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    start: number
+
+.. container:: content
+
+  
 
 strand
 ******

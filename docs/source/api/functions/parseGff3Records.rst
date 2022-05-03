@@ -9,23 +9,23 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _parseBed12Record:
+.. _parseGff3Records:
 
-:trst-function:`parseBed12Record`
+:trst-function:`parseGff3Records`
 =================================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    function parseBed12Record(record: string): Bed12Annotation
+    function parseGff3Records(records: string | string []): None
 
 .. container:: content
 
-  A utility function to explicitly parse BED12 records. The resulting objects will have all twelve fields of the BED format.
+  A utility function to parse a GFF3 records. This function accepts either a string of newline delimited GFF3 records, or an array of individual record strings.
 
   **Parameters**
 
-  - record: string
+  - records: string | string []
 
-  **Returns**: Bed12Annotation
+  **Returns**: Gff3Annotation []

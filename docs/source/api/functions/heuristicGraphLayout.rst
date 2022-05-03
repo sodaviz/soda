@@ -18,7 +18,7 @@
 
   .. code-block:: typescript
 
-    function heuristicGraphLayout(ann: Annotation [], nIters: number, tolerance: number): number
+    function heuristicGraphLayout(ann: Annotation [], nIters: number, tolerance: number): None
 
 .. container:: content
 
@@ -30,4 +30,4 @@
   - nIters: number
   - tolerance: number
 
-  **Returns**: number
+  **Returns**: None | None

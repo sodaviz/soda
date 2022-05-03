@@ -9,16 +9,16 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _text:
+.. _simpleText:
 
-:trst-function:`text`
-=====================
+:trst-function:`simpleText`
+===========================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    function text<A extends Annotation, C extends Chart>(config: TextConfig <A, C>): d3.Selection
+    function simpleText<A extends Annotation, C extends Chart>(config: SimpleTextConfig <A, C>): d3.Selection
 
 .. container:: content
 
@@ -31,6 +31,6 @@
 
   **Parameters**
 
-  - config: TextConfig <A, C>
+  - config: SimpleTextConfig <A, C>
 
   **Returns**: d3.Selection <SVGGElement, string, any, any>

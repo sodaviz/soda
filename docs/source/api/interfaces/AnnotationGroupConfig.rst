@@ -9,36 +9,27 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _RenderParams:
+.. _AnnotationGroupConfig:
 
-:trst-class:`RenderParams`
-==========================
+:trst-class:`AnnotationGroupConfig`
+===================================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    interface RenderParams
+    interface AnnotationGroupConfig<A extends Annotation>
 
 .. container:: content
 
-  This defines the parameters for a call to a Chart's rendering method.
+  
+
+  **Type parameters**
+
+    - A: Annotation
 
 Properties
 ----------
-
-annotations
-***********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    annotations: undefined | Annotation []
-
-.. container:: content
-
-  The Annotation objects to be rendered.
 
 end
 ***
@@ -51,20 +42,33 @@ end
 
 .. container:: content
 
-  The end coordinate of the region that will be rendered.
+  
 
-rowCount
-********
+group
+*****
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    rowCount: undefined | number
+    group: undefined | A []
 
 .. container:: content
 
-  The number of rows that will be rendered.
+  
+
+id
+**
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    id: undefined | string
+
+.. container:: content
+
+  
 
 start
 *****
@@ -77,5 +81,5 @@ start
 
 .. container:: content
 
-  The start coordinate of the region that will be rendered.
+  
 

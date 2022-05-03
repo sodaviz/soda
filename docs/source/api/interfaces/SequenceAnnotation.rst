@@ -9,36 +9,23 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _RenderParams:
+.. _SequenceAnnotation:
 
-:trst-class:`RenderParams`
-==========================
+:trst-class:`SequenceAnnotation`
+================================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    interface RenderParams
+    interface SequenceAnnotation
 
 .. container:: content
 
-  This defines the parameters for a call to a Chart's rendering method.
+  
 
 Properties
 ----------
-
-annotations
-***********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    annotations: undefined | Annotation []
-
-.. container:: content
-
-  The Annotation objects to be rendered.
 
 end
 ***
@@ -47,24 +34,37 @@ end
 
   .. code-block:: typescript
 
-    end: undefined | number
+    end: number
 
 .. container:: content
 
-  The end coordinate of the region that will be rendered.
+  
 
-rowCount
+id
+**
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    id: string
+
+.. container:: content
+
+  
+
+sequence
 ********
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    rowCount: undefined | number
+    sequence: string
 
 .. container:: content
 
-  The number of rows that will be rendered.
+  
 
 start
 *****
@@ -73,9 +73,9 @@ start
 
   .. code-block:: typescript
 
-    start: undefined | number
+    start: number
 
 .. container:: content
 
-  The start coordinate of the region that will be rendered.
+  
 

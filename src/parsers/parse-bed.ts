@@ -4,7 +4,6 @@ import { Annotation } from "../annotations/annotation";
 
 /**
  * An interface that describes BED records. For more information, see https://genome.ucsc.edu/FAQ/FAQformat.html#format1
- * @internal
  */
 export interface BedAnnotation extends Annotation {
   /**

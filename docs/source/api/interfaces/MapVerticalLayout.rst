@@ -9,49 +9,36 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _RenderParams:
+.. _MapVerticalLayout:
 
-:trst-class:`RenderParams`
-==========================
+:trst-class:`MapVerticalLayout`
+===============================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    interface RenderParams
+    interface MapVerticalLayout
 
 .. container:: content
 
-  This defines the parameters for a call to a Chart's rendering method.
+  
 
 Properties
 ----------
 
-annotations
-***********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    annotations: undefined | Annotation []
-
-.. container:: content
-
-  The Annotation objects to be rendered.
-
-end
+row
 ***
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    end: undefined | number
+    row: GlyphCallback <Annotation, Chart <any>, number>
 
 .. container:: content
 
-  The end coordinate of the region that will be rendered.
+  
 
 rowCount
 ********
@@ -60,22 +47,22 @@ rowCount
 
   .. code-block:: typescript
 
-    rowCount: undefined | number
+    rowCount: number
 
 .. container:: content
 
-  The number of rows that will be rendered.
+  
 
-start
-*****
+rowMap
+******
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    start: undefined | number
+    rowMap: Map <string, number>
 
 .. container:: content
 
-  The start coordinate of the region that will be rendered.
+  
 

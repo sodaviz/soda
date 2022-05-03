@@ -9,20 +9,20 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _heatmap:
+.. _area:
 
-:trst-function:`heatmap`
-========================
+:trst-function:`area`
+=====================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    function heatmap<A extends PlotAnnotation, C extends Chart>(config: HeatmapConfig <A, C>): d3.Selection
+    function area<A extends PlotAnnotation, C extends Chart>(config: AreaConfig <A, C>): d3.Selection
 
 .. container:: content
 
-  This renders PlotAnnotations as heatmaps in a Chart.
+  This renders PlotAnnotations as area glyphs in a Chart.
 
   **Type parameters**
 
@@ -31,6 +31,6 @@
 
   **Parameters**
 
-  - config: HeatmapConfig <A, C>
+  - config: AreaConfig <A, C>
 
   **Returns**: d3.Selection <SVGGElement, string, any, any>

@@ -9,16 +9,16 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _sliceContinuousAnnotation:
+.. _axisRadialInner:
 
-:trst-function:`sliceContinuousAnnotation`
-==========================================
+:trst-function:`axisRadialInner`
+================================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    function sliceContinuousAnnotation(annotation: ContinuousAnnotation, start: number, end: number): None
+    function axisRadialInner(angleScale: d3.ScaleLinear <number, number>, radius: number): None
 
 .. container:: content
 
@@ -26,8 +26,7 @@
 
   **Parameters**
 
-  - annotation: ContinuousAnnotation
-  - start: number
-  - end: number
+  - angleScale: d3.ScaleLinear <number, number>
+  - radius: number
 
-  **Returns**: ContinuousAnnotation | undefined
+  **Returns**: (selection: d3.Selection <any, any, any, any>): void

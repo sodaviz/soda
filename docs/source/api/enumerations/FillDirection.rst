@@ -9,71 +9,45 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _AxisType:
+.. _FillDirection:
 
-AxisType
-========
+FillDirection
+=============
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    enum AxisType
+    enum FillDirection
 
 .. container:: content
 
-  A simple enum to serve as an argument for selecting which D3 Axis function to call.
+  A simple enum to define the direction that an area glyph fills in.
 
 Members
 -------
 
-Bottom
-******
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    Bottom: = "bottom"
-
-.. container:: content
-
-  
-
-Left
+Down
 ****
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    Left: = "left"
+    Down: = "down"
 
 .. container:: content
 
   
 
-Right
-*****
+Up
+**
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    Right: = "right"
-
-.. container:: content
-
-  
-
-Top
-***
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    Top: = "top"
+    Up: = "up"
 
 .. container:: content
 

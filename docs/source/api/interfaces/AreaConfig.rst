@@ -9,24 +9,24 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _RectangleConfig:
+.. _AreaConfig:
 
-:trst-class:`RectangleConfig`
-=============================
+:trst-class:`AreaConfig`
+========================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    interface RectangleConfig<A extends Annotation, C extends Chart>
+    interface AreaConfig<A extends PlotAnnotation, C extends Chart>
 
 .. container:: content
 
-  An interface that defines the parameters for a call to the rectangle rendering function.
+  An interface that defines the parameters for a call to the area rendering function.
 
   **Type parameters**
 
-    - A: Annotation
+    - A: PlotAnnotation
     - C: Chart
 
 Properties
@@ -58,6 +58,19 @@ chart
 
   The Chart object in which the glyphs will be rendered.
 
+domain
+******
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    domain: undefined | None | GlyphCallback <A, C, None>
+
+.. container:: content
+
+  This defines the domain of the plot.
+
 fillColor
 *********
 
@@ -70,6 +83,19 @@ fillColor
 .. container:: content
 
   A callback to define the fill color of the glyph.
+
+fillDirection
+*************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    fillDirection: undefined | Up | Down | GlyphCallback <A, C, FillDirection>
+
+.. container:: content
+
+  
 
 fillOpacity
 ***********
@@ -108,7 +134,33 @@ initializeFn
 
 .. container:: content
 
-  A callback function that will be passed to the GlyphModifier that will manage the glyphs created with this config. If provided, this callback function will override the GlyphModifier's initialization method, which typically sets most of the style related properties from the GlyphConfig. Don't use this unless you know what you're doing.
+  
+
+pathData
+********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    pathData: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  A callback that returns a string that defines the line's SVG path
+
+range
+*****
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    range: undefined | None | GlyphCallback <A, C, None>
+
+.. container:: content
+
+  This defines the range of the plot.
 
 row
 ***
@@ -122,6 +174,19 @@ row
 .. container:: content
 
   A callback to define the row that the glyph is placed in.
+
+rowSpan
+*******
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    rowSpan: undefined | number
+
+.. container:: content
+
+  The number of bins that the plot will span. This defaults to 1, which forces the plot to fit into one row. If an argument is supplied, it will cause the plot to grow downward. It will have no effect if a custom lineFunc is supplied.
 
 selector
 ********
@@ -290,5 +355,5 @@ zoomFn
 
 .. container:: content
 
-  A callback function that will be passed to the GlyphModifier that will manage the glyphs created with this config. If provided, this callback function will override the GlyphModifier's zoom method, which typically sets most of the positioning related properties from the GlyphConfig. Don't use this unless you know what you're doing.
+  
 

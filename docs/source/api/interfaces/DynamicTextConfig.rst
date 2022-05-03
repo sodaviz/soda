@@ -9,20 +9,20 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _TextConfig:
+.. _DynamicTextConfig:
 
-:trst-class:`TextConfig`
-========================
+:trst-class:`DynamicTextConfig`
+===============================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    interface TextConfig<A extends Annotation, C extends Chart>
+    interface DynamicTextConfig<A extends Annotation, C extends Chart>
 
 .. container:: content
 
-  An interface that defines the parameters for a call to the text rendering function.
+  An interface that defines the parameters for a call to the dynamicText rendering function.
 
   **Type parameters**
 
@@ -173,7 +173,20 @@ initializeFn
 
 .. container:: content
 
-  A callback function that will be passed to the GlyphModifier that will manage the glyphs created with this config. If provided, this callback function will override the GlyphModifier's initialization method, which typically sets most of the style related properties from the GlyphConfig. Don't use this unless you know what you're doing.
+  
+
+row
+***
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    row: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  A callback to define the row that the glyph is placed in.
 
 selector
 ********
@@ -292,6 +305,19 @@ target
 
   This determines the parent DOM element in which the glyphs will be rendered. When supplying a BindTarget, the rendering function will find the appropriate parent in the supplied Chart. When supplying a D3 selection, the rendering function will explicitly use the selected element.
 
+text
+****
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    text: GlyphProperty <A, C, string []>
+
+.. container:: content
+
+  A callback to extract a list of text to display from the represented Annotation object. It is a list of text because TextGlyphs can display varying length text depending on how much room is available at the Chart's current zoom level.
+
 textAnchor
 **********
 
@@ -304,19 +330,6 @@ textAnchor
 .. container:: content
 
   Where the text is aligned to: start, middle, or end. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor
-
-textFn
-******
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    textFn: (a: A, c: C): None
-
-.. container:: content
-
-  A callback to extract a list of text to display from the represented Annotation object. It is a list of text because TextGlyphs can display varying length text depending on how much room is available at the Chart's current zoom level.
 
 width
 *****
@@ -368,5 +381,5 @@ zoomFn
 
 .. container:: content
 
-  A callback function that will be passed to the GlyphModifier that will manage the glyphs created with this config. If provided, this callback function will override the GlyphModifier's zoom method, which typically sets most of the positioning related properties from the GlyphConfig. Don't use this unless you know what you're doing.
+  
 

@@ -9,23 +9,23 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _parseBed3Record:
+.. _parseBedRecords:
 
-:trst-function:`parseBed3Record`
+:trst-function:`parseBedRecords`
 ================================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    function parseBed3Record(record: string): Bed3Annotation
+    function parseBedRecords(records: string | string []): None
 
 .. container:: content
 
-  A utility function to explicitly parse BED3 records. The resulting objects will only have the first three fields of the BED format.
+  A utility function to parse a general BED record. There are no guarantees about which fields end up being present in the resulting BED objects.
 
   **Parameters**
 
-  - record: string
+  - records: string | string []
 
-  **Returns**: Bed3Annotation
+  **Returns**: BedAnnotation []

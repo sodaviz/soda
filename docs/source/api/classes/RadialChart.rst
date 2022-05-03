@@ -50,31 +50,83 @@ Constructors
 Properties
 ----------
 
-_axisAnn
-********
+_divHeight
+**********
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    _axisAnn: undefined | Annotation
+    _divHeight: undefined | string
 
 .. container:: content
 
-  The Annotation object that is used to render the horizontal axis (if enabled).
+  The CSS height property of the Chart's div.
 
-_containerSelection
-*******************
+_divMargin
+**********
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    _containerSelection: undefined | Selection <any, any, any, any>
+    _divMargin: undefined | string | number
 
 .. container:: content
 
-  A d3 selection of the Chart's DOM container. This is a pre-existing DOM element (probably a div).
+  The CSS margin property of the Chart's div.
+
+_divOutline
+***********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    _divOutline: undefined | string
+
+.. container:: content
+
+  The CSS outline property of the Chart's div.
+
+_divOverflowX
+*************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    _divOverflowX: undefined | string
+
+.. container:: content
+
+  The CSS overflow-x property of the Chart's div.
+
+_divOverflowY
+*************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    _divOverflowY: undefined | string
+
+.. container:: content
+
+  The CSS overflow-y property of the Chart's div.
+
+_divWidth
+*********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    _divWidth: undefined | string
+
+.. container:: content
+
+  The CSS width property of the Chart's div.
 
 _padHeight
 **********
@@ -83,11 +135,11 @@ _padHeight
 
   .. code-block:: typescript
 
-    _padHeight: number
+    _padHeight: undefined | string
 
 .. container:: content
 
-  The height in pixels of the Chart's SVG pad.
+  The stored value of the pad SVG height property.
 
 _padWidth
 *********
@@ -96,11 +148,11 @@ _padWidth
 
   .. code-block:: typescript
 
-    _padWidth: number
+    _padWidth: undefined | string
 
 .. container:: content
 
-  The width in pixels of the Chart's SVG pad.
+  The stored value of the pad SVG width property.
 
 _renderParams
 *************
@@ -114,45 +166,6 @@ _renderParams
 .. container:: content
 
   The last used render parameters.
-
-_rowStripePatternSelection
-**************************
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    _rowStripePatternSelection: undefined | Selection <SVGPatternElement, any, any, any>
-
-.. container:: content
-
-  A D3 selection of the SVG pattern that is used for row striping.
-
-_rowStripeRectSelection
-***********************
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    _rowStripeRectSelection: undefined | Selection <SVGRectElement, any, any, any>
-
-.. container:: content
-
-  A D3 Selection of the SVG rectangle that is used for row striping.
-
-_selector
-*********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    _selector: undefined | string
-
-.. container:: content
-
-  A string that can be used to uniquely select the target DOM container.
 
 _transform
 **********
@@ -174,11 +187,11 @@ _viewportHeight
 
   .. code-block:: typescript
 
-    _viewportHeight: number
+    _viewportHeight: undefined | string
 
 .. container:: content
 
-  The height in pixels of the Chart's SVG viewport.
+  The stored value of the viewport SVG height property.
 
 _viewportWidth
 **************
@@ -187,11 +200,11 @@ _viewportWidth
 
   .. code-block:: typescript
 
-    _viewportWidth: number
+    _viewportWidth: undefined | string
 
 .. container:: content
 
-  The width in pixels of the Chart's SVG viewport.
+  The stored value of the viewport SVG width property.
 
 axisRadius
 **********
@@ -206,18 +219,18 @@ axisRadius
 
   The radius of the circle that defines the axis placement.
 
-axisType
-********
+containerSelection
+******************
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    axisType: undefined | Bottom | Top
+    containerSelection: Selection <any, any, any, any>
 
 .. container:: content
 
-  This indicates whether or not the Chart has a horizontal axis.
+  A d3 selection of the Chart's DOM container. This is a pre-existing DOM element (probably a div).
 
 defSelection
 ************
@@ -232,71 +245,6 @@ defSelection
 
   A d3 selection of the Chart's defs element. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Element/defs
 
-divHeight
-*********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    divHeight: undefined | string | number
-
-.. container:: content
-
-  The CSS height property of the Chart's div.
-
-divMargin
-*********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    divMargin: undefined | number
-
-.. container:: content
-
-  The CSS margin property of the Chart's div.
-
-divOutline
-**********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    divOutline: undefined | string
-
-.. container:: content
-
-  The CSS outline property of the Chart's div.
-
-divOverflowX
-************
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    divOverflowX: undefined | string
-
-.. container:: content
-
-  The CSS overflow-x property of the Chart's div.
-
-divOverflowY
-************
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    divOverflowY: undefined | string
-
-.. container:: content
-
-  The CSS overflow-y property of the Chart's div.
-
 divSelection
 ************
 
@@ -308,20 +256,7 @@ divSelection
 
 .. container:: content
 
-  A d3 selection of the Chart's inner div. This is created when the Chart is instantiated and placed inside of the selected container in the DOM.
-
-divWidth
-********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    divWidth: undefined | string | number
-
-.. container:: content
-
-  The CSS width property of the Chart's div.
+  A d3 selection of the Chart's div container. This is created when the Chart is instantiated and placed inside of the selected container in the DOM.
 
 domainConstraint
 ****************
@@ -335,6 +270,19 @@ domainConstraint
 .. container:: content
 
   This constrains the Chart's domain, which in turn constrains both zoom level and panning. The parameter is a callback function that is evaluated after each zoom event to produce an interval that constrains the domain.
+
+draw
+****
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    draw: (params: P): void
+
+.. container:: content
+
+  The rendering callback that should be responsible for drawing glyphs with the rendering API.
 
 glyphModifiers
 **************
@@ -375,19 +323,6 @@ id
 
   A unique identifier for the Chart.
 
-inRender
-********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    inRender: (params: P): void
-
-.. container:: content
-
-  The second rendering callback function.
-
 initialDomain
 *************
 
@@ -413,6 +348,19 @@ innerRadius
 .. container:: content
 
   The inner radius of the conceptual annulus that defines the Chart annotation track.
+
+layout
+******
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    layout: VerticalLayout
+
+.. container:: content
+
+  
 
 leftPadSize
 ***********
@@ -516,7 +464,7 @@ postRender
 
 .. container:: content
 
-  The final rendering callback function.
+  The callback function that the Chart executes after render() is called.
 
 postResize
 **********
@@ -544,19 +492,6 @@ postZoom
 
   The callback function that the Chart executes after zoom() is called.
 
-preRender
-*********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    preRender: (params: P): void
-
-.. container:: content
-
-  The first rendering callback function.
-
 resizable
 *********
 
@@ -582,6 +517,19 @@ rightPadSize
 .. container:: content
 
   The number of pixels of padding on the right side of the Chart.
+
+rowColors
+*********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    rowColors: undefined | string []
+
+.. container:: content
+
+  A list of colors that will color the Chart's rows in a repeating pattern.
 
 rowCount
 ********
@@ -609,18 +557,31 @@ rowHeight
 
   The height in pixels of a horizontal row in the Chart. This defaults to a value of 10.
 
-rowStripes
+rowOpacity
 **********
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    rowStripes: boolean
+    rowOpacity: number
 
 .. container:: content
 
-  This controls whether or not the rows will be colored in an alternating pattern.
+  The opacity of the colored row stripes.
+
+selector
+********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    selector: string
+
+.. container:: content
+
+  A string that can be used to uniquely select the target DOM container.
 
 trackHeight
 ***********
@@ -648,6 +609,58 @@ trackOutlineSelection
 
   A d3 selection to the track outline.
 
+updateDimensions
+****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    updateDimensions: (params: P): void
+
+.. container:: content
+
+  The rendering callback function that should be responsible for updating the Chart's DOM element dimensions.
+
+updateDomain
+************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    updateDomain: (params: P): void
+
+.. container:: content
+
+  The rendering callback function that should be responsible for updating the domain of the Chart.xScale property.
+
+updateLayout
+************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    updateLayout: (params: P): void
+
+.. container:: content
+
+  The rendering callback function that should be responsible for updating the Chart.layout property.
+
+updateRowCount
+**************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    updateRowCount: (params: P): void
+
+.. container:: content
+
+  The rendering callback function that should be responsible for updating the Chart.rowCount property.
+
 upperPadSize
 ************
 
@@ -660,6 +673,19 @@ upperPadSize
 .. container:: content
 
   The number of pixels of padding on the top of the Chart.
+
+viewportHeightPx
+****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    viewportHeightPx: number
+
+.. container:: content
+
+  The stored height of the viewport SVG in pixels.
 
 viewportSelection
 *****************
@@ -674,6 +700,19 @@ viewportSelection
 
   A d3 selection of the Chart's viewport.
 
+viewportWidthPx
+***************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    viewportWidthPx: number
+
+.. container:: content
+
+  The stored width of the viewport SVG in pixels.
+
 xScale
 ******
 
@@ -686,6 +725,19 @@ xScale
 .. container:: content
 
   A D3 scale that the Chart will use to translate between semantic and viewport coordinates. This scale will be periodically re-scaled after zoom events.
+
+yScale
+******
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    yScale: (row: number): number
+
+.. container:: content
+
+  A simple function that maps from row numbers to the pixel y value of the corresponding row.
 
 zoomConstraint
 **************
@@ -717,64 +769,189 @@ zoomable
 Accessors
 ---------
 
-containerSelection
-******************
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    get containerSelection(): Selection <any, any, any, any>
-
-.. container:: content
-
-  Get a D3 selection of the Chart's DOM Container. This throws an exception if the value is undefined, which probably means the entire chart is detached from the DOM.
-
-padHeight
+divHeight
 *********
 
 .. container:: collapsible
 
  .. code-block:: typescript
 
-    get padHeight(): number
+    get divHeight(): undefined | string | number
 
 .. container:: content
 
-  Getter for the padHeight property.
+  Gets the divHeight property.
 
 .. container:: collapsible
 
  .. code-block:: typescript
 
-    set padHeight(height: number): void
+    set divHeight(value: undefined | string | number): void
 
 .. container:: content
 
-  Setter for the padHeight property. This actually adjusts the height attribute on the viewport DOM element.
+  Sets the divHeight property. This directly adjusts the height CSS style property on the Chart's div element.
 
-padWidth
+divMargin
+*********
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    get divMargin(): undefined | string | number
+
+.. container:: content
+
+  Gets the divMargin property.
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    set divMargin(value: undefined | string | number): void
+
+.. container:: content
+
+  Sets the divMargin property. This directly adjusts the margin CSS style property on the Chart's div element.
+
+divOutline
+**********
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    get divOutline(): undefined | string
+
+.. container:: content
+
+  Gets the divOutline property.
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    set divOutline(value: undefined | string): void
+
+.. container:: content
+
+  Sets the divOutline property. This directly adjusts the outline CSS style property on the Chart's div element.
+
+divOverflowX
+************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    get divOverflowX(): undefined | string
+
+.. container:: content
+
+  Gets the divOverflowX property.
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    set divOverflowX(value: undefined | string): void
+
+.. container:: content
+
+  Sets the divOverflowX property. This directly adjusts the overflow-x CSS style property on the Chart's div element.
+
+divOverflowY
+************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    get divOverflowY(): undefined | string
+
+.. container:: content
+
+  Gets the divOverflowY property.
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    set divOverflowY(value: undefined | string): void
+
+.. container:: content
+
+  Sets the divOverflowY property. This directly adjusts the overflow-y CSS style property on the Chart's div element.
+
+divWidth
 ********
 
 .. container:: collapsible
 
  .. code-block:: typescript
 
-    get padWidth(): number
+    get divWidth(): undefined | string | number
 
 .. container:: content
 
-  Getter for the padWidth property.
+  Gets the divWidth property.
 
 .. container:: collapsible
 
  .. code-block:: typescript
 
-    set padWidth(width: number): void
+    set divWidth(value: undefined | string | number): void
 
 .. container:: content
 
-  Setter for the padWidth property. This actually adjusts the width attribute on the viewport DOM element.
+  Sets the divWidth property. This directly adjusts the width CSS style property on the Chart's div element.
+
+domain
+******
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    get domain(): None
+
+.. container:: content
+
+  Gets the domain of the Chart's x scale.
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    set domain(domain: None): void
+
+.. container:: content
+
+  Set the domain of the Chart's x scale.
+
+range
+*****
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    get range(): None
+
+.. container:: content
+
+  Gets the range of the Chart's x scale.
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    set range(range: None): void
+
+.. container:: content
+
+  Set the range of the Chart's x scale.
 
 renderParams
 ************
@@ -797,46 +974,7 @@ renderParams
 
 .. container:: content
 
-  Setter for the renderParms property.
-
-rowStripePatternSelection
-*************************
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    get rowStripePatternSelection(): Selection <SVGPatternElement, any, any, any>
-
-.. container:: content
-
-  A getter for the rowStripePatternSelection property. This serves as a null guard.
-
-rowStripeRectSelection
-**********************
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    get rowStripeRectSelection(): Selection <SVGRectElement, any, any, any>
-
-.. container:: content
-
-  A getter for the rowStripeSelection property. This serves as a null guard.
-
-selector
-********
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    get selector(): string
-
-.. container:: content
-
-  A getter for the Chart's selector property. The selector should be able to uniquely select the Chart's DOM container.
+  Setter for the renderParams property.
 
 transform
 *********
@@ -868,21 +1006,21 @@ viewportHeight
 
  .. code-block:: typescript
 
-    get viewportHeight(): number
+    get viewportHeight(): undefined | string | number
 
 .. container:: content
 
-  Getter for the viewportHeight property.
+  Gets the viewportHeight property.
 
 .. container:: collapsible
 
  .. code-block:: typescript
 
-    set viewportHeight(height: number): void
+    set viewportHeight(value: undefined | string | number): void
 
 .. container:: content
 
-  Setter for the viewportHeight property. This actually adjusts the height property on the viewport DOM element.
+  Sets the viewportHeight property. This directly adjusts the height SVG attribute on the Chart's viewport SVG element.
 
 viewportWidth
 *************
@@ -891,21 +1029,21 @@ viewportWidth
 
  .. code-block:: typescript
 
-    get viewportWidth(): number
+    get viewportWidth(): undefined | string | number
 
 .. container:: content
 
-  Getter for the viewportWidth property.
+  Gets the viewportWidth property.
 
 .. container:: collapsible
 
  .. code-block:: typescript
 
-    set viewportWidth(width: number): void
+    set viewportWidth(value: undefined | string | number): void
 
 .. container:: content
 
-  Setter for the viewportWidth property. This actually adjusts the width property on the viewport DOM element.
+  Sets the viewportWidth property. This directly adjusts the width SVG attribute on the Chart's viewport SVG element.
 
 Methods
 -------
@@ -945,6 +1083,21 @@ addGlyphModifier
 
   - modifier: GlyphModifier <A, C>
   - initialize: boolean
+
+  **Returns**: void
+
+addRowStripes
+*************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    addRowStripes(): void
+
+.. container:: content
+
+  If the rowColors property has been defined, this method adds row stripes to the Chart.
 
   **Returns**: void
 
@@ -991,23 +1144,6 @@ applyGlyphModifiers
 
   **Returns**: void
 
-applyLayoutAndSetRowCount
-*************************
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    applyLayoutAndSetRowCount(params: P): void
-
-.. container:: content
-
-  **Parameters**
-
-  - params: P
-
-  **Returns**: void
-
 calculateContainerDimensions
 ****************************
 
@@ -1019,9 +1155,39 @@ calculateContainerDimensions
 
 .. container:: content
 
-  This uses d3 to select the Chart's DOM container and returns a DOMRect that describes that containers dimensions.
+  This returns a DOMRect that describes the bounding box of the Chart's container.
 
   **Returns**: DOMRect
+
+calculateContainerHeight
+************************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    calculateContainerHeight(): number
+
+.. container:: content
+
+  This calculates and returns the Chart's DOM container's height in pixels.
+
+  **Returns**: number
+
+calculateContainerWidth
+***********************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    calculateContainerWidth(): number
+
+.. container:: content
+
+  This calculates and returns the Chart's DOM container's width in pixels.
+
+  **Returns**: number
 
 calculateDivDimensions
 **********************
@@ -1033,6 +1199,8 @@ calculateDivDimensions
     calculateDivDimensions(): DOMRect
 
 .. container:: content
+
+  This returns a DOMRect that describes the bounding box of the Chart's div.
 
   **Returns**: DOMRect
 
@@ -1047,7 +1215,7 @@ calculatePadDimensions
 
 .. container:: content
 
-  This returns a DOMRect that describes the pad dimensions.
+  This returns a DOMRect that describes the SVG pad dimensions.
 
   **Returns**: DOMRect
 
@@ -1062,7 +1230,7 @@ calculatePadHeight
 
 .. container:: content
 
-  This calculates and returns the width of the SVG viewport in pixels.
+  This calculates and returns the height of the SVG pad in pixels.
 
   **Returns**: number
 
@@ -1077,7 +1245,7 @@ calculatePadWidth
 
 .. container:: content
 
-  This calculates and returns the width of the SVG viewport in pixels.
+  This calculates and returns the width of the SVG pad in pixels.
 
   **Returns**: number
 
@@ -1092,7 +1260,7 @@ calculateViewportDimensions
 
 .. container:: content
 
-  This returns a DOMRect that describes the viewport's dimensions.
+  This returns a DOMRect that describes the bounding box of the viewport.
 
   **Returns**: DOMRect
 
@@ -1107,7 +1275,7 @@ calculateViewportHeight
 
 .. container:: content
 
-  This checks the current height of the viewport in the DOM and returns it.
+  This calculates and returns the height of the SVG viewport in pixels.
 
   **Returns**: number
 
@@ -1122,7 +1290,7 @@ calculateViewportWidth
 
 .. container:: content
 
-  This calculates the current width of the viewport in the DOM and returns it.
+  This calculates and returns the width of the SVG viewport in pixels.
 
   **Returns**: number
 
@@ -1186,16 +1354,18 @@ configureZoom
 
   **Returns**: void
 
-defaultInRender
-***************
+defaultDraw
+***********
 
 .. container:: collapsible
 
  .. code-block:: typescript
 
-    defaultInRender(params: P): void
+    defaultDraw(params: P): void
 
 .. container:: content
+
+  The default draw() callback. It adds a horizontal axis and renders the RenderParams.annotations property as rectangles.
 
   **Type parameters**
 
@@ -1218,22 +1388,99 @@ defaultPostRender
 
 .. container:: content
 
+  The default postRender() callback. It calls the Chart.applyGlyphModifiers() method.
+
   **Type parameters**
 
   - P: RenderParams
 
   **Returns**: void
 
-defaultPreRender
-****************
+defaultUpdateDimensions
+***********************
 
 .. container:: collapsible
 
  .. code-block:: typescript
 
-    defaultPreRender(params: P): void
+    defaultUpdateDimensions(params: P): void
 
 .. container:: content
+
+  The default updateDimensions() callback. It calls updateDivHeight(), updatePadHeight(), and updateViewportHeight(). The result is that the Chart should be tall enough to render the number of rows specified in the rowCount property.
+
+  **Type parameters**
+
+  - P: RenderParams
+
+  **Parameters**
+
+  - params: P
+
+  **Returns**: void
+
+defaultUpdateDomain
+*******************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    defaultUpdateDomain(params: P): void
+
+.. container:: content
+
+  The default updateDomain() callback. If the start and end properties are set on the RenderParams, it uses those to set the domain. If they are not defined, it finds the minimum start and maximum end amongst the annotations property on the RenderParams. If there are no annotations on the RenderParams, it leaves the domain alone.
+
+  **Type parameters**
+
+  - P: RenderParams
+
+  **Parameters**
+
+  - params: P
+
+  **Returns**: void
+
+defaultUpdateLayout
+*******************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    defaultUpdateLayout(params: P): void
+
+.. container:: content
+
+  The default updateLayout() callback. It calls intervalGraphLayout() on the annotations property of the provided RenderParams.
+
+  **Type parameters**
+
+  - P: RenderParams
+
+  **Parameters**
+
+  - params: P
+
+  **Returns**: void
+
+defaultUpdateRowCount
+*********************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    defaultUpdateRowCount(params: P): void
+
+.. container:: content
+
+  The default updateRowCount() callback. It sets Chart.rowCount equal to Chart.layout.rowCount.
+
+  **Type parameters**
+
+  - P: RenderParams
 
   **Parameters**
 
@@ -1292,21 +1539,6 @@ domainFromWheelEvent
 
   **Returns**: None
 
-fitPadHeight
-************
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    fitPadHeight(): void
-
-.. container:: content
-
-  This fits the Chart's SVG padding based off of the rowCount, rowHeight and padSize properties.
-
-  **Returns**: void
-
 fitRadialDimensions
 *******************
 
@@ -1319,79 +1551,6 @@ fitRadialDimensions
 .. container:: content
 
   **Returns**: void
-
-fitRowStripes
-*************
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    fitRowStripes(): void
-
-.. container:: content
-
-  This automatically sets the dimensions of the row stripe DOM elements.
-
-  **Returns**: void
-
-fitViewport
-***********
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    fitViewport(): void
-
-.. container:: content
-
-  This fits the Chart's SVG viewport based off of the Chart's pad size.
-
-  **Returns**: void
-
-getContainerHeight
-******************
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    getContainerHeight(): number
-
-.. container:: content
-
-  This calculates and returns the Chart's DOM container's height in pixels.
-
-  **Returns**: number
-
-getContainerWidth
-*****************
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    getContainerWidth(): number
-
-.. container:: content
-
-  This calculates and returns the Chart's DOM container's width in pixels.
-
-  **Returns**: number
-
-getSemanticViewRange
-********************
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    getSemanticViewRange(): ViewRange
-
-.. container:: content
-
-  **Returns**: ViewRange
 
 highlight
 *********
@@ -1430,22 +1589,18 @@ initializeXScale
 
   **Returns**: void
 
-initializeXScaleFromRenderParams
-********************************
+removeRowStripes
+****************
 
 .. container:: collapsible
 
  .. code-block:: typescript
 
-    initializeXScaleFromRenderParams(params: P): void
+    removeRowStripes(): void
 
 .. container:: content
 
-  This initializes an x translation scale with the provided RenderParams and the dimensions of the Chart.
-
-  **Parameters**
-
-  - params: P
+  If they have been added, this method removes row stripes from the Chart.
 
   **Returns**: void
 
@@ -1460,7 +1615,7 @@ render
 
 .. container:: content
 
-  This method stores the render parameters on the Chart and calls preRender(), inRender(), and postRender().
+  This method executes the default rendering routine. It executes each rendering callback function in succession.
 
   **Parameters**
 
@@ -1522,101 +1677,63 @@ resize
 
   **Returns**: void
 
-setDomain
-*********
+setDivStyle
+***********
 
 .. container:: collapsible
 
  .. code-block:: typescript
 
-    setDomain(domain: None): void
+    setDivStyle(property: string, value: undefined | string): void
 
 .. container:: content
 
-  Set the domain of the Chart's x scale.
+  Sets a style property on the Chart's div selection.
 
   **Parameters**
 
-  - domain: None
+  - property: string
+  - value: undefined | string
 
   **Returns**: void
 
-setRange
-********
+setPadAttribute
+***************
 
 .. container:: collapsible
 
  .. code-block:: typescript
 
-    setRange(range: None): void
+    setPadAttribute(attribute: string, value: undefined | string): void
 
 .. container:: content
 
-  Set the range of the Chart's x scale.
+  Sets an attribute on the Chart's SVG pad.
 
   **Parameters**
 
-  - range: None
+  - attribute: string
+  - value: undefined | string
 
   **Returns**: void
 
-setRowStripes
-*************
+setViewportAttribute
+********************
 
 .. container:: collapsible
 
  .. code-block:: typescript
 
-    setRowStripes(): void
+    setViewportAttribute(attribute: string, value: undefined | string): void
 
 .. container:: content
 
-  This initializes the DOM elements that form the row stripes in the Chart, if enabled.
+  Sets an attribute on the Chart's SVG viewports.
 
-  **Returns**: void
+  **Parameters**
 
-setToContainerDimensions
-************************
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    setToContainerDimensions(): void
-
-.. container:: content
-
-  This calculates the Chart's DOM container's dimensions and sets the Chart's SVG pad to fill those dimensions.
-
-  **Returns**: void
-
-squareToContainerHeight
-***********************
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    squareToContainerHeight(): void
-
-.. container:: content
-
-  This calculates the height of the Chart's DOM container and sets the Chart's SVG pad to a square with that height.
-
-  **Returns**: void
-
-squareToContainerWidth
-**********************
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    squareToContainerWidth(): void
-
-.. container:: content
-
-  This calculates the width of the Chart's DOM container and sets the Chart's SVG pad to a square with that width.
+  - attribute: string
+  - value: undefined | string
 
   **Returns**: void
 
@@ -1633,16 +1750,48 @@ squareToDivWidth
 
   **Returns**: void
 
-updateDivProperties
-*******************
+updateDivHeight
+***************
 
 .. container:: collapsible
 
  .. code-block:: typescript
 
-    updateDivProperties(): void
+    updateDivHeight(): void
 
 .. container:: content
+
+  This updates the Chart's div height to accommodate the rowHeight, rowCount, and pad sizes. If Chart._divHeight is explicitly defined, this will do nothing.
+
+  **Returns**: void
+
+updateDivWidth
+**************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    updateDivWidth(): void
+
+.. container:: content
+
+  This sets the Chart's div width to 100%. If Chart._divWidth is explicitly defined, this will do nothing.
+
+  **Returns**: void
+
+updatePadHeight
+***************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    updatePadHeight(): void
+
+.. container:: content
+
+  This updates the Chart's SVG pad height to accommodate the rowHeight, rowCount, and the upper/lower pad sizes. If Chart._padHeight is explicitly defined, this will do nothing.
 
   **Returns**: void
 
@@ -1654,6 +1803,62 @@ updateRange
  .. code-block:: typescript
 
     updateRange(): void
+
+.. container:: content
+
+  **Returns**: void
+
+updateViewportHeight
+********************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    updateViewportHeight(): void
+
+.. container:: content
+
+  **Returns**: void
+
+updateViewportPosition
+**********************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    updateViewportPosition(): void
+
+.. container:: content
+
+  This updates the Chart's SVG viewport positions to accommodate the left and upper pad sizes.
+
+  **Returns**: void
+
+updateViewportProperties
+************************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    updateViewportProperties(): void
+
+.. container:: content
+
+  This updates all of the viewport properties by calling updateViewportHeight(), updateViewportWidth(), and updateViewportPosition().
+
+  **Returns**: void
+
+updateViewportWidth
+*******************
+
+.. container:: collapsible
+
+ .. code-block:: typescript
+
+    updateViewportWidth(): void
 
 .. container:: content
 
@@ -1685,18 +1890,18 @@ zoomHighlight
 
   **Returns**: void
 
-inferRenderRange
-****************
+getDomainFromAnnotations
+************************
 
 .. container:: collapsible
 
  .. code-block:: typescript
 
-    inferRenderRange(params: P): None
+    getDomainFromAnnotations(annotations: Annotation []): None
 
 .. container:: content
 
-  A utility function to attempt to infer a semantic range on RenderParams when no range is explicitly supplied.
+  Returns a domain given a list of Annotations.
 
   **Type parameters**
 
@@ -1704,7 +1909,7 @@ inferRenderRange
 
   **Parameters**
 
-  - params: P
+  - annotations: Annotation []
 
   **Returns**: None
 

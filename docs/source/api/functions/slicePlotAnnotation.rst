@@ -9,21 +9,25 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _AnnotationGroupConfig:
+.. _slicePlotAnnotation:
 
-AnnotationGroupConfig
-=====================
+:trst-function:`slicePlotAnnotation`
+====================================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    type AnnotationGroupConfig = AnnotationConfigWithGroup | AnnotationConfig
+    function slicePlotAnnotation(annotation: PlotAnnotation, start: number, end: number): None
 
 .. container:: content
 
-  A type that is simply the union of AnnotationConfig and AnnotationConfigWithGroup.
+  
 
-  **Type parameters**
+  **Parameters**
 
-    - A: Annotation
+  - annotation: PlotAnnotation
+  - start: number
+  - end: number
+
+  **Returns**: PlotAnnotation | undefined

@@ -18,7 +18,7 @@
 
   .. code-block:: typescript
 
-    function linePlot<A extends ContinuousAnnotation, C extends Chart>(config: LinePlotConfig <A, C>): d3.Selection
+    function linePlot<A extends PlotAnnotation, C extends Chart>(config: LinePlotConfig <A, C>): d3.Selection
 
 .. container:: content
 
@@ -26,7 +26,7 @@
 
   **Type parameters**
 
-  - A: ContinuousAnnotation
+  - A: PlotAnnotation
   - C: Chart
 
   **Parameters**

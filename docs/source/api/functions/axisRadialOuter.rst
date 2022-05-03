@@ -9,23 +9,24 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _parseBedRecord:
+.. _axisRadialOuter:
 
-:trst-function:`parseBedRecord`
-===============================
+:trst-function:`axisRadialOuter`
+================================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    function parseBedRecord(record: string): BedAnnotation
+    function axisRadialOuter(angleScale: d3.ScaleLinear <number, number>, radius: number): None
 
 .. container:: content
 
-  A utility function to parse a general BED record. There are no guarantees about which fields end up being present in the resulting BED objects.
+  
 
   **Parameters**
 
-  - record: string
+  - angleScale: d3.ScaleLinear <number, number>
+  - radius: number
 
-  **Returns**: BedAnnotation
+  **Returns**: (selection: d3.Selection <any, any, any, any>): void

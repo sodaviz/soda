@@ -9,60 +9,60 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _Transform:
+.. _Annotation:
 
-:trst-class:`Transform`
-=======================
+:trst-class:`Annotation`
+========================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    interface Transform
+    interface Annotation
 
 .. container:: content
 
-  A re-export of d3.ZoomTransform, with the x, y, and k properties overwritten as public variables. D3 strongly advises against messing with its transform objects directly, but we actually want to do that in SODA sometimes.
+  
 
 Properties
 ----------
 
-k
-*
+end
+***
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    k: number
+    end: number
 
 .. container:: content
 
-  The scaling factor described by the Transform.
+  
 
-x
-*
+id
+**
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    x: number
+    id: string
 
 .. container:: content
 
-  The x translation described by the Transform.
+  
 
-y
-*
+start
+*****
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    y: number
+    start: number
 
 .. container:: content
 
-  The y translation described by the Transform.
+  
 

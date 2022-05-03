@@ -9,20 +9,20 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _ViewRange:
+.. _PlotAnnotation:
 
-:trst-class:`ViewRange`
-=======================
+:trst-class:`PlotAnnotation`
+============================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    interface ViewRange
+    interface PlotAnnotation
 
 .. container:: content
 
-  This describes a range in semantic coordinates (e.g. base pairs). This will typically describe the current rendered view in a Chart.
+  
 
 Properties
 ----------
@@ -38,7 +38,20 @@ end
 
 .. container:: content
 
-  The semantic end of the view.
+  
+
+id
+**
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    id: string
+
+.. container:: content
+
+  
 
 start
 *****
@@ -51,18 +64,18 @@ start
 
 .. container:: content
 
-  The semantic start of the view.
+  
 
-width
-*****
+values
+******
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    width: number
+    values: number []
 
 .. container:: content
 
-  The semantic width of the view.
+  
 

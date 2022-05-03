@@ -9,20 +9,20 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _RectangleConfig:
+.. _SimpleTextConfig:
 
-:trst-class:`RectangleConfig`
-=============================
+:trst-class:`SimpleTextConfig`
+==============================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    interface RectangleConfig<A extends Annotation, C extends Chart>
+    interface SimpleTextConfig<A extends Annotation, C extends Chart>
 
 .. container:: content
 
-  An interface that defines the parameters for a call to the rectangle rendering function.
+  An interface that defines the parameters for a call to the text rendering function.
 
   **Type parameters**
 
@@ -31,6 +31,19 @@
 
 Properties
 ----------
+
+alignmentBaseline
+*****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    alignmentBaseline: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  How the text glyph is aligned with it's parent. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/alignment-baseline
 
 annotations
 ***********
@@ -84,6 +97,58 @@ fillOpacity
 
   A callback to define the fill opacity of the glyph.
 
+fontFamily
+**********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    fontFamily: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  The font family that will be used. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-family
+
+fontSize
+********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    fontSize: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  The font size of the text.
+
+fontStyle
+*********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    fontStyle: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  The font style: normal, italic, or oblique. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-style
+
+fontWeight
+**********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    fontWeight: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  The weight of the font: normal, bold, bolder, lighter. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-weight
+
 height
 ******
 
@@ -108,7 +173,7 @@ initializeFn
 
 .. container:: content
 
-  A callback function that will be passed to the GlyphModifier that will manage the glyphs created with this config. If provided, this callback function will override the GlyphModifier's initialization method, which typically sets most of the style related properties from the GlyphConfig. Don't use this unless you know what you're doing.
+  
 
 row
 ***
@@ -240,6 +305,32 @@ target
 
   This determines the parent DOM element in which the glyphs will be rendered. When supplying a BindTarget, the rendering function will find the appropriate parent in the supplied Chart. When supplying a D3 selection, the rendering function will explicitly use the selected element.
 
+text
+****
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    text: GlyphProperty <A, C, string>
+
+.. container:: content
+
+  The text to display in the glyph.
+
+textAnchor
+**********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    textAnchor: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  Where the text is aligned to: start, middle, or end. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor
+
 width
 *****
 
@@ -290,5 +381,5 @@ zoomFn
 
 .. container:: content
 
-  A callback function that will be passed to the GlyphModifier that will manage the glyphs created with this config. If provided, this callback function will override the GlyphModifier's zoom method, which typically sets most of the positioning related properties from the GlyphConfig. Don't use this unless you know what you're doing.
+  
 
