@@ -27,14 +27,14 @@ Objects that implement Annotation can be used to render glyphs that represent in
         end: number;    // <- the end of the interval that the annotation describes
     }
 
-ContinuousAnnotation
+PlotAnnotation
 ^^^^^^^^^^^^^^^^^^^^
 
-Objects that implement ContinuousAnnotation can be used to render glyphs that represent intervals in a sequence domain for which there are position specific real number values (e.g. GC content).
+Objects that implement PlotAnnotation can be used to render glyphs that represent intervals in a sequence domain for which there are position specific real number values (e.g. GC content).
 
 .. code-block:: typescript
 
-    interface ContinuousAnnotation extends Annotation {
+    interface PlotAnnotation extends Annotation {
         id: string;
         start: number;
         end: number;
