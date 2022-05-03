@@ -69,9 +69,9 @@ export function buildChevronPatternXFn<
   return (d) => {
     let orientationValue = resolveValue(orientation, d);
     if (orientationValue == Orientation.Forward) {
-      return d.c.xScale(d.a.x);
+      return d.c.xScale(d.a.start);
     } else if (orientationValue == Orientation.Reverse) {
-      return d.c.xScale(d.a.x2);
+      return d.c.xScale(d.a.end);
     } else {
       console.error("Bad orientation in chevron pattern x callback");
       return 0;

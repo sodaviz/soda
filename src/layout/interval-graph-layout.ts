@@ -1,13 +1,21 @@
 import { Annotation } from "../annotations/annotation";
 import { AnnotationGraph } from "./annotation-graph";
+import { MapVerticalLayout } from "./vertical-layout";
+import { AnnotationDatum } from "../glyph-utilities/bind";
+import { Chart } from "../charts/chart";
 
 /**
  * @internal
  */
-function sortByX(verts: string[], graph: AnnotationGraph<Annotation>): void {
+function sortByStart(
+  verts: string[],
+  graph: AnnotationGraph<Annotation>
+): void {
   // sorts the vertices by Annotation X coordinates (the start of the annotation)
   verts.sort((v1: string, v2: string) => {
-    if (graph.getAnnotationFromId(v1).x > graph.getAnnotationFromId(v2).x) {
+    if (
+      graph.getAnnotationFromId(v1).start > graph.getAnnotationFromId(v2).start
+    ) {
       return 1;
     } else {
       return -1;
@@ -22,18 +30,19 @@ function sortByX(verts: string[], graph: AnnotationGraph<Annotation>): void {
  * @param ann
  * @param tolerance
  */
-export function intervalGraphLayout(ann: Annotation[], tolerance: number = 0) {
-  if (ann.length == 0) {
-    return 0;
-  }
-
+export function intervalGraphLayout(
+  ann: Annotation[],
+  tolerance: number = 0
+): MapVerticalLayout {
   let graph: AnnotationGraph<Annotation> = new AnnotationGraph(ann, tolerance);
+  let layoutMap: Map<string, number> = new Map();
+
   let colorCount = 0;
   let verts = graph.getVertices();
-  sortByX(verts, graph);
+  sortByStart(verts, graph);
   let colors: Map<number, string[]> = new Map();
   colors.set(0, [verts[0]]);
-  graph.getAnnotationFromId(verts[0]).y = 0;
+  layoutMap.set(verts[0], 0);
   for (const v of verts.slice(1)) {
     let vEdges = graph.getEdges(v)!;
     let vColor = 0;
@@ -55,7 +64,17 @@ export function intervalGraphLayout(ann: Annotation[], tolerance: number = 0) {
       vColors.push(v);
     }
 
-    graph.getAnnotationFromId(v).y = vColor;
+    layoutMap.set(v, vColor);
   }
-  return colorCount++;
+
+  let layout = {
+    rowMap: layoutMap,
+    row: function (this, d: AnnotationDatum<any, Chart<any>>): number {
+      let row = this.rowMap.get(d.a.id);
+      return row || 0;
+    },
+    rowCount: colorCount + 1,
+  };
+
+  return layout;
 }

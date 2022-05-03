@@ -18,7 +18,7 @@
 
   .. code-block:: typescript
 
-    function barPlot<A extends ContinuousAnnotation, C extends Chart>(config: BarPlotConfig <A, C>): d3.Selection
+    function barPlot<A extends PlotAnnotation, C extends Chart>(config: BarPlotConfig <A, C>): d3.Selection
 
 .. container:: content
 
@@ -26,7 +26,7 @@
 
   **Type parameters**
 
-  - A: ContinuousAnnotation
+  - A: PlotAnnotation
   - C: Chart
 
   **Parameters**

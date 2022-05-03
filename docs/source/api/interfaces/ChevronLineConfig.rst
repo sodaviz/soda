@@ -214,6 +214,19 @@ orientation
 
   This defines the direction that the chevron arrows will point.
 
+row
+***
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    row: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  A callback to define the row that the glyph is placed in.
+
 selector
 ********
 

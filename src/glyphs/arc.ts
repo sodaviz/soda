@@ -26,13 +26,13 @@ export function buildArcPathDFn<A extends Annotation, C extends Chart<any>>(
   h: GlyphProperty<A, C, number>
 ): GlyphCallback<A, C, string> {
   return (d) => {
-    let mx = resolveValue(x, d);
-    let my = resolveValue(y, d);
-    let qx1 = resolveValue(x, d) + resolveValue(w, d) / 2;
-    let qy1 = resolveValue(y, d) - d.c.rowHeight * 2;
-    let qx = resolveValue(x, d) + resolveValue(w, d);
-    let qy = resolveValue(y, d);
-    return `M ${mx},${my} Q ${qx1},${qy1} ${qx},${qy}`;
+    let width = resolveValue(w, d);
+    let x1 = resolveValue(x, d);
+    let y1 = resolveValue(y, d);
+    let x2 = x1 + width / 2;
+    let y2 = y1 - resolveValue(h, d) * 2;
+    let x3 = x1 + width;
+    return `M ${x1},${y1} Q ${x2},${y2} ${x3},${y1}`;
   };
 }
 
@@ -57,7 +57,7 @@ export class ArcModifier<
 
   constructor(config: ArcModifierConfig<A, C>) {
     super(config);
-    this.y = (d) => d.c.rowHeight * (d.a.y + 1);
+    this.y = (d) => (resolveValue(this.row, d) + 1) * d.c.rowHeight - 2;
     this.d = buildArcPathDFn(this.x, this.width, this.y, this.height);
     this.fillColor = config.fillColor || "none";
   }

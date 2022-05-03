@@ -34,7 +34,7 @@ Bottom
 
   .. code-block:: typescript
 
-    Bottom: = 0
+    Bottom: = "bottom"
 
 .. container:: content
 
@@ -47,7 +47,7 @@ Left
 
   .. code-block:: typescript
 
-    Left: = 2
+    Left: = "left"
 
 .. container:: content
 
@@ -60,7 +60,7 @@ Right
 
   .. code-block:: typescript
 
-    Right: = 3
+    Right: = "right"
 
 .. container:: content
 
@@ -73,7 +73,7 @@ Top
 
   .. code-block:: typescript
 
-    Top: = 1
+    Top: = "top"
 
 .. container:: content
 

@@ -8,6 +8,7 @@ import {
   GlyphModifier,
   GlyphModifierConfig,
   GlyphProperty,
+  resolveValue,
 } from "../glyph-utilities/glyph-modifier";
 
 /**
@@ -50,12 +51,13 @@ export class LineModifier<
     this.x1 =
       config.x1 ||
       config.x ||
-      ((d: AnnotationDatum<A, C>) => d.c.xScale(d.a.x));
-    this.x2 = config.x2 || ((d: AnnotationDatum<A, C>) => d.c.xScale(d.a.x2));
+      ((d: AnnotationDatum<A, C>) => d.c.xScale(d.a.start));
+    this.x2 = config.x2 || ((d: AnnotationDatum<A, C>) => d.c.xScale(d.a.end));
     this.y1 =
       config.y1 ||
       config.y ||
-      ((d: AnnotationDatum<A, C>) => (d.a.row + 0.5) * d.c.rowHeight);
+      ((d: AnnotationDatum<A, C>) =>
+        (resolveValue(this.row, d) + 0.5) * d.c.rowHeight);
     this.y2 = config.y2 || this.y1;
   }
 

@@ -1,4 +1,4 @@
-import { ContinuousAnnotation } from "../../annotations/continuous-annotation";
+import { PlotAnnotation } from "../../annotations/plot-annotation";
 import { Chart } from "../../charts/chart";
 import * as d3 from "d3";
 import { generateId } from "../../utilities/id-generation";
@@ -15,10 +15,8 @@ import {
  * An interface that defines the parameters for a call to the heatmap rendering function.
  * @internal
  */
-export interface HeatmapConfig<
-  A extends ContinuousAnnotation,
-  C extends Chart<any>
-> extends GlyphConfig<A, C> {
+export interface HeatmapConfig<A extends PlotAnnotation, C extends Chart<any>>
+  extends GlyphConfig<A, C> {
   initializeFn?: (this: HeatmapModifier<A, C>) => void;
   zoomFn?: (this: HeatmapModifier<A, C>) => void;
   /**
@@ -45,7 +43,7 @@ export interface HeatmapConfig<
  * @internal
  */
 export type HeatmapModifierConfig<
-  A extends ContinuousAnnotation,
+  A extends PlotAnnotation,
   C extends Chart<any>
 > = GlyphModifierConfig<A, C> & HeatmapConfig<A, C>;
 
@@ -54,7 +52,7 @@ export type HeatmapModifierConfig<
  * @internal
  */
 export class HeatmapModifier<
-  A extends ContinuousAnnotation,
+  A extends PlotAnnotation,
   C extends Chart<any>
 > extends GlyphModifier<A, C> {
   /**
@@ -70,7 +68,7 @@ export class HeatmapModifier<
   constructor(config: HeatmapModifierConfig<A, C>) {
     super(config);
     this.strokeColor = config.strokeColor || "none";
-    this.colorScheme = config.colorScheme || d3.interpolatePRGn;
+    this.colorScheme = config.colorScheme || d3.interpolateViridis;
     this.domain = config.domain || [0, 1];
   }
 
@@ -84,28 +82,32 @@ export class HeatmapModifier<
         .domain(resolveValue(this.domain, d));
 
       d3.select(nodes[i])
-        .selectAll<SVGRectElement, [number, number]>("rect")
-        .data(d.a.points)
+        .selectAll<SVGRectElement, number>("rect")
+        .data(Array.from(d.a.values.entries()))
         .enter()
         .append("rect")
-        .attr("fill", (p) => tmpColorScale(p[1]));
+        .attr("fill", (v) => tmpColorScale(v[1]));
     });
 
     this.zoom();
   }
 
   defaultZoom() {
+    this.applyY();
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
         .selectAll<SVGRectElement, [number, number]>("rect")
-        .attr("x", (p) => this.chart.xScale(p[0]))
-        .attr("y", resolveValue(this.y, d))
-        .attr(
-          "width",
-          () => this.chart.xScale(d.a.pointWidth) - this.chart.xScale(0)
-        )
+        .attr("x", (v) => this.chart.xScale(d.a.start + v[0]))
+        .attr("width", () => this.chart.xScale(1) - this.chart.xScale(0))
         .attr("height", resolveValue(this.height, d));
     });
+  }
+
+  applyY() {
+    this.applyAttr(
+      "transform",
+      (d) => `translate(0, ${resolveValue(this.y, d)})`
+    );
   }
 }
 
@@ -113,7 +115,7 @@ export class HeatmapModifier<
  * This renders PlotAnnotations as heatmaps in a Chart.
  * @param config
  */
-export function heatmap<A extends ContinuousAnnotation, C extends Chart<any>>(
+export function heatmap<A extends PlotAnnotation, C extends Chart<any>>(
   config: HeatmapConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-heatmap-glyph");

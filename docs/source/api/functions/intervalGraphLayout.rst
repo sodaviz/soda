@@ -18,7 +18,7 @@
 
   .. code-block:: typescript
 
-    function intervalGraphLayout(ann: Annotation [], tolerance: number): number
+    function intervalGraphLayout(ann: Annotation [], tolerance: number): MapVerticalLayout
 
 .. container:: content
 
@@ -29,4 +29,4 @@
   - ann: Annotation []
   - tolerance: number
 
-  **Returns**: number
+  **Returns**: MapVerticalLayout

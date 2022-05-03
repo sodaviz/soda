@@ -1,6 +1,7 @@
-import { cloneDeep } from "lodash";
 import { Annotation } from "../annotations/annotation";
 import { AnnotationGraph } from "./annotation-graph";
+import { AnnotationDatum } from "../glyph-utilities/bind";
+import { Chart } from "../charts/chart";
 
 /**
  * This function takes a list of Annotation objects and uses a non-deterministic greedy graph coloring heuristic to
@@ -14,7 +15,7 @@ export function heuristicGraphLayout(
   ann: Annotation[],
   nIters: number = 100,
   tolerance: number = 0
-): number {
+) {
   if (ann.length == 0) {
     return 0;
   }
@@ -23,7 +24,7 @@ export function heuristicGraphLayout(
 
   // we will make copies of the maps, since the
   // algorithm clobbers them in each iteration
-  let edgesCopy = cloneDeep(graph.edges);
+  let edgesCopy = copyEdges(graph.edges);
 
   // the number of colors in the best coloring so far
   let bestColorCnt = Infinity;
@@ -65,18 +66,36 @@ export function heuristicGraphLayout(
       }
       nextColor++;
     }
-    edgesCopy = cloneDeep(graph.edges);
+    edgesCopy = copyEdges(graph.edges);
 
     if (nextColor < bestColorCnt) {
       bestColorCnt = nextColor;
       bestColors = colors;
     }
   }
-  for (const vert of bestColors.keys()) {
-    // here we actually set the y values based off of the coloring
-    graph.getAnnotationFromId(vert).y = bestColors.get(vert)!;
+
+  let layout = {
+    rowMap: bestColors,
+    row: function (this, d: AnnotationDatum<any, Chart<any>>): number {
+      let row = this.rowMap.get(d.a.id);
+      return row || 0;
+    },
+    rowCount: bestColorCnt,
+  };
+
+  return layout;
+}
+
+/**
+ *
+ * @param edges
+ */
+function copyEdges(edges: Map<string, string[]>) {
+  let edgesCopy: Map<string, string[]> = new Map();
+  for (const key of edges.keys()) {
+    edgesCopy.set(key, edges.get(key)!);
   }
-  return nextColor;
+  return edgesCopy;
 }
 
 /**

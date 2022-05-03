@@ -40,19 +40,6 @@ annotations
 
   The Annotation objects to be rendered.
 
-autoLayout
-**********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    autoLayout: undefined | boolean
-
-.. container:: content
-
-  This determines whether or not the Chart will use an automatic layout function.
-
 end
 ***
 
@@ -65,32 +52,6 @@ end
 .. container:: content
 
   The end coordinate of the region that will be rendered.
-
-initializeXScale
-****************
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    initializeXScale: undefined | boolean
-
-.. container:: content
-
-  Whether or not to initialize the Chart's xScale with the range of the query.
-
-layoutFn
-********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    layoutFn: undefined | (ann: Annotation []): number
-
-.. container:: content
-
-  If this is provided, the Chart will use it to define a layout for the provided annotations.
 
 rowCount
 ********

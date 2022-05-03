@@ -18,7 +18,7 @@
 
   .. code-block:: typescript
 
-    interface BarPlotConfig<A extends ContinuousAnnotation, C extends Chart>
+    interface BarPlotConfig<A extends PlotAnnotation, C extends Chart>
 
 .. container:: content
 
@@ -26,7 +26,7 @@
 
   **Type parameters**
 
-    - A: ContinuousAnnotation
+    - A: PlotAnnotation
     - C: Chart
 
 Properties
@@ -52,7 +52,7 @@ barHeightFn
 
   .. code-block:: typescript
 
-    barHeightFn: undefined | (ann: A, point: None): number
+    barHeightFn: undefined | (ann: A, value: number): number
 
 .. container:: content
 
@@ -148,6 +148,19 @@ range
 .. container:: content
 
   This defines the range of the plot.
+
+row
+***
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    row: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  A callback to define the row that the glyph is placed in.
 
 rowSpan
 *******

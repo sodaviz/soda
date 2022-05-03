@@ -1,6 +1,6 @@
 import { Chart } from "../charts/chart";
 import * as d3 from "d3";
-import { ContinuousAnnotation } from "../annotations/continuous-annotation";
+import { PlotAnnotation } from "../annotations/plot-annotation";
 import { GlyphProperty, resolveValue } from "../glyph-utilities/glyph-modifier";
 import { AnnotationDatum } from "../glyph-utilities/bind";
 
@@ -8,10 +8,7 @@ import { AnnotationDatum } from "../glyph-utilities/bind";
  * This defines the parameters for a call to the setYScales function.
  * @internal
  */
-export interface YScaleConfig<
-  A extends ContinuousAnnotation,
-  C extends Chart<any>
-> {
+export interface YScaleConfig<A extends PlotAnnotation, C extends Chart<any>> {
   chart: C;
   data: AnnotationDatum<A, C>[];
   rowSpan?: number;
@@ -26,18 +23,17 @@ export interface YScaleConfig<
  * @param config
  */
 export function initializePlotGlyphYScales<
-  A extends ContinuousAnnotation,
+  A extends PlotAnnotation,
   C extends Chart<any>
 >(
   map: Map<string, d3.ScaleLinear<number, number>>,
   config: YScaleConfig<A, C>
 ): void {
   let rowSpan = config.rowSpan || 1;
-  let domain =
-    config.domain || ((d: AnnotationDatum<A, C>) => [0, d.a.maxValue]);
+  let domain = config.domain || [0, 1];
   let range =
     config.range ||
-    ((d: AnnotationDatum<A, C>) => [0, d.c.rowHeight * rowSpan]);
+    ((d: AnnotationDatum<A, C>) => [0, d.c.rowHeight * rowSpan - 4]);
 
   for (const d of config.data) {
     map.set(

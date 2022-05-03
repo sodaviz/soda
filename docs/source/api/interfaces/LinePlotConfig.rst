@@ -18,7 +18,7 @@
 
   .. code-block:: typescript
 
-    interface LinePlotConfig<A extends ContinuousAnnotation, C extends Chart>
+    interface LinePlotConfig<A extends PlotAnnotation, C extends Chart>
 
 .. container:: content
 
@@ -26,7 +26,7 @@
 
   **Type parameters**
 
-    - A: ContinuousAnnotation
+    - A: PlotAnnotation
     - C: Chart
 
 Properties
@@ -123,32 +123,6 @@ initializeFn
 
   A callback function that will be passed to the GlyphModifier that will manage the glyphs created with this config. If provided, this callback function will override the GlyphModifier's initialization method, which typically sets most of the style related properties from the GlyphConfig. Don't use this unless you know what you're doing.
 
-lowerFillColor
-**************
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    lowerFillColor: undefined | string | GlyphCallback <A, C, string>
-
-.. container:: content
-
-  Setting this will fill the area below the plot with the color.
-
-lowerFillOpacity
-****************
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    lowerFillOpacity: undefined | number | GlyphCallback <A, C, number>
-
-.. container:: content
-
-  This controls the opacity of the area below the plot. If no upperFillColor is supplied, setting this will trigger the lower fill in black with the supplied opacity.
-
 pathData
 ********
 
@@ -174,6 +148,19 @@ range
 .. container:: content
 
   This defines the range of the plot.
+
+row
+***
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    row: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  A callback to define the row that the glyph is placed in.
 
 rowSpan
 *******
@@ -304,32 +291,6 @@ target
 .. container:: content
 
   This determines the parent DOM element in which the glyphs will be rendered. When supplying a BindTarget, the rendering function will find the appropriate parent in the supplied Chart. When supplying a D3 selection, the rendering function will explicitly use the selected element.
-
-upperFillColor
-**************
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    upperFillColor: undefined | string | GlyphCallback <A, C, string>
-
-.. container:: content
-
-  Setting this will fill the area above the plot with the color.
-
-upperFillOpacity
-****************
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    upperFillOpacity: undefined | number | GlyphCallback <A, C, number>
-
-.. container:: content
-
-  This controls the opacity of the area above the plot. If no upperFillColor is supplied, setting this will trigger the upper fill in black with the supplied opacity.
 
 width
 *****

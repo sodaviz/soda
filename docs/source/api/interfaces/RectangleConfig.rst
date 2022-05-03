@@ -110,6 +110,19 @@ initializeFn
 
   A callback function that will be passed to the GlyphModifier that will manage the glyphs created with this config. If provided, this callback function will override the GlyphModifier's initialization method, which typically sets most of the style related properties from the GlyphConfig. Don't use this unless you know what you're doing.
 
+row
+***
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    row: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  A callback to define the row that the glyph is placed in.
+
 selector
 ********
 

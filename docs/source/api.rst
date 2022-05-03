@@ -1,12 +1,9 @@
-.. _api:
-
 Api
 ===
 
 .. toctree::
    :maxdepth: 2
 
-   api/Contrib
    api/classes
    api/interfaces
    api/functions

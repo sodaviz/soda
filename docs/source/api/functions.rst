@@ -7,19 +7,23 @@ Functions
    functions/aggregateIntransitive
    functions/aggregateTransitive
    functions/arc
+   functions/area
+   functions/axisRadialInner
+   functions/axisRadialOuter
    functions/barPlot
    functions/chevronLine
    functions/chevronRectangle
    functions/clickBehavior
+   functions/dynamicText
    functions/exportPng
    functions/generateAnnotations
    functions/generateId
    functions/generatePlotAnnotations
    functions/generateSequenceAnnotations
+   functions/getAlignmentAnnotations
    functions/getAllAnnotationIds
    functions/getAnnotationById
    functions/getAxis
-   functions/getHorizontalAxisAnnotation
    functions/greedyGraphLayout
    functions/heatmap
    functions/heuristicGraphLayout
@@ -29,21 +33,19 @@ Functions
    functions/keyFromQueryConfig
    functions/line
    functions/linePlot
-   functions/parseBed12Record
-   functions/parseBed3Record
-   functions/parseBed6Record
-   functions/parseBed9Record
-   functions/parseBedRecord
-   functions/parseGff3Record
+   functions/parseBedRecords
+   functions/parseGff3Records
    functions/parseOrientation
-   functions/parseRecordsFromString
    functions/queryGlyphMap
+   functions/radialRectangle
    functions/rectangle
    functions/removeGlyphsByQuery
    functions/resolveValue
    functions/sequence
    functions/setKeySeparator
-   functions/text
+   functions/simpleText
+   functions/slicePlotAnnotation
+   functions/sliceSequenceAnnotation
    functions/tooltip
    functions/unmapAnnotationById
    functions/verticalAxis

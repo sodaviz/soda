@@ -27,17 +27,21 @@ export interface GlyphConfig<A extends Annotation, C extends Chart<any>> {
    */
   target?: BindTarget | d3.Selection<any, any, any, any>;
   /**
-   * A callback to define the pixel y coordinate of the glyph
-   * @param a
-   * @param c
-   */
-  y?: GlyphProperty<A, C, number>;
-  /**
    * A callback to define the pixel x coordinate of the glyph.
    * @param a
    * @param c
    */
   x?: GlyphProperty<A, C, number>;
+  /**
+   * A callback to define the row that the glyph is placed in.
+   */
+  row?: GlyphProperty<A, C, number>;
+  /**
+   * A callback to define the pixel y coordinate of the glyph
+   * @param a
+   * @param c
+   */
+  y?: GlyphProperty<A, C, number>;
   /**
    * A callback to define the pixel width of the glyph.
    * @param a

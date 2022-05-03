@@ -18,7 +18,7 @@
 
   .. code-block:: typescript
 
-    function greedyGraphLayout<A extends Annotation>(ann: A [], tolerance: number, vertSortFunction: (verts: string [], graph: AnnotationGraph <A>): void): number
+    function greedyGraphLayout<A extends Annotation>(ann: A [], tolerance: number, vertSortFunction: (verts: string [], graph: AnnotationGraph <A>): void): None
 
 .. container:: content
 
@@ -34,4 +34,4 @@
   - tolerance: number
   - vertSortFunction: (verts: string [], graph: AnnotationGraph <A>): void
 
-  **Returns**: number
+  **Returns**: None | None

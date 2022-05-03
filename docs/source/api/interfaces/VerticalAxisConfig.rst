@@ -149,6 +149,19 @@ range
 
   This defines the range of the axis.
 
+row
+***
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    row: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  A callback to define the row that the glyph is placed in.
+
 rowSpan
 *******
 

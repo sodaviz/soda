@@ -1,149 +1,113 @@
-import {
-  BedAnnotation,
-  Bed12Annotation,
-  Bed9Annotation,
-  Bed6Annotation,
-  Bed3Annotation,
-} from "../annotations/bed-annotation";
-import { parseOrientation } from "../annotations/orientation";
+import { Orientation, parseOrientation } from "../annotations/orientation";
 import { generateId } from "../utilities/id-generation";
+import { Annotation } from "../annotations/annotation";
 
+/**
+ * An interface that describes BED records. For more information, see https://genome.ucsc.edu/FAQ/FAQformat.html#format1
+ */
+export interface BedAnnotation extends Annotation {
+  /**
+   * A BED field that describes the chromosome of the record.
+   */
+  chrom: string;
+  /**
+   * A BED field that describes the starting position of the record. This is chromStart in the BED spec, but it's
+   * start here to fit in better with the rest of SODA.
+   */
+  start: number;
+  /**
+   * A BED field that describes the ending position of the record. This is chromEnd in the BED spec, but it's end
+   * here to fit in better with the rest of SODA.
+   */
+  end: number;
+  /**
+   * A BED field that describes the name of the record.
+   */
+  name?: string;
+  /**
+   * A BED field that describes the "score" of the record.
+   */
+  score?: number;
+  /**
+   * A BED field that describes the orientation/strand of the record.
+   */
+  strand?: Orientation;
+  /**
+   * A BED field that describes at which coordinate the feature should start being drawn "thickly."
+   */
+  thickStart?: number;
+  /**
+   * A BED field that describes at which coordinate the feature should stop being drawn "thickly."
+   */
+  thickEnd?: number;
+  /**
+   * A BED field BED field that defines the color of the feature. It is an RGB string, e.g. (0, 1,
+   * 256).
+   */
+  itemRgb?: string;
+  /**
+   * A BED field for records that should be drawn as discontiguous/fragmented glyphs. This describes the number of
+   * fragments.
+   */
+  blockCount?: number;
+  /**
+   * A BED field for records that should be drawn as discontiguous/fragmented glyphs. This describes the size of each
+   * fragment.
+   */
+  blockSizes?: number[];
+  /**
+   * A BED field for records that should be drawn as discontiguous/fragmented glyphs. This describes the offset of
+   * each fragment.
+   */
+  blockStarts?: number[];
+}
 /**
  * A utility function to parse a general BED record. There are no guarantees about which fields end up being present
  * in the resulting BED objects.
- * @param record
+ * @param records
  */
-export function parseBedRecord(record: string): BedAnnotation {
-  let splitRecord = record.split(/\s+/);
-
-  return new BedAnnotation({
-    id: generateId("bed-ann"),
-    start: parseInt(splitRecord[1]),
-    end: parseInt(splitRecord[2]),
-    row: 0,
-    chrom: splitRecord[0],
-    name: splitRecord[3],
-    score: splitRecord[4] != undefined ? parseFloat(splitRecord[4]) : undefined,
-    strand:
-      splitRecord[5] != undefined
-        ? parseOrientation(splitRecord[5])
-        : undefined,
-    thickStart:
-      splitRecord[6] != undefined ? parseInt(splitRecord[6]) : undefined,
-    thickEnd:
-      splitRecord[7] != undefined ? parseInt(splitRecord[7]) : undefined,
-    itemRgb: splitRecord[8],
-    blockCount:
-      splitRecord[9] != undefined ? parseInt(splitRecord[9]) : undefined,
-    blockSizes:
-      splitRecord[10] != undefined
-        ? splitRecord[10].split(",").map((v) => parseInt(v))
-        : undefined,
-    blockStarts:
-      splitRecord[11] != undefined
-        ? splitRecord[11].split(",").map((v) => parseInt(v))
-        : undefined,
-  });
-}
-
-/**
- * A utility function to explicitly parse BED3 records. The resulting objects will only have the first three fields
- * of the BED format.
- * @param record
- */
-export function parseBed3Record(record: string): Bed3Annotation {
-  let splitRecord = record.split(/\s+/);
-
-  if (splitRecord.length < 3) {
-    throw "BED3 split length less than 3";
+export function parseBedRecords(records: string | string[]): BedAnnotation[] {
+  if (!Array.isArray(records)) {
+    records = records.split("\n");
   }
 
-  return new Bed3Annotation({
-    id: generateId("bed3-ann"),
-    start: parseInt(splitRecord[1]),
-    end: parseInt(splitRecord[2]),
-    row: 0,
-    chrom: splitRecord[0],
-  });
-}
+  let annotations: BedAnnotation[] = [];
+  let emptyRegex = /^\s*$/;
+  for (const record of records) {
+    if (emptyRegex.exec(record)) {
+      continue;
+    }
 
-/**
- * A utility function to explicitly parse BED6 records. The resulting objects will only have the first six fields
- * of the BED format.
- * @param record
- */
-export function parseBed6Record(record: string): Bed6Annotation {
-  let splitRecord = record.split(/\s+/);
+    let splitRecord = record.split(/\s+/);
 
-  if (splitRecord.length < 6) {
-    throw "BED6 split length less than 6";
+    annotations.push({
+      id: generateId("bed-ann"),
+      start: parseInt(splitRecord[1]),
+      end: parseInt(splitRecord[2]),
+      chrom: splitRecord[0],
+      name: splitRecord[3],
+      score:
+        splitRecord[4] != undefined ? parseFloat(splitRecord[4]) : undefined,
+      strand:
+        splitRecord[5] != undefined
+          ? parseOrientation(splitRecord[5])
+          : undefined,
+      thickStart:
+        splitRecord[6] != undefined ? parseInt(splitRecord[6]) : undefined,
+      thickEnd:
+        splitRecord[7] != undefined ? parseInt(splitRecord[7]) : undefined,
+      itemRgb: splitRecord[8],
+      blockCount:
+        splitRecord[9] != undefined ? parseInt(splitRecord[9]) : undefined,
+      blockSizes:
+        splitRecord[10] != undefined
+          ? splitRecord[10].split(",").map((v) => parseInt(v))
+          : undefined,
+      blockStarts:
+        splitRecord[11] != undefined
+          ? splitRecord[11].split(",").map((v) => parseInt(v))
+          : undefined,
+    });
   }
-
-  return new Bed6Annotation({
-    id: generateId("bed6-ann"),
-    start: parseInt(splitRecord[1]),
-    end: parseInt(splitRecord[2]),
-    row: 0,
-    chrom: splitRecord[0],
-    name: splitRecord[3],
-    score: parseFloat(splitRecord[4]),
-    strand: parseOrientation(splitRecord[5]),
-  });
-}
-
-/**
- * A utility function to explicitly parse BED9 records. The resulting objects will only have the first nine fields
- * of the BED format.
- * @param record
- */
-export function parseBed9Record(record: string): Bed9Annotation {
-  let splitRecord = record.split(/\s+/);
-
-  if (splitRecord.length < 9) {
-    throw "BED9 split length less than 9";
-  }
-
-  return new Bed9Annotation({
-    id: generateId("bed9-ann"),
-    start: parseInt(splitRecord[1]),
-    end: parseInt(splitRecord[2]),
-    row: 0,
-    chrom: splitRecord[0],
-    name: splitRecord[3],
-    score: parseFloat(splitRecord[4]),
-    strand: parseOrientation(splitRecord[5]),
-    thickStart: parseInt(splitRecord[6]),
-    thickEnd: parseInt(splitRecord[7]),
-    itemRgb: splitRecord[8],
-  });
-}
-
-/**
- * A utility function to explicitly parse BED12 records. The resulting objects will have all twelve fields of the
- * BED format.
- * @param record
- */
-export function parseBed12Record(record: string): Bed12Annotation {
-  let splitRecord = record.split(/\s+/);
-
-  if (splitRecord.length < 12) {
-    throw "BED12 split length less than 12";
-  }
-
-  return new Bed12Annotation({
-    id: generateId("bed12-ann"),
-    start: parseInt(splitRecord[1]),
-    end: parseInt(splitRecord[2]),
-    row: 0,
-    chrom: splitRecord[0],
-    name: splitRecord[3],
-    score: parseFloat(splitRecord[4]),
-    strand: parseOrientation(splitRecord[5]),
-    thickStart: parseInt(splitRecord[6]),
-    thickEnd: parseInt(splitRecord[7]),
-    itemRgb: splitRecord[8],
-    blockCount: parseInt(splitRecord[9]),
-    blockSizes: splitRecord[10].split(",").map((v) => parseInt(v)),
-    blockStarts: splitRecord[11].split(",").map((v) => parseInt(v)),
-  });
+  return annotations;
 }

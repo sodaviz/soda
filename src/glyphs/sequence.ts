@@ -6,7 +6,7 @@ import { AnnotationDatum, bind } from "../glyph-utilities/bind";
 import {
   GlyphModifier,
   GlyphModifierConfig,
-  GlyphProperty,
+  resolveValue,
 } from "../glyph-utilities/glyph-modifier";
 import { GlyphConfig } from "../glyph-utilities/glyph-config";
 
@@ -45,10 +45,12 @@ export class SequenceModifier<
     super(config);
     this.strokeColor = config.strokeColor || "none";
     this.y =
-      config.y || ((d: AnnotationDatum<S, C>) => d.c.rowHeight * (d.a.y + 1));
+      config.y ||
+      ((d: AnnotationDatum<S, C>) =>
+        (resolveValue(this.row, d) + 1) * d.c.rowHeight - 2);
     this.x =
       config.x ||
-      ((d: AnnotationDatum<S, C>) => d.c.xScale(d.a.x) - this.offset);
+      ((d: AnnotationDatum<S, C>) => d.c.xScale(d.a.start) - this.offset);
 
     this.fontFamily = "monospace";
     this.updateOffset();
@@ -88,7 +90,10 @@ export class SequenceModifier<
   applyTextLength() {
     this.applyAttr(
       "textLength",
-      (d) => d.c.xScale(d.a.x + d.a.w - 1) - d.c.xScale(d.a.x) + 2 * this.offset
+      (d) =>
+        d.c.xScale(d.a.start + (d.a.end - d.a.start) - 1) -
+        d.c.xScale(d.a.start) +
+        2 * this.offset
     );
   }
 }

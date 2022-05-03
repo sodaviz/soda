@@ -77,7 +77,7 @@ divMargin
 
   .. code-block:: typescript
 
-    divMargin: undefined | number
+    divMargin: undefined | string | number
 
 .. container:: content
 
@@ -148,6 +148,19 @@ domainConstraint
 
   This constrains the Chart's domain, which in turn constrains both zoom level and panning. The parameter is a callback function that is evaluated after each zoom event to produce an interval that constrains the domain.
 
+draw
+****
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    draw: undefined | (params: P): void
+
+.. container:: content
+
+  The rendering callback that should be responsible for drawing glyphs with the rendering API.
+
 id
 **
 
@@ -160,19 +173,6 @@ id
 .. container:: content
 
   A unique identifier for the Chart. This will be generated automatically if one isn't provided.
-
-inRender
-********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    inRender: undefined | (params: P): void
-
-.. container:: content
-
-  The second rendering callback function.
 
 leftPadSize
 ***********
@@ -224,7 +224,7 @@ postRender
 
 .. container:: content
 
-  The final rendering callback function.
+  The callback function that the Chart executes after render() is called.
 
 postResize
 **********
@@ -252,19 +252,6 @@ postZoom
 
   The callback function that the Chart executes after zoom() is called.
 
-preRender
-*********
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    preRender: undefined | (params: P): void
-
-.. container:: content
-
-  The first rendering callback function.
-
 resizable
 *********
 
@@ -290,6 +277,19 @@ rightPadSize
 .. container:: content
 
   The number of pixels of padding on the right side of the Chart.
+
+rowColors
+*********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    rowColors: undefined | string []
+
+.. container:: content
+
+  A list of colors that will color the Chart's rows in a repeating pattern.
 
 rowCount
 ********
@@ -317,18 +317,18 @@ rowHeight
 
   The height in pixels of a horizontal row in the Chart. This defaults to a value of 10.
 
-rowStripes
+rowOpacity
 **********
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    rowStripes: undefined | boolean
+    rowOpacity: undefined | number
 
 .. container:: content
 
-  This controls whether or not the rows will be colored in an alternating pattern.
+  The opacity of the colored row stripes.
 
 selector
 ********
@@ -337,11 +337,63 @@ selector
 
   .. code-block:: typescript
 
-    selector: undefined | string
+    selector: string
 
 .. container:: content
 
   A string that can be used to uniquely select the target DOM container.
+
+updateDimensions
+****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    updateDimensions: undefined | (params: P): void
+
+.. container:: content
+
+  The rendering callback function that should be responsible for updating the Chart's DOM element dimensions.
+
+updateDomain
+************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    updateDomain: undefined | (params: P): void
+
+.. container:: content
+
+  The rendering callback function that should be responsible for updating the domain of the Chart.xScale property.
+
+updateLayout
+************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    updateLayout: undefined | (params: P): void
+
+.. container:: content
+
+  The rendering callback function that should be responsible for updating the Chart.layout property.
+
+updateRowCount
+**************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    updateRowCount: undefined | (params: P): void
+
+.. container:: content
+
+  The rendering callback function that should be responsible for updating the Chart.rowCount property.
 
 upperPadSize
 ************
