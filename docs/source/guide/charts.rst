@@ -52,19 +52,21 @@ For a complete list of dimension configuration options, check out the :ref:`Char
 
 Rendering configuration
 +++++++++++++++++++++++
-
-There are three callback function properties on the ChartConfig that, when supplied, override the behavior of the *Chart.render()* method.
+There are several callback function properties on the ChartConfig that, when supplied, override the default behavior of the *Chart.render()* method.
 The :ref:`rendering section<guide_rendering>` describes the rendering processing and the purpose of these callback functions in detail, but we'll note them here for the sake of completeness:
 
-- *preRender()*
-- *inRender()*
-- *postRender()*
+- *updateLayout()*
+- *updateRowCount()*
+- *updateDimensions()*
+- *updateDomain()*
+- *draw()*
 
 Default axes
 ++++++++++++
 
-The *axisType* config property provides a simple mechanism for adding a horizontal axis to a Chart.
-The property is expected to be an :ref:`AxisType`, specifically either *AxisType.Top* or *AxisType.Bottom*--the choice determines the position of the axis ticks and labels.
+A default horizontal axis is rendered in the **overflow viewport** if the *chart.addAxis()* function is called.
+Specifically, it is positioned in the bounding box of the upper section of the **SVG pad**, outside of the bounding box of the **viewport**.
+The default *chart.draw()* implementation calls the addAxis() function.
 
 For example, the following code:
 
@@ -72,7 +74,6 @@ For example, the following code:
     
     let chart = new Chart({
         selector: "div#soda-chart",
-        axisType: AxisType.Top
     });
 
     chart.render({});
@@ -83,14 +84,33 @@ will produce something like:
 
     A blank Chart set up to render a default horizontal axis.
 
-Default horizontal axes are rendered in the **overflow viewport** during the default *chart.preRender()* function.
-Specifically, they are positioned in the bounding box of the upper section of the **SVG pad**, outside of the bounding box of the **viewport**.
-These details have two consequences:
-
-#. Adjusting the *padSize* may cause the axis to be positioned such that it is too low or too high.
-#. Adjusting the *preRender()* callback will prevent it from being rendered at all.
+Adjusting the *padSize* may cause the axis to be positioned such that it is too low or too high.
 
 If the default horizontal axis doesn't work for your visualization, you can place a horizontal axis wherever you'd like using the :ref:`horizontalAxis` function. 
+
+Row colors
+++++++++++
+
+If the rowColors property is configured, the rows in the Chart will be rendered with those colors in a repeating pattern.
+If the rowOpacity property is configured, the value will control the opacity of the rows.
+
+For example,
+
+.. code-block:: typescript
+
+    let chart = new soda.Chart({
+      selector: "div#soda-chart",
+      rowColors: ["cyan", "green", "purple"],
+      rowOpacity: 0.5,
+    });
+
+    chart.render({ rowCount: 10 });
+
+will produce something like:
+
+.. figure:: /_static/media/chart-row-colors.png
+
+    A blank Chart set up with row colors cyan, green, and purple.
 
 Zooming and panning
 +++++++++++++++++++
@@ -185,8 +205,6 @@ The *xScale* is used extensively by the defaults in the :ref:`rendering<guide_re
 
 The second is the *yScale*, which maps row numbers to the pixel y-coordinates that delineate each of the conceptual rows in the Chart's viewport.
 
-The default *chart.preRender()* function re-initializes the scales during calls to render(), so you may need to call *Chart.initializeXScale()* and *Chart.initializeYScale()* manually if you are going to make adjustments to the default rendering routine.
-
 Chart observers
 ###############
 
@@ -195,3 +213,6 @@ The pattern is currently not very fleshed out, and it is currently only used by 
 At some point, we will overhaul this system to make it much more useful, but you may find some use from it in its current state.
 
 You can create an object that extends the abstract class :ref:`ChartObserver`, add Charts to it, and then configure Charts to call *Chart.alertObservers()*.
+
+
+
