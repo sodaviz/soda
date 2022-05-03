@@ -9,8 +9,8 @@ Visualizations produced by SODA can be easily integrated with web pages, and it 
 Before you start
 ----------------
 
-SODA is still in the early stages of its development and is currently maintained by one person.
-If you encounter any bugs, find anything in the library or documentation confusing, or think there are gaps in the feature set, *please* consider `submitting an issue`_.
+SODA is still in the early stages of its life and is currently maintained by one person.
+If you encounter any bugs, find anything in the library or documentation confusing, or even think there are gaps in the feature set, *please* consider `submitting an issue`_.
 
 SODA adheres to the `semantic versioning`_ guidelines, so any (intentional) breaking changes to the API will be accompanied by a bump in the major version number.
 
