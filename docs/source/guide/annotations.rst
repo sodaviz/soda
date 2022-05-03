@@ -70,7 +70,7 @@ SODA provides some utilities that may help you work with Annotation objects:
 - :ref:`slicePlotAnnotation` returns a smaller piece of a PlotAnnotation.
 
 We're aware that the scope of these utilities may seem a bit lacking.
-That's because these are the annotation manipulations that *we* have found useful when using SODA.
+That's because these are the data manipulation utilities that *we* have found useful when developing our own SODA applications.
 If you think a fundamental utility is missing, please `let us know`_!
 
 Established data formats
