@@ -9,7 +9,7 @@
     ".": "./dist/index.js"
   },
   "types": "./dist/index.d.ts",
-  "prepublish": "make build",
+  "prepare": "make build",
   "scripts": {
     "test": "test.sh"
   },
