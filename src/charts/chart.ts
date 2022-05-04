@@ -674,7 +674,6 @@ export class Chart<P extends RenderParams> {
    */
   public addRowStripes(): void {
     if (this.rowColors == undefined) {
-      console.warn(`rowColors are not defined on chart: ${this.id}`);
       return;
     }
 
