@@ -117,17 +117,15 @@ export function verticalAxis<A extends Annotation, C extends Chart<any>>(
   config: VerticalAxisConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-vertical-axis-glyph");
-  let internalSelector = selector + "-internal";
 
   let binding = bind<A, C, SVGGElement>({
     ...config,
     selector,
-    internalSelector,
     elementType: "g",
   });
 
   let modifier = new VerticalAxisModifier({
-    selector: internalSelector,
+    selector,
     selection: binding.merge,
     ...config,
   });

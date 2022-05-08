@@ -70,18 +70,16 @@ export function simpleText<A extends Annotation, C extends Chart<any>>(
   config: SimpleTextConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-text-glyph");
-  let internalSelector = selector + "-internal";
 
   let binding = bind<A, C, SVGTextElement>({
     ...config,
     selector,
-    internalSelector,
     elementType: "text",
   });
 
   let modifier = new SimpleTextModifier({
     ...config,
-    selector: internalSelector,
+    selector,
     selection: binding.merge,
   });
   config.chart.addGlyphModifier(modifier);

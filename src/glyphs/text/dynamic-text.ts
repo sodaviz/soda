@@ -185,18 +185,16 @@ export function dynamicText<A extends Annotation, C extends Chart<any>>(
   config: DynamicTextConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-text-glyph");
-  let internalSelector = selector + "-internal";
 
   let binding = bind<A, C, SVGTextElement>({
     ...config,
     selector,
-    internalSelector,
     elementType: "text",
   });
 
   let modifier = new DynamicTextModifier({
     ...config,
-    selector: internalSelector,
+    selector,
     selection: binding.merge,
   });
   config.chart.addGlyphModifier(modifier);

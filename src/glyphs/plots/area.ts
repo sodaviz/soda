@@ -128,19 +128,15 @@ export function area<A extends PlotAnnotation, C extends Chart<any>>(
   config: AreaConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-area-glyph");
-  let internalSelector = selector + "-internal";
 
   let binding = bind<A, C, SVGPathElement>({
     ...config,
     selector,
-    internalSelector,
     elementType: "path",
   });
 
   let data = binding.g
-    .selectAll<SVGPathElement, AnnotationDatum<A, C>>(
-      `path.${internalSelector}`
-    )
+    .selectAll<SVGPathElement, AnnotationDatum<A, C>>(`path.${selector}`)
     .data();
 
   initializePlotGlyphYScales(areaScaleMap, {
@@ -150,7 +146,7 @@ export function area<A extends PlotAnnotation, C extends Chart<any>>(
 
   let areaModifier = new AreaModifier({
     ...config,
-    selector: internalSelector,
+    selector,
     selection: binding.merge,
   });
 

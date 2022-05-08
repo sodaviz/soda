@@ -118,19 +118,15 @@ export function linePlot<A extends PlotAnnotation, C extends Chart<any>>(
   config: LinePlotConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-line-plot-glyph");
-  let internalSelector = selector + "-internal";
 
   let binding = bind<A, C, SVGPathElement>({
     ...config,
     selector,
-    internalSelector,
     elementType: "path",
   });
 
   let data = binding.g
-    .selectAll<SVGPathElement, AnnotationDatum<A, C>>(
-      `path.${internalSelector}`
-    )
+    .selectAll<SVGPathElement, AnnotationDatum<A, C>>(`path.${selector}`)
     .data();
 
   initializePlotGlyphYScales(linePlotScaleMap, {
@@ -140,7 +136,7 @@ export function linePlot<A extends PlotAnnotation, C extends Chart<any>>(
 
   let modifier = new LinePlotModifier({
     ...config,
-    selector: internalSelector,
+    selector: selector,
     selection: binding.merge,
   });
   config.chart.addGlyphModifier(modifier);

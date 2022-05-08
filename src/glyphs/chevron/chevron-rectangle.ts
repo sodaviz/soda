@@ -34,14 +34,12 @@ export function chevronRectangle<A extends Annotation, C extends Chart<any>>(
     ...config,
     annotations: [],
     selector,
-    internalSelector: "none",
     elementType: "g",
   });
 
   let patternBinding = bind<A, C, SVGPatternElement>({
     ...config,
     selector: patternSelector,
-    internalSelector: patternSelectorInternal,
     elementType: "pattern",
     target: outerBinding.g,
   });
@@ -49,7 +47,6 @@ export function chevronRectangle<A extends Annotation, C extends Chart<any>>(
   let rectBinding = bind<A, C, SVGRectElement>({
     ...config,
     selector: rectSelector,
-    internalSelector: rectSelectorInternal,
     elementType: "rect",
     target: outerBinding.g,
   });

@@ -45,7 +45,6 @@ export interface BindConfig<A extends Annotation, C extends Chart<any>> {
   target?: BindTarget | d3.Selection<any, any, any, any>;
   elementType: string;
   selector: string;
-  internalSelector: string;
   overflow?: boolean;
   remove?: boolean;
 }
@@ -88,15 +87,14 @@ export function bind<
     parent = config.target || config.chart.viewportSelection;
   }
 
+  let groupSelector = `${config.selector}-group`;
   let g: d3.Selection<SVGGElement, string, any, any>;
-  let gSelection = parent.selectAll<SVGGElement, string>(
-    `g.${config.selector}`
-  );
+  let gSelection = parent.selectAll<SVGGElement, string>(`g.${groupSelector}`);
   if (gSelection.node() != undefined) {
     g = d3.select<SVGGElement, string>(gSelection.node()!);
   } else {
     g = gSelection
-      .data([config.selector], (d: string) => d)
+      .data([groupSelector], (d: string) => d)
       .enter()
       .append("g")
       .attr("class", (d) => d);
@@ -108,14 +106,14 @@ export function bind<
 
   let dataSelection = g
     .selectAll<E, AnnotationDatum<A, C>>(
-      `${config.elementType}.${config.internalSelector}`
+      `${config.elementType}.${config.selector}`
     )
     .data(data, (d) => d.a.id);
 
   let enter = dataSelection
     .enter()
     .append<E>(config.elementType)
-    .attr("class", config.internalSelector);
+    .attr("class", config.selector);
 
   let merge = enter.merge(dataSelection);
 
@@ -131,7 +129,7 @@ export function bind<
 
   mapGlyphs({
     binding,
-    selector: config.internalSelector,
+    selector: config.selector,
   });
 
   return binding;

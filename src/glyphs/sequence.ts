@@ -106,18 +106,16 @@ export function sequence<S extends SequenceAnnotation, C extends Chart<any>>(
   config: SequenceConfig<S, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-sequence-glyph");
-  let internalSelector = selector + "-internal";
 
   let binding = bind<S, C, SVGTextElement>({
     ...config,
     selector,
-    internalSelector,
     elementType: "text",
   });
 
   let modifier = new SequenceModifier({
     ...config,
-    selector: internalSelector,
+    selector,
     selection: binding.merge,
   });
   config.chart.addGlyphModifier(modifier);

@@ -157,17 +157,15 @@ export function horizontalAxis<A extends Annotation, C extends Chart<any>>(
   config: HorizontalAxisConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-horizontal-axis-glyph");
-  let internalSelector = selector + "-internal";
 
   let binding = bind<A, C, SVGGElement>({
     ...config,
     selector,
-    internalSelector,
     elementType: "g",
   });
 
   let modifier = new HorizontalAxisModifier({
-    selector: internalSelector,
+    selector: selector,
     selection: binding.merge,
     ...config,
   });

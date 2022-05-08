@@ -119,22 +119,18 @@ export function heatmap<A extends PlotAnnotation, C extends Chart<any>>(
   config: HeatmapConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-heatmap-glyph");
-  let internalSelector = selector + "-internal";
 
   let binding = bind<A, C, SVGGElement>({
     ...config,
     selector,
-    internalSelector,
     elementType: "g",
   });
 
   if (config.outlineColor || config.backgroundColor) {
     let rectSelector = selector + "-background";
-    let internalRectSelector = rectSelector + "-internal";
     let rectBinding = bind<A, C, SVGRectElement>({
       ...config,
       selector: rectSelector,
-      internalSelector: internalRectSelector,
       target: binding.g,
       elementType: "rect",
     });
@@ -143,7 +139,7 @@ export function heatmap<A extends PlotAnnotation, C extends Chart<any>>(
       ...config,
       strokeColor: config.outlineColor || "none",
       fillColor: config.backgroundColor || "none",
-      selector: internalRectSelector,
+      selector: rectSelector,
       selection: rectBinding.merge,
     });
 
@@ -152,7 +148,7 @@ export function heatmap<A extends PlotAnnotation, C extends Chart<any>>(
 
   let modifier = new HeatmapModifier({
     ...config,
-    selector: internalSelector,
+    selector,
     selection: binding.merge,
   });
 
