@@ -6,6 +6,7 @@ Welcome to SODA's documentation!
     :hidden:
 
     guide 
+    examples
     api
     SODA GitHub <https://github.com/sodaviz/soda>
     SODA issues <https://github.com/sodaviz/soda/issues>
