@@ -37,8 +37,8 @@ export function selectText(a: Annotation, c: Chart<any>): string {
   }
 
   let i = 0;
-  let range = c.xScale.range();
-  let viewWidth = range[1] - range[0];
+  let domain = c.domain;
+  let viewWidth = domain[1] - domain[0];
   for (const thresh of thresholds) {
     if (viewWidth <= thresh) {
       return text[i];
@@ -72,20 +72,55 @@ function getTextSize(text: string): number {
  * @internal
  * @param config
  */
-function addToTextMaps<A extends Annotation, C extends Chart<any>>(config: {
-  annotations: A[];
-  chart: C;
-  text: GlyphProperty<A, C, string[]>;
-}): void {
+function addToTextMaps<A extends Annotation, C extends Chart<any>>(
+  config: DynamicTextModifier<A, C>
+): void {
+  let tmpTextSelection = d3
+    .select("body")
+    .append("svg")
+    .append("text")
+    .attr("class", "tmp-text");
+
   for (const a of config.annotations) {
     let text = resolveValue(config.text, { a, c: config.chart });
     textMap.set(a.id, text);
     let thresholds = text.map((t) => {
-      let textSize = getTextSize(t);
-      return ((a.end - a.start) * config.chart.viewportWidthPx) / textSize;
+      if (config.fontSize) {
+        tmpTextSelection.style(
+          "font-size",
+          resolveValue(config.fontSize, { a, c: config.chart })
+        );
+      }
+
+      if (config.fontFamily) {
+        tmpTextSelection.style(
+          "font-family",
+          resolveValue(config.fontFamily, { a, c: config.chart })
+        );
+      }
+
+      if (config.fontWeight) {
+        tmpTextSelection.style(
+          "font-weight",
+          resolveValue(config.fontWeight, { a, c: config.chart })
+        );
+      }
+
+      if (config.fontStyle) {
+        tmpTextSelection.style(
+          "font-style",
+          resolveValue(config.fontStyle, { a, c: config.chart })
+        );
+      }
+
+      let textSize = tmpTextSelection.text(t).node()!.getComputedTextLength();
+      let textRatio =
+        ((a.end - a.start) * config.chart.viewportWidthPx) / textSize;
+      return textRatio;
     });
     thresholdMap.set(a.id, thresholds);
   }
+  tmpTextSelection.remove();
 }
 
 /**
@@ -120,9 +155,11 @@ export class DynamicTextModifier<
   A extends Annotation,
   C extends Chart<any>
 > extends TextModifier<A, C> {
+  text: GlyphProperty<A, C, string[]>;
   constructor(config: DynamicTextModifierConfig<A, C>) {
     super(config);
-    addToTextMaps(config);
+    this.text = config.text;
+    addToTextMaps(this);
   }
 
   defaultInitialize(): void {
