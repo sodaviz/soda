@@ -1,4 +1,4 @@
-export { Binding, bind } from "./glyph-utilities/bind";
+export { Binding, bind, BindTarget } from "./glyph-utilities/bind";
 export { GlyphConfig } from "./glyph-utilities/glyph-config";
 export { queryGlyphMap } from "./glyph-utilities/glyph-map";
 export {
