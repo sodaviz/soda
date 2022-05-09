@@ -1,7 +1,10 @@
 import * as d3 from "d3";
 import { GlyphQueryConfig } from "./glyph-query";
-import { queryGlyphMap, unmapGlyphsByKeys } from "./glyph-map";
-import { keyFromSelection } from "./map-keys";
+import {
+  keyFromSelection,
+  queryGlyphMap,
+  unmapGlyphsByKeys,
+} from "./glyph-map";
 import { removeHoverBehaviorsByKeys } from "../interactivity/hover";
 import { removeClickBehaviorsByKeys } from "../interactivity/click";
 import { idAnnotationMap } from "./id-map";

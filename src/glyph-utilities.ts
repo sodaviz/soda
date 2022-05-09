@@ -17,4 +17,5 @@ export {
   getAllAnnotationIds,
   getAnnotationById,
 } from "./glyph-utilities/id-map";
-export { setKeySeparator, keyFromSelection } from "./glyph-utilities/map-keys";
+export { keyFromSelection } from "./glyph-utilities/glyph-map";
+export { setKeySeparator } from "./glyph-utilities/glyph-map";

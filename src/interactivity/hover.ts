@@ -71,29 +71,15 @@ export function removeHoverBehaviorsByKeys(keys: string[]): void {
 export function hoverBehavior<A extends Annotation, C extends Chart<any>>(
   config: HoverConfig<A, C>
 ): void {
-  for (const ann of config.annotations) {
-    let selection = queryGlyphMap({
-      id: ann.id,
-      selector: config.selector,
-      chart: config.chart,
-    });
+  let selections = queryGlyphMap(config);
 
-    if (selection == undefined) {
-      console.warn("No glyph mapping found");
-      return;
-    }
+  if (selections == undefined) {
+    console.warn("Glyph query failed when attempting to map click behavior");
+    return;
+  }
 
-    if (Array.isArray(selection)) {
-      if (selection.length == 0) {
-        console.warn("No glyph mapping found");
-        return;
-      }
-      for (const map of selection) {
-        applyHoverCallbacks(map, config);
-      }
-    } else {
-      applyHoverCallbacks(selection, config);
-    }
+  for (const selection of selections) {
+    applyHoverCallbacks(selection, config);
   }
 }
 

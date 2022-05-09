@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { keyFromSelection } from "../glyph-utilities/map-keys";
+import { keyFromSelection } from "../glyph-utilities/glyph-map";
 
 /**
  * A utility function that retrieves a list of behavior functions for an interaction.
