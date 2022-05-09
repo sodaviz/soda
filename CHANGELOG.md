@@ -15,6 +15,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2022-05-09
+
+### Added
+- Added some codepen examples to the docs
+- Tooltips are now more configurable
+
+### Changed
+- Changed the "prepublish" script to "prepare" in package.json
+- Simplified the internal use of selector strings
+- Glyph queries now expect Annotation objects instead of Annotation IDs
+- The SVG text for text glyphs and axis glyph ticks is now unselectable
+
+### Fixed
+- Removed the Chart.rowColors console warning spam
+- Fixed a dynamic text selection bug
+- Fixed a dynamic text size calculation bug
+- Fixed the BindTarget enum export
+- Fixed the bug that caused the tooltip div to pop up in the corner of the window
+- Fixed vertical axis glyph placement and domain
 
 ## [0.10.1] - 2022-05-04
 
