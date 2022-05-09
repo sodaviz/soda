@@ -117,18 +117,16 @@ export function radialRectangle<
   C extends RadialChart<any>
 >(config: RectangleConfig<A, C>): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-radial-rect-glyph");
-  let internalSelector = selector + "-internal";
 
   let binding = bind<A, C, SVGPathElement>({
     ...config,
     selector,
-    internalSelector,
     elementType: "path",
   });
 
   let modifier = new RadialRectangleModifier({
     ...config,
-    selector: internalSelector,
+    selector,
     selection: binding.merge,
   });
 

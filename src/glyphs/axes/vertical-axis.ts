@@ -4,7 +4,7 @@ import { Annotation } from "../../annotations/annotation";
 import { AxisType, getAxis } from "../axes";
 import { GlyphConfig } from "../../glyph-utilities/glyph-config";
 import { generateId } from "../../utilities/id-generation";
-import { bind } from "../../glyph-utilities/bind";
+import { AnnotationDatum, bind } from "../../glyph-utilities/bind";
 import {
   GlyphModifier,
   GlyphModifierConfig,
@@ -76,12 +76,15 @@ export class VerticalAxisModifier<
   constructor(config: VerticalAxisModifierConfig<A, C>) {
     super(config);
     this.strokeColor = config.strokeColor || "none";
-    this.domain = config.domain || [0, 100];
+    this.domain = config.domain || [0, 1];
     this.rowSpan = config.rowSpan || 1;
-    this.range = config.range || [0, config.chart.rowHeight * this.rowSpan];
+    this.range =
+      config.range ||
+      ((d: AnnotationDatum<A, C>) => [0, d.c.rowHeight * this.rowSpan - 4]);
     this.ticks = config.ticks || 5;
     this.tickSizeOuter = config.tickSizeOuter || 6;
-    this.axisType = config.axisType || AxisType.Right;
+    this.axisType = config.axisType || AxisType.Left;
+    this.applyUserSelect();
   }
 
   defaultZoom(): void {
@@ -92,9 +95,10 @@ export class VerticalAxisModifier<
           `translate(${resolveValue(this.x, d)}, ${resolveValue(this.y, d)})`
       )
       .each((d, i, nodes) => {
+        let domain = resolveValue(this.domain, d);
         let yScale = d3
           .scaleLinear()
-          .domain(resolveValue(this.domain, d))
+          .domain([domain[1], domain[0]])
           .range(resolveValue(this.range, d));
 
         let axis = getAxis(yScale, this.axisType);
@@ -105,6 +109,15 @@ export class VerticalAxisModifier<
 
         d3.select(nodes[i]).call(axis);
       });
+  }
+
+  applyUserSelect(): void {
+    this.applyStyle("-webkit-user-select", "none");
+    this.applyStyle("-khtml-user-select", "none");
+    this.applyStyle("-moz-user-select", "none");
+    this.applyStyle("-ms-user-select", "none");
+    this.applyStyle("-o-user-select", "none");
+    this.applyStyle("user-select", "none");
   }
 }
 
@@ -117,17 +130,15 @@ export function verticalAxis<A extends Annotation, C extends Chart<any>>(
   config: VerticalAxisConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-vertical-axis-glyph");
-  let internalSelector = selector + "-internal";
 
   let binding = bind<A, C, SVGGElement>({
     ...config,
     selector,
-    internalSelector,
     elementType: "g",
   });
 
   let modifier = new VerticalAxisModifier({
-    selector: internalSelector,
+    selector,
     selection: binding.merge,
     ...config,
   });

@@ -93,18 +93,16 @@ export function line<A extends Annotation, C extends Chart<any>>(
   config: LineConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-line-glyph");
-  let internalSelector = selector + "-internal";
 
   let binding = bind<A, C, SVGLineElement>({
     ...config,
     selector,
-    internalSelector,
     elementType: "line",
   });
 
   let modifier = new LineModifier({
     ...config,
-    selector: internalSelector,
+    selector,
     selection: binding.merge,
   });
 

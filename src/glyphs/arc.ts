@@ -88,18 +88,16 @@ export function arc<A extends Annotation, C extends Chart<any>>(
   config: ArcConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-arc-glyph");
-  let internalSelector = selector + "-internal";
 
   let binding = bind<A, C, SVGPathElement>({
     ...config,
     selector,
-    internalSelector,
     elementType: "path",
   });
 
   let modifier = new ArcModifier({
     ...config,
-    selector: internalSelector,
+    selector,
     selection: binding.merge,
   });
 

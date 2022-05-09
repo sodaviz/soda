@@ -1,4 +1,4 @@
-export { Binding, bind } from "./glyph-utilities/bind";
+export { Binding, bind, BindTarget } from "./glyph-utilities/bind";
 export { GlyphConfig } from "./glyph-utilities/glyph-config";
 export { queryGlyphMap } from "./glyph-utilities/glyph-map";
 export {
@@ -17,4 +17,5 @@ export {
   getAllAnnotationIds,
   getAnnotationById,
 } from "./glyph-utilities/id-map";
-export { setKeySeparator, keyFromSelection } from "./glyph-utilities/map-keys";
+export { keyFromSelection } from "./glyph-utilities/glyph-map";
+export { setKeySeparator } from "./glyph-utilities/glyph-map";

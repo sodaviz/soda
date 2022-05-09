@@ -3,7 +3,6 @@ import { Chart } from "../charts/chart";
 import { Annotation } from "../annotations/annotation";
 import { Binding } from "./bind";
 import { idAnnotationMap } from "./id-map";
-import { keyFromQueryConfig, keyFromSelection, keySeparator } from "./map-keys";
 import { GlyphQueryConfig, isFullGlyphQueryConfig } from "./glyph-query";
 
 /**
@@ -26,6 +25,30 @@ export interface GlyphMapConfig<
 > {
   binding: Binding<A, C, E>;
   selector: string;
+}
+
+export let keySeparator = "|";
+
+/**
+ * Set the separator that SODA uses to build map keys. The keys are of the form:
+ * <annotation ID><separator><glyph selector><separator><chart ID>.
+ * @param separator
+ */
+export function setKeySeparator(separator: string): void {
+  keySeparator = separator;
+}
+
+/**
+ * A utility function that builds a key for a behavior map from a d3 Selection.
+ * @internal
+ * @param selection
+ */
+export function keyFromSelection(
+  selection: d3.Selection<any, any, any, any>
+): string {
+  let datum = selection.datum();
+  let selector = selection.attr("class");
+  return `${datum.a.id}${keySeparator}${selector}${keySeparator}${datum.c.id}`;
 }
 
 /**
@@ -58,31 +81,25 @@ export function unmapGlyphsByKeys(keys: string[]): void {
 }
 
 function filterKeysFromQuery(config: GlyphQueryConfig = {}): string[] {
-  let allKeys = Array.from(glyphMap.keys());
-  let filteredKeys = [];
-  for (const key of allKeys) {
-    let keySplit = key.split(keySeparator);
-    let passes = true;
-    if (config.id != undefined) {
-      if (keySplit[0] != config.id) {
-        passes = false;
-      }
-    }
-    if (config.selector != undefined) {
-      if (keySplit[1] != config.selector) {
-        passes = false;
-      }
-    }
-    if (config.chart != undefined) {
-      if (keySplit[2] != config.chart.id) {
-        passes = false;
-      }
-    }
-    if (passes) {
-      filteredKeys.push(key);
-    }
+  let keys = Array.from(glyphMap.keys());
+  let keySplits = keys.map((k) => k.split(keySeparator));
+
+  if (config.selector != undefined) {
+    keySplits = keySplits.filter((k) => k[1] == config.selector);
   }
-  return filteredKeys;
+
+  if (config.chart != undefined) {
+    keySplits = keySplits.filter((k) => k[2] == config.chart!.id);
+  }
+
+  if (config.annotations != undefined) {
+    let ids = config.annotations.map((ann) => ann.id);
+    keySplits = keySplits.filter((k) => ids.includes(k[0]));
+  }
+
+  return keySplits.map(
+    (k) => `${k[0]}${keySeparator}${k[1]}${keySeparator}${k[2]}`
+  );
 }
 
 /**
@@ -92,16 +109,18 @@ function filterKeysFromQuery(config: GlyphQueryConfig = {}): string[] {
  */
 export function queryGlyphMap(
   config: GlyphQueryConfig = {}
-):
-  | d3.Selection<any, any, any, any>
-  | d3.Selection<any, any, any, any>[]
-  | undefined {
+): d3.Selection<any, any, any, any>[] | undefined {
+  let keys: string[] = [];
   if (isFullGlyphQueryConfig(config)) {
-    let key = keyFromQueryConfig(config);
-    return glyphMap.get(key);
+    for (const ann of config.annotations) {
+      keys.push(
+        `${ann.id}${keySeparator}${config.selector}${keySeparator}${config.chart.id}`
+      );
+    }
+  } else {
+    keys = filterKeysFromQuery(config);
   }
 
-  let keys = filterKeysFromQuery(config);
   let selections: d3.Selection<any, any, any, any>[] = [];
   for (const key of keys) {
     let selection = glyphMap.get(key);
@@ -111,5 +130,6 @@ export function queryGlyphMap(
       selections.push(selection);
     }
   }
+
   return selections;
 }

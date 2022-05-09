@@ -30,14 +30,12 @@ export function chevronLine<A extends Annotation, C extends Chart<any>>(
     ...config,
     annotations: [],
     selector,
-    internalSelector: "none",
     elementType: "g",
   });
 
   let patternBinding = bind<A, C, SVGPatternElement>({
     ...config,
     selector,
-    internalSelector: patternSelector,
     elementType: "pattern",
     target: outerBinding.g,
   });
@@ -45,7 +43,6 @@ export function chevronLine<A extends Annotation, C extends Chart<any>>(
   let rectBinding = bind<A, C, SVGRectElement>({
     ...config,
     selector,
-    internalSelector: rectSelector,
     elementType: "rect",
     target: outerBinding.g,
   });
@@ -53,7 +50,6 @@ export function chevronLine<A extends Annotation, C extends Chart<any>>(
   let lineBinding = bind<A, C, SVGLineElement>({
     ...config,
     selector,
-    internalSelector: lineSelector,
     elementType: "line",
     target: outerBinding.g,
   });

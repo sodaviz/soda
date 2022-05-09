@@ -1,25 +1,26 @@
 import { Chart } from "../charts/chart";
+import { Annotation } from "../annotations/annotation";
 
 /**
  * An interface that defines the parameters for a call to the queryGlyphMap() function.
  */
 export interface GlyphQueryConfig {
   /**
-   * Constrain the query to Annotations with this ID.
+   * Constrain the query to these Annotations.
    */
-  id?: string;
+  annotations?: Annotation[];
   /**
-   * Constrain the query to Annotations with this selector.
+   * Constrain the query to glyphs with this selector.
    */
   selector?: string;
   /**
-   * Constrain the query to Annotations rendered in this Chart.
+   * Constrain the query to glyphs rendered in this Chart.
    */
   chart?: Chart<any>;
 }
 
 export interface FullGlyphQueryConfig extends GlyphQueryConfig {
-  id: string;
+  annotations: Annotation[];
   selector: string;
   chart: Chart<any>;
 }
@@ -33,7 +34,7 @@ export function isFullGlyphQueryConfig(
   config: GlyphQueryConfig
 ): config is FullGlyphQueryConfig {
   return (
-    config.id != undefined &&
+    config.annotations != undefined &&
     config.selector != undefined &&
     config.chart != undefined
   );

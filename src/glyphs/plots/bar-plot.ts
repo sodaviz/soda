@@ -125,17 +125,15 @@ export function barPlot<A extends PlotAnnotation, C extends Chart<any>>(
   config: BarPlotConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-bar-plot-glyph");
-  let internalSelector = selector + "-internal";
 
   let binding = bind<A, C, SVGGElement>({
     ...config,
     selector,
-    internalSelector,
     elementType: "g",
   });
 
   let data = binding.g
-    .selectAll<SVGGElement, AnnotationDatum<A, C>>(`g.${internalSelector}`)
+    .selectAll<SVGGElement, AnnotationDatum<A, C>>(`g.${selector}`)
     .data();
 
   initializePlotGlyphYScales(barPlotScaleMap, {
@@ -145,7 +143,7 @@ export function barPlot<A extends PlotAnnotation, C extends Chart<any>>(
 
   let modifier = new BarPlotModifier({
     ...config,
-    selector: internalSelector,
+    selector,
     selection: binding.merge,
   });
   config.chart.addGlyphModifier(modifier);

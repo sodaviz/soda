@@ -50,25 +50,15 @@ export function removeClickBehaviorsByKeys(keys: string[]): void {
 export function clickBehavior<A extends Annotation, C extends Chart<any>>(
   config: ClickConfig<A, C>
 ): void {
-  for (const ann of config.annotations) {
-    let selection = queryGlyphMap({
-      id: ann.id,
-      selector: config.selector,
-      chart: config.chart,
-    });
+  let selections = queryGlyphMap(config);
 
-    if (selection == undefined) {
-      console.warn("No glyph mapping found");
-      return;
-    }
+  if (selections == undefined) {
+    console.warn("Glyph query failed when attempting to map click behavior");
+    return;
+  }
 
-    if (Array.isArray(selection)) {
-      for (const map of selection) {
-        applyClickCallbacks(map, config);
-      }
-    } else {
-      applyClickCallbacks(selection, config);
-    }
+  for (const selection of selections) {
+    applyClickCallbacks(selection, config);
   }
 }
 

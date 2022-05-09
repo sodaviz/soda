@@ -22,18 +22,16 @@ export function rectangle<A extends Annotation, C extends Chart<any>>(
   config: RectangleConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-rect-glyph");
-  let internalSelector = selector + "-internal";
 
   let binding = bind<A, C, SVGRectElement>({
     ...config,
     selector,
-    internalSelector,
     elementType: "rect",
   });
 
   let modifier = new GlyphModifier({
     ...config,
-    selector: internalSelector,
+    selector,
     selection: binding.merge,
   });
 

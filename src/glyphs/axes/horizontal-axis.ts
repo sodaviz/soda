@@ -77,6 +77,7 @@ export class HorizontalAxisModifier<
     this.tickSizeOuter = config.tickSizeOuter || 6;
     this.axisType = config.axisType || AxisType.Bottom;
     this.scaleToBinHeight = config.scaleToBinHeight || false;
+    this.applyUserSelect();
   }
 
   defaultZoom(): void {
@@ -105,6 +106,15 @@ export class HorizontalAxisModifier<
           d3.select(nodes[i]).attr("transform", `scale(1, ${k})`);
         }
       });
+  }
+
+  applyUserSelect(): void {
+    this.applyStyle("-webkit-user-select", "none");
+    this.applyStyle("-khtml-user-select", "none");
+    this.applyStyle("-moz-user-select", "none");
+    this.applyStyle("-ms-user-select", "none");
+    this.applyStyle("-o-user-select", "none");
+    this.applyStyle("user-select", "none");
   }
 }
 
@@ -157,17 +167,15 @@ export function horizontalAxis<A extends Annotation, C extends Chart<any>>(
   config: HorizontalAxisConfig<A, C>
 ): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-horizontal-axis-glyph");
-  let internalSelector = selector + "-internal";
 
   let binding = bind<A, C, SVGGElement>({
     ...config,
     selector,
-    internalSelector,
     elementType: "g",
   });
 
   let modifier = new HorizontalAxisModifier({
-    selector: internalSelector,
+    selector: selector,
     selection: binding.merge,
     ...config,
   });
