@@ -51,7 +51,7 @@ end
 
 .. container:: content
 
-  
+  The end coordinate of the Annotation.
 
 id
 **
@@ -64,7 +64,7 @@ id
 
 .. container:: content
 
-  
+  A unique identifier for the Annotation.
 
 phase
 *****
@@ -129,7 +129,7 @@ start
 
 .. container:: content
 
-  
+  The start coordinate of the Annotation.
 
 strand
 ******

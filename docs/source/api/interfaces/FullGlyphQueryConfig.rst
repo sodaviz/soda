@@ -27,6 +27,19 @@
 Properties
 ----------
 
+annotations
+***********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    annotations: Annotation []
+
+.. container:: content
+
+  Constrain the query to these Annotations.
+
 chart
 *****
 
@@ -38,20 +51,7 @@ chart
 
 .. container:: content
 
-  Constrain the query to Annotations rendered in this Chart.
-
-id
-**
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    id: string
-
-.. container:: content
-
-  Constrain the query to Annotations with this ID.
+  Constrain the query to glyphs rendered in this Chart.
 
 selector
 ********
@@ -64,5 +64,5 @@ selector
 
 .. container:: content
 
-  Constrain the query to Annotations with this selector.
+  Constrain the query to glyphs with this selector.
 
