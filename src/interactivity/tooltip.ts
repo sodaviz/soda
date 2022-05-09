@@ -53,6 +53,24 @@ export interface TooltipConfig<A extends Annotation, C extends Chart<any>>
    */
   textColor?: GlyphProperty<A, C, string>;
   /**
+   * The font size of the text.
+   */
+  fontSize?: GlyphProperty<A, C, number>;
+  /**
+   * The weight of the font: normal, bold, bolder, lighter. See:
+   * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-weight
+   */
+  fontWeight?: GlyphProperty<A, C, string>;
+  /**
+   * The font family that will be used. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-family
+   */
+  fontFamily?: GlyphProperty<A, C, string>;
+  /**
+   * The font style: normal, italic, or oblique. See:
+   * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-style
+   */
+  fontStyle?: GlyphProperty<A, C, string>;
+  /**
    * This defines the opacity of the tooltip.
    * @param a The Annotation object.
    * @param c The Chart that the glyph has been rendered in.
@@ -109,16 +127,21 @@ export function defaultTooltipMouseover<
   A extends Annotation,
   C extends Chart<any>
 >(s: any, d: AnnotationDatum<A, C>, config: TooltipConfig<A, C>): void {
-  const opacity = config.opacity || 1.0;
-  const backgroundColor = config.backgroundColor || "lightsteelblue";
-  const textColor = config.textColor || "black";
-  const borderRadius = config.borderRadius || 8;
-  const padding = config.padding || 4;
+  let textColor = config.textColor || "black";
+  let fontSize = config.fontSize || 10;
+  let fontWeight = config.fontWeight || "normal";
+  let fontFamily = config.fontFamily || "Titillium Web, Arial, sans-serif";
+  let fontStyle = config.fontStyle || "normal";
+  let opacity = config.opacity || 1.0;
+  let backgroundColor = config.backgroundColor || "lightsteelblue";
+  let borderRadius = config.borderRadius || 8;
+  let padding = config.padding || 6;
 
   tooltipSelection
     .style("background-color", resolveValue(backgroundColor, d))
     .style("border-radius", resolveValue(borderRadius, d) + "px")
     .style("padding", resolveValue(padding, d) + "px")
+    .interrupt()
     .transition()
     .duration(200)
     .style("opacity", resolveValue(opacity, d));
@@ -126,6 +149,10 @@ export function defaultTooltipMouseover<
   tooltipSelection
     .html(resolveValue(config.text, d))
     .style("color", resolveValue(textColor, d))
+    .style("font-size", resolveValue(fontSize, d))
+    .style("font-weight", resolveValue(fontWeight, d))
+    .style("font-family", resolveValue(fontFamily, d))
+    .style("font-style", resolveValue(fontStyle, d))
     .style("left", d3.event.pageX + "px")
     .style("top", d3.event.pageY + 20 + "px");
 }
@@ -140,10 +167,11 @@ export function defaultTooltipMouseout<A extends Annotation>(): void {
   tooltipSelection
     .transition()
     .duration(500)
-    .style("opacity", 0);
-  // prettier-ignore
-  tooltipSelection
-    .html("")
-    .style("left", "0px")
-    .style("top", "0px");
+    .style("opacity", 0)
+    .on("end", () => {
+      tooltipSelection
+        .html("")
+        .style("left", "0px")
+        .style("top", "0px");
+    })
 }
