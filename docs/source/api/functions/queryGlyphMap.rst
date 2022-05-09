@@ -28,4 +28,4 @@
 
   - config: GlyphQueryConfig
 
-  **Returns**: d3.Selection | d3.Selection <any, any, any, any> [] | undefined
+  **Returns**: d3.Selection [] | undefined

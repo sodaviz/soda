@@ -30,7 +30,6 @@ Functions
    functions/horizontalAxis
    functions/hoverBehavior
    functions/intervalGraphLayout
-   functions/keyFromQueryConfig
    functions/line
    functions/linePlot
    functions/parseBedRecords

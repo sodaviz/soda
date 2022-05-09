@@ -84,6 +84,58 @@ chart
 
   The Chart to which the interaction is applied.
 
+fontFamily
+**********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    fontFamily: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  The font family that will be used. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-family
+
+fontSize
+********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    fontSize: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  The font size of the text.
+
+fontStyle
+*********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    fontStyle: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  The font style: normal, italic, or oblique. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-style
+
+fontWeight
+**********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    fontWeight: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  The weight of the font: normal, bold, bolder, lighter. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-weight
+
 opacity
 *******
 
