@@ -103,7 +103,7 @@ id
 
 .. container:: content
 
-  
+  A unique identifier for the Annotation.
 
 itemRgb
 *******

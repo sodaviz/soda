@@ -61,7 +61,7 @@ end
 
 .. container:: content
 
-  
+  The end coordinate of the Annotation.
 
 group
 *****
@@ -87,7 +87,7 @@ id
 
 .. container:: content
 
-  
+  A unique identifier for the Annotation.
 
 start
 *****
@@ -100,7 +100,7 @@ start
 
 .. container:: content
 
-  
+  The start coordinate of the Annotation.
 
 
 Methods
