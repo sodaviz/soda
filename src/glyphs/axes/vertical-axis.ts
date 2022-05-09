@@ -84,6 +84,7 @@ export class VerticalAxisModifier<
     this.ticks = config.ticks || 5;
     this.tickSizeOuter = config.tickSizeOuter || 6;
     this.axisType = config.axisType || AxisType.Left;
+    this.applyUserSelect();
   }
 
   defaultZoom(): void {
@@ -108,6 +109,15 @@ export class VerticalAxisModifier<
 
         d3.select(nodes[i]).call(axis);
       });
+  }
+
+  applyUserSelect(): void {
+    this.applyStyle("-webkit-user-select", "none");
+    this.applyStyle("-khtml-user-select", "none");
+    this.applyStyle("-moz-user-select", "none");
+    this.applyStyle("-ms-user-select", "none");
+    this.applyStyle("-o-user-select", "none");
+    this.applyStyle("user-select", "none");
   }
 }
 

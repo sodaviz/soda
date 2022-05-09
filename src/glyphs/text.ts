@@ -80,6 +80,7 @@ export class TextModifier<
 
   defaultInitialize(): void {
     super.defaultInitialize();
+    this.applyUserSelect();
     this.applyTextAnchor();
     this.applyFontSize();
     this.applyFontWeight();
@@ -91,6 +92,15 @@ export class TextModifier<
   defaultZoom(): void {
     this.applyX();
     this.applyY();
+  }
+
+  applyUserSelect(): void {
+    this.applyStyle("-webkit-user-select", "none");
+    this.applyStyle("-khtml-user-select", "none");
+    this.applyStyle("-moz-user-select", "none");
+    this.applyStyle("-ms-user-select", "none");
+    this.applyStyle("-o-user-select", "none");
+    this.applyStyle("user-select", "none");
   }
 
   applyTextAnchor(): void {
