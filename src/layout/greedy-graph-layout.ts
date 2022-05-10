@@ -39,10 +39,7 @@ export function greedyGraphLayout<A extends Annotation>(
   vertSortFunction: {
     (verts: string[], graph: AnnotationGraph<A>): void;
   } = DEFAULT_VERTEX_SORT
-) {
-  if (ann.length == 0) {
-    return 0;
-  }
+): MapVerticalLayout {
   let graph: AnnotationGraph<A> = new AnnotationGraph(ann, tolerance);
   let colors: Map<string, number> = new Map();
   let nextColor = 0;
