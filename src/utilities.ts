@@ -14,8 +14,8 @@ export {
   GenerationPattern,
 } from "./utilities/annotation-generation";
 export {
-  slicePlotAnnotation,
-  sliceSequenceAnnotation,
+  slicePlotAnnotations,
+  sliceSequenceAnnotations,
 } from "./utilities/annotation-slice";
 export { exportPng } from "./utilities/export-png";
 export { generateId } from "./utilities/id-generation";

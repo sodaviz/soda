@@ -1,4 +1,9 @@
-import { Annotation, PlotAnnotation, SequenceAnnotation } from "../index";
+import {
+  Annotation,
+  AnnotationGroup,
+  PlotAnnotation,
+  SequenceAnnotation,
+} from "../index";
 
 /**
  * @internal
@@ -20,6 +25,12 @@ export interface SliceCoordinates {
    * The position at which the sliced annotation ends relative to the original start.
    */
   relativeEnd: number;
+}
+
+export interface SliceConfig<A extends Annotation> {
+  annotations: A[];
+  start: number;
+  end: number;
 }
 
 /**
@@ -44,44 +55,50 @@ export function getSliceCoordinates(
   };
 }
 
-export function sliceSequenceAnnotation(
-  annotation: SequenceAnnotation,
-  start: number,
-  end: number
-): SequenceAnnotation | undefined {
-  if (annotation.start < end && annotation.end > start) {
-    let sliceCoords = getSliceCoordinates(annotation, start, end);
-    return {
-      id: annotation.id,
-      start: sliceCoords.start,
-      end: sliceCoords.end,
-      sequence: annotation.sequence.slice(
-        sliceCoords.relativeStart,
-        sliceCoords.relativeEnd
-      ),
-    };
-  } else {
-    return undefined;
+export function sliceSequenceAnnotations(
+  config: SliceConfig<SequenceAnnotation>
+): AnnotationGroup<SequenceAnnotation> | undefined {
+  let group = [];
+  for (const ann of config.annotations) {
+    if (ann.start < config.end && ann.end > config.start) {
+      let sliceCoords = getSliceCoordinates(ann, config.start, config.end);
+      group.push({
+        id: ann.id,
+        start: sliceCoords.start,
+        end: sliceCoords.end,
+        sequence: ann.sequence.slice(
+          sliceCoords.relativeStart,
+          sliceCoords.relativeEnd
+        ),
+      });
+    }
   }
+  if (group.length > 0) {
+    return new AnnotationGroup({ annotations: group });
+  }
+  return undefined;
 }
 
-export function slicePlotAnnotation(
-  annotation: PlotAnnotation,
-  start: number,
-  end: number
-): PlotAnnotation | undefined {
-  if (annotation.start < end && annotation.end > start) {
-    let sliceCoords = getSliceCoordinates(annotation, start, end);
-    return {
-      id: annotation.id,
-      start: sliceCoords.start,
-      end: sliceCoords.end,
-      values: annotation.values.slice(
-        sliceCoords.relativeStart,
-        sliceCoords.relativeEnd
-      ),
-    };
-  } else {
-    return undefined;
+export function slicePlotAnnotations(
+  config: SliceConfig<PlotAnnotation>
+): AnnotationGroup<PlotAnnotation> | undefined {
+  let group = [];
+  for (const ann of config.annotations) {
+    if (ann.start < config.end && ann.end > config.start) {
+      let sliceCoords = getSliceCoordinates(ann, config.start, config.end);
+      group.push({
+        id: ann.id,
+        start: sliceCoords.start,
+        end: sliceCoords.end,
+        values: ann.values.slice(
+          sliceCoords.relativeStart,
+          sliceCoords.relativeEnd
+        ),
+      });
+    }
   }
+  if (group.length > 0) {
+    return new AnnotationGroup({ annotations: group });
+  }
+  return undefined;
 }

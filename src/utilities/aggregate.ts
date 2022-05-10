@@ -83,7 +83,7 @@ export function aggregateIntransitive<A extends Annotation>(
     arraySwapRemove(annCopy, 0);
     for (let idx = 0; idx < annCopy.length; idx++) {
       let annA = annCopy[idx];
-      for (const annB of group.group) {
+      for (const annB of group.annotations) {
         if (config.criterion(annA, annB)) {
           group.add(annCopy[idx]);
           arraySwapRemove(annCopy, idx);
