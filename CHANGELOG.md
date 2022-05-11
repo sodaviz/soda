@@ -15,6 +15,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2022-05-11
+
+### Changed
+- Docs updated
+- Most of the glyphs stroke-color property defaults to "none" now
+- AnnotationGroup.group property has been changed to AnnotationGroup.annotations
+- slicePlotAnnotation has become slicePlotAnnotations, arguments adjusted
+- sliceSequenceAnnotation has become sliceSequenceAnnotations, arguments adjusted
+
+### Fixed
+- Fixed VerticalLayout export from index
+- Fixed the return value of greedyGraphLayout() and heuristicGraphLayout()
 
 ## [0.11.1] - 2022-05-09
 
