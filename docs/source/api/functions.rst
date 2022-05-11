@@ -43,8 +43,8 @@ Functions
    functions/sequence
    functions/setKeySeparator
    functions/simpleText
-   functions/slicePlotAnnotation
-   functions/sliceSequenceAnnotation
+   functions/slicePlotAnnotations
+   functions/sliceSequenceAnnotations
    functions/tooltip
    functions/unmapAnnotationById
    functions/verticalAxis

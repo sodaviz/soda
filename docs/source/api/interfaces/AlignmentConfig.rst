@@ -66,19 +66,6 @@ query
 
   
 
-row
-***
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    row: number
-
-.. container:: content
-
-  
-
 start
 *****
 

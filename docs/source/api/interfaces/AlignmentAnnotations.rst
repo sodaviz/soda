@@ -27,19 +27,6 @@
 Properties
 ----------
 
-all
-***
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    all: SequenceAnnotation []
-
-.. container:: content
-
-  
-
 gaps
 ****
 

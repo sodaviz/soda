@@ -9,16 +9,16 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _sliceSequenceAnnotation:
+.. _slicePlotAnnotations:
 
-:trst-function:`sliceSequenceAnnotation`
-========================================
+:trst-function:`slicePlotAnnotations`
+=====================================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    function sliceSequenceAnnotation(annotation: SequenceAnnotation, start: number, end: number): None
+    function slicePlotAnnotations(config: SliceConfig <PlotAnnotation>): None
 
 .. container:: content
 
@@ -26,8 +26,6 @@
 
   **Parameters**
 
-  - annotation: SequenceAnnotation
-  - start: number
-  - end: number
+  - config: SliceConfig <PlotAnnotation>
 
-  **Returns**: SequenceAnnotation | undefined
+  **Returns**: AnnotationGroup | undefined

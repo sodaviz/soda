@@ -22,7 +22,7 @@
 
 .. container:: content
 
-  
+  An interface that defines the object that Charts use to store the vertical layout of glyphs.
 
 Properties
 ----------
@@ -38,7 +38,7 @@ row
 
 .. container:: content
 
-  
+  This callback is used by default to place a glyph in a Chart's row.
 
 rowCount
 ********
@@ -51,5 +51,5 @@ rowCount
 
 .. container:: content
 
-  
+  This value is used by default to set the height of a Chart to display the required number of rows.
 

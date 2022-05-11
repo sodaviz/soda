@@ -18,7 +18,7 @@
 
   .. code-block:: typescript
 
-    function heuristicGraphLayout(ann: Annotation [], nIters: number, tolerance: number): None
+    function heuristicGraphLayout(ann: Annotation [], nIters: number, tolerance: number): MapVerticalLayout
 
 .. container:: content
 
@@ -30,4 +30,4 @@
   - nIters: number
   - tolerance: number
 
-  **Returns**: None | None
+  **Returns**: MapVerticalLayout

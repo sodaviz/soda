@@ -31,6 +31,19 @@
 Properties
 ----------
 
+annotations
+***********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    annotations: undefined | A []
+
+.. container:: content
+
+  
+
 end
 ***
 
@@ -39,19 +52,6 @@ end
   .. code-block:: typescript
 
     end: undefined | number
-
-.. container:: content
-
-  
-
-group
-*****
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    group: undefined | A []
 
 .. container:: content
 
