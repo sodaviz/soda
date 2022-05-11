@@ -9,16 +9,16 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _keyFromQueryConfig:
+.. _sliceSequenceAnnotations:
 
-:trst-function:`keyFromQueryConfig`
-===================================
+:trst-function:`sliceSequenceAnnotations`
+=========================================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    function keyFromQueryConfig(config: FullGlyphQueryConfig): string
+    function sliceSequenceAnnotations(config: SliceConfig <SequenceAnnotation>): None
 
 .. container:: content
 
@@ -26,6 +26,6 @@
 
   **Parameters**
 
-  - config: FullGlyphQueryConfig
+  - config: SliceConfig <SequenceAnnotation>
 
-  **Returns**: string
+  **Returns**: AnnotationGroup | undefined

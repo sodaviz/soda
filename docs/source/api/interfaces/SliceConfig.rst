@@ -9,58 +9,62 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _MapVerticalLayout:
+.. _SliceConfig:
 
-:trst-class:`MapVerticalLayout`
-===============================
+:trst-class:`SliceConfig`
+=========================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    interface MapVerticalLayout
+    interface SliceConfig<A extends Annotation>
 
 .. container:: content
 
-  An extension of VerticalLayout that additionally has a Map. This object is returned by SODA's default layout functions, and the Map is used to build the row() callback.
+  
+
+  **Type parameters**
+
+    - A: Annotation
 
 Properties
 ----------
 
-row
+annotations
+***********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    annotations: A []
+
+.. container:: content
+
+  
+
+end
 ***
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    row: GlyphCallback <Annotation, Chart <any>, number>
+    end: number
 
 .. container:: content
 
-  This callback is used by default to place a glyph in a Chart's row.
+  
 
-rowCount
-********
+start
+*****
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    rowCount: number
-
-.. container:: content
-
-  This value is used by default to set the height of a Chart to display the required number of rows.
-
-rowMap
-******
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    rowMap: Map <string, number>
+    start: number
 
 .. container:: content
 

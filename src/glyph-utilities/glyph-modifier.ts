@@ -106,7 +106,7 @@ export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
         ? config.height
         : (d: AnnotationDatum<A, C>) => d.c.rowHeight - 4;
     this.strokeWidth = config.strokeWidth;
-    this.strokeColor = config.strokeColor || "black";
+    this.strokeColor = config.strokeColor || "none";
     this.strokeOpacity = config.strokeOpacity;
     this.strokeDashArray = config.strokeDashArray;
     this.strokeDashOffset = config.strokeDashOffset;

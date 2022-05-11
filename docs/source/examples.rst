@@ -44,7 +44,7 @@ Simple rectangles
 
 .. code-block:: typescript
 
-    import * as soda from "https://cdn.skypack.dev/@sodaviz/soda@0.11.0";
+    import * as soda from "https://cdn.skypack.dev/@sodaviz/soda@0.12.0";
 
     let chart = new soda.Chart({
       selector: "div#soda-chart",
@@ -57,13 +57,7 @@ Simple rectangles
       .then(annotations => chart.render({ annotations });
 
 .. raw:: html
-
-    <p class="codepen" data-height="300" data-default-tab="result" data-slug-hash="rNJeyKO" data-preview="true" data-editable="true" data-user="jackroddy" style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
-      <span>See the Pen <a href="https://codepen.io/jackroddy/pen/rNJeyKO">
-      simple rectangles 0.10.1</a> by Jack Roddy (<a href="https://codepen.io/jackroddy">@jackroddy</a>)
-      on <a href="https://codepen.io">CodePen</a>.</span>
-    </p>
-    <script async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>
+    :file: _static/codepen-examples/rectangles.html
 
 ----
 
@@ -72,7 +66,7 @@ Styled rectangles
 
 .. code-block:: typescript
     
-    import * as soda from "https://cdn.skypack.dev/@sodaviz/soda@0.11.0";
+    import * as soda from "https://cdn.skypack.dev/@sodaviz/soda@0.12.0";
     import * as d3 from "https://cdn.skypack.dev/d3@7.4.4";
     
     // we'll use this D3 color scale later to easily pick colors
@@ -116,15 +110,8 @@ Styled rectangles
       .then(response => response.json())
       .then(annotations => chart.render({ annotations });
 
-
 .. raw:: html
-
-    <p class="codepen" data-height="300" data-default-tab="result" data-slug-hash="YzeqZvE" data-preview="true" data-editable="true" data-user="jackroddy" style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
-      <span>See the Pen <a href="https://codepen.io/jackroddy/pen/YzeqZvE">
-      styled rectangles 0.10.1</a> by Jack Roddy (<a href="https://codepen.io/jackroddy">@jackroddy</a>)
-      on <a href="https://codepen.io">CodePen</a>.</span>
-    </p>
-    <script async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>
+    :file: _static/codepen-examples/styled-rectangles.html
 
 ----
 
@@ -133,7 +120,7 @@ Dynamic text
 
 .. code-block:: typescript
 
-    import * as soda from "https://cdn.skypack.dev/@sodaviz/soda@0.11.0";
+    import * as soda from "https://cdn.skypack.dev/@sodaviz/soda@0.12.0";
     import * as d3 from "https://cdn.skypack.dev/d3@7.4.4";
     
     let colors = d3.scaleOrdinal(d3.schemeTableau10);
@@ -175,15 +162,8 @@ Dynamic text
       .then((response) => response.json())
       .then((annotations) => chart.render({ annotations }));
 
-
 .. raw:: html
-
-    <p class="codepen" data-height="300" data-default-tab="result" data-slug-hash="JjpYQmG" data-preview="true" data-editable="true" data-user="jackroddy" style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
-      <span>See the Pen <a href="https://codepen.io/jackroddy/pen/JjpYQmG">
-      text</a> by Jack Roddy (<a href="https://codepen.io/jackroddy">@jackroddy</a>)
-      on <a href="https://codepen.io">CodePen</a>.</span>
-    </p>
-    <script async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>
+    :file: _static/codepen-examples/text.html
 
 ----
 
@@ -192,7 +172,7 @@ Interactivity
 
 .. code-block:: typescript
 
-    import * as soda from "https://cdn.skypack.dev/@sodaviz/soda@0.11.0";
+    import * as soda from "https://cdn.skypack.dev/@sodaviz/soda@0.12.0";
     import * as d3 from "https://cdn.skypack.dev/d3@7.4.4";
     
     let colors = d3.scaleOrdinal(d3.schemeTableau10);
@@ -255,17 +235,8 @@ Interactivity
       .then((response) => response.json())
       .then((annotations) => chart.render({ annotations }));
 
-
-
-
 .. raw:: html
-
-    <p class="codepen" data-height="300" data-default-tab="result" data-slug-hash="QWQNpxP" data-preview="true" data-editable="true" data-user="jackroddy" style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
-      <span>See the Pen <a href="https://codepen.io/jackroddy/pen/QWQNpxP">
-      interactions 0.10.1</a> by Jack Roddy (<a href="https://codepen.io/jackroddy">@jackroddy</a>)
-      on <a href="https://codepen.io">CodePen</a>.</span>
-    </p>
-    <script async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>
+    :file: _static/codepen-examples/interactions.html
 
 ----
 
@@ -274,7 +245,7 @@ Plot annotations
 
 .. code-block:: typescript
 
-    import * as soda from "https://cdn.skypack.dev/@sodaviz/soda@0.11.0";
+    import * as soda from "https://cdn.skypack.dev/@sodaviz/soda@0.12.0";
     
     interface CustomRenderParams extends soda.RenderParams {
       annotations: PlotAnnotation[];
@@ -306,14 +277,7 @@ Plot annotations
       .then((annotations) => chart.render({ annotations }));
 
 .. raw:: html
-
-    <p class="codepen" data-height="300" data-default-tab="result" data-slug-hash="qBxZrym" data-preview="true" data-editable="true" data-user="jackroddy" style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
-      <span>See the Pen <a href="https://codepen.io/jackroddy/pen/qBxZrym">
-      plots 0.10.1</a> by Jack Roddy (<a href="https://codepen.io/jackroddy">@jackroddy</a>)
-      on <a href="https://codepen.io">CodePen</a>.</span>
-    </p>
-    <script async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>
-
+    :file: _static/codepen-examples/plots.html
 
 ----
 
@@ -322,7 +286,7 @@ Sequence annotations
 
 .. code-block:: typescript
 
-    import * as soda from "https://cdn.skypack.dev/@sodaviz/soda@0.11.0";
+    import * as soda from "https://cdn.skypack.dev/@sodaviz/soda@0.12.0";
     
     interface CustomRenderParams extends soda.RenderParams {
       annotations: SequenceAnnotation[];
@@ -346,13 +310,7 @@ Sequence annotations
       .then((annotations) => chart.render({ annotations }));
 
 .. raw:: html
-
-    <p class="codepen" data-height="300" data-default-tab="result" data-slug-hash="QWQNpBR" data-preview="true" data-editable="true" data-user="jackroddy" style="height: 300px; box-sizing: border-box; display: flex; align-items: center; justify-content: center; border: 2px solid; margin: 1em 0; padding: 1em;">
-      <span>See the Pen <a href="https://codepen.io/jackroddy/pen/QWQNpBR">
-      sequence 0.10.1</a> by Jack Roddy (<a href="https://codepen.io/jackroddy">@jackroddy</a>)
-      on <a href="https://codepen.io">CodePen</a>.</span>
-    </p>
-    <script async src="https://cpwebassets.codepen.io/assets/embed/ei.js"></script>
+    :file: _static/codepen-examples/sequence.html
 
 .. _CodePen: https://codepen.io/
 .. _fetch: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch

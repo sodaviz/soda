@@ -5,7 +5,7 @@ export interface AnnotationGroupConfig<A extends Annotation> {
   id?: string;
   start?: number;
   end?: number;
-  group?: A[];
+  annotations?: A[];
 }
 
 /**
@@ -19,15 +19,15 @@ export class AnnotationGroup<A extends Annotation> implements Annotation {
   /**
    * The group of Annotations that live in this object.
    */
-  group: A[] = [];
+  annotations: A[] = [];
 
   constructor(config: AnnotationGroupConfig<A>) {
     this.id =
       config.id != undefined ? config.id : generateId("annotation-group");
     this.start = config.start || 0;
     this.end = config.end || 0;
-    if (config.group != undefined) {
-      for (const ann of config.group) {
+    if (config.annotations != undefined) {
+      for (const ann of config.annotations) {
         this.add(ann);
       }
     }
@@ -52,7 +52,7 @@ export class AnnotationGroup<A extends Annotation> implements Annotation {
    * @protected
    */
   protected addAnnotation(ann: A) {
-    if (this.group.length == 0) {
+    if (this.annotations.length == 0) {
       this.start = ann.start;
       this.end = ann.end;
     } else {
@@ -62,6 +62,6 @@ export class AnnotationGroup<A extends Annotation> implements Annotation {
       this.start = Math.min(this.start, ann.start);
       this.end = Math.max(this.end, ann.end);
     }
-    this.group.push(ann);
+    this.annotations.push(ann);
   }
 }

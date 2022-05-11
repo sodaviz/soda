@@ -63,6 +63,7 @@ export class LinePlotModifier<
   constructor(config: LinePlotModifierConfig<A, C>) {
     super(config);
     this.pathData = config.pathData || defaultLineFn;
+    this.strokeColor = config.strokeColor || "black";
     this.fillColor = config.fillColor || "none";
   }
 

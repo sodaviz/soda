@@ -39,6 +39,7 @@ Interfaces
    interfaces/SequenceAnnotation
    interfaces/SequenceConfig
    interfaces/SimpleTextConfig
+   interfaces/SliceConfig
    interfaces/TooltipConfig
    interfaces/VerticalAxisConfig
    interfaces/VerticalLayout

@@ -50,6 +50,19 @@ Constructors
 Properties
 ----------
 
+annotations
+***********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    annotations: A []
+
+.. container:: content
+
+  The group of Annotations that live in this object.
+
 end
 ***
 
@@ -62,19 +75,6 @@ end
 .. container:: content
 
   The end coordinate of the Annotation.
-
-group
-*****
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    group: A []
-
-.. container:: content
-
-  The group of Annotations that live in this object.
 
 id
 **

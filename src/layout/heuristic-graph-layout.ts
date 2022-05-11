@@ -2,6 +2,7 @@ import { Annotation } from "../annotations/annotation";
 import { AnnotationGraph } from "./annotation-graph";
 import { AnnotationDatum } from "../glyph-utilities/bind";
 import { Chart } from "../charts/chart";
+import { MapVerticalLayout } from "./vertical-layout";
 
 /**
  * This function takes a list of Annotation objects and uses a non-deterministic greedy graph coloring heuristic to
@@ -15,11 +16,7 @@ export function heuristicGraphLayout(
   ann: Annotation[],
   nIters: number = 100,
   tolerance: number = 0
-) {
-  if (ann.length == 0) {
-    return 0;
-  }
-
+): MapVerticalLayout {
   const graph = new AnnotationGraph(ann, tolerance);
 
   // we will make copies of the maps, since the
