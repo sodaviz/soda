@@ -59,6 +59,7 @@ export class LineModifier<
       ((d: AnnotationDatum<A, C>) =>
         (resolveValue(this.row, d) + 0.5) * d.c.rowHeight);
     this.y2 = config.y2 || this.y1;
+    this.strokeColor = config.strokeColor || "black";
   }
 
   defaultZoom() {
