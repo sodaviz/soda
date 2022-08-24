@@ -1,6 +1,8 @@
 // This code was adapted from https://github.com/vasturiano/d3-radial-axis
 //
-// For posterity, we will maintain the original license:
+// The source code in this file is licensed under the MIT license.
+//
+// For posterity, we will maintain the original license here:
 //
 // MIT License
 //
