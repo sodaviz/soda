@@ -12,6 +12,7 @@ Guide
     guide/overview
     guide/annotations
     guide/charts
+    guide/data
     guide/rendering
     guide/interactivity
     
