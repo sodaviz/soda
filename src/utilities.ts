@@ -17,6 +17,7 @@ export {
   slicePlotAnnotations,
   sliceSequenceAnnotations,
 } from "./utilities/annotation-slice";
+export { AugmentConfig, augment } from "./utilities/augment";
 export { exportPng } from "./utilities/export-png";
 export { generateId } from "./utilities/id-generation";
 export { internalD3 } from "./utilities/soda-d3";
