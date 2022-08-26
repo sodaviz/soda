@@ -13,6 +13,8 @@ Interfaces
    interfaces/AnnotationGroupConfig
    interfaces/ArcConfig
    interfaces/AreaConfig
+   interfaces/AugmentConfig
+   interfaces/AugmentParam
    interfaces/BarPlotConfig
    interfaces/BedAnnotation
    interfaces/ChartConfig

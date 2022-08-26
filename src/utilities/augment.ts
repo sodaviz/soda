@@ -1,6 +1,23 @@
 import { Annotation } from "../annotations/annotation";
 
 /**
+ * An interface that describes a parameter in a call to the augment function.
+ */
+export interface AugmentParam<T, V> {
+  /**
+   * The callback function used to compute the value for the property.
+   * @param t
+   */
+  fn: (t: T) => V;
+  /**
+   * If this is set to true, the callback function will be added as a getter on the target object. If this is false
+   * or omitted, the callback function will be evaluated once and the resulting value will be added on the object as
+   * a real property.
+   */
+  virtual?: boolean;
+}
+
+/**
  * An interface that defines the parameters for a call to the augment function.
  */
 export interface AugmentConfig<T> {
@@ -9,26 +26,17 @@ export interface AugmentConfig<T> {
    */
   objects: T[];
   /**
-   * An anonymous object that describes how to compute the Annotation.id property.
+   * An AugmentParam that describes how to compute the Annotation.id property.
    */
-  id?: {
-    fn: (t: T) => string;
-    virtual?: boolean;
-  };
+  id?: AugmentParam<T, string>;
   /**
-   * An anonymous object that describes how to compute the Annotation.start property.
+   * An AugmentParam that describes how to compute the Annotation.start property.
    */
-  start?: {
-    fn: (t: T) => number;
-    virtual?: boolean;
-  };
+  start?: AugmentParam<T, number>;
   /**
-   * An anonymous object that describes how to compute the Annotation.end property.
+   * An AugmentParam that describes how to compute the Annotation.end property.
    */
-  end?: {
-    fn: (t: T) => number;
-    virtual?: boolean;
-  };
+  end?: AugmentParam<T, number>;
   /**
    * If this is set to true, this skips the validation on the returned objects. That means that the function will be
    * happy to return objects that fail to implement Annotation.
@@ -74,20 +82,15 @@ function validate(objects: any[]) {
  * This takes a list of any object T, and a set of callback functions that describe how to give it the id, start,
  * and end properties that satisfy the Annotation interface. The idea here is to allow you to get valid Annotation
  * objects without having to write a class.
- *
- * Each property function is wrapped in an anonymous object that itself has one other boolean property called
+ * Each property function is wrapped in an AugmentParam object has one other boolean property called
  * "virtual." If virtual is set to true, the callback function will be applied as a getter for its corresponding
  * property. If virtual is false or undefined, the callback function will be evaluated while augment() is running
  * and the value will be applied as a real property on the object.
- *
  * Finally, the augment function checks to make sure that each Annotation property on each object has the correct
  * type, throwing an exception if there are any incorrect types. This check can be skipped by setting skipValidate
  * to true, probably improving performance measurably. You'll want to be careful if you decide to skip the
  * validation, and if you're really worried about performance you'll probably want to avoid using this function
  * altogether and write a proper class.
- *
- * ** This function is more than capable of sidestepping the type system and clobbering your objects if it's used
- * improperly.
  *
  * @param config
  */
