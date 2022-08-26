@@ -18,7 +18,7 @@
 
   .. code-block:: typescript
 
-    function resolveValue<A extends Annotation, C extends Chart, V>(property: GlyphProperty <A, C, V>, d: AnnotationDatum <A, C>): V
+    function resolveValue<A extends Annotation, C extends Chart, V extends generic>(property: GlyphProperty <A, C, V>, d: AnnotationDatum <A, C>): V
 
 .. container:: content
 

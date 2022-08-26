@@ -8,6 +8,7 @@ Functions
    functions/aggregateTransitive
    functions/arc
    functions/area
+   functions/augment
    functions/axisRadialInner
    functions/axisRadialOuter
    functions/barPlot
