@@ -195,17 +195,21 @@ Once we've got the response structure figured out, we can start crafting our dat
     }
 
 
-Fetch requests, object serialization, and augmentation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Producing proper Annotation objects
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Now we can serialize a response into objects, but we need a way to shape them into a form that SODA is happy to work with.
 
 Our :code:`PfamRecord` interface fails to comply with the :ref:`Annotation` interface in two ways:
 (i) we've got the :code:`start` and :code:`end` properties, but they are named :code:`chromStart` and :code:`chromEnd`; and (ii) we don't have the :code:`id` property, and we don't actually have any data that could be used for it.
+Here, we'll look at a couple strategies to fix these issues.
 
-We can fix these issues using SODA's :ref:`augment` function.
+Using augment()
+***************
+
+One approach is to use SODA's :ref:`augment` function.
 In short, :code:`augment()` takes a list of any JavaScript objects and some instructions on how to transform them into objects that comply with the Annotation interface.
-There's a subtle but important nuance to using :code:`augment()`: if you supply a *value* in the configuration, the value will be added as a real property on the object, but if you supply a *function*, the function will be added as a `getter`_ for that property.
+There's a subtle but important nuance to using :code:`augment()`: if you set the virtual flag to true on a property, the callback function will be evaluated and the value will be added as a real property on the object, but if you omit virtual or set it to false, the callback function will be added as a `getter`_ for that property.
 
 .. note::
     
@@ -224,14 +228,49 @@ There's a subtle but important nuance to using :code:`augment()`: if you supply 
     .then((response) => response.json())
     .then((response: UcscResponse) => response.ucscGenePfam)
     .then((records: PfamRecord[]) =>
-      soda.augment<PfamRecord>({     // <- augment has a generic type parameter R, and
-        annotations: records,        //    it returns the type (R & soda.Annotation)
-        id: soda.generateId("pfam"), // <- function call supplied = value
-        start: (r) => r.chromStart,  // <- function supplied = getter
-        end: (r) => r.chromEnd,
+      soda.augment<PfamRecord>({  // <- augment has a generic type parameter R, and
+        objects: records,         //    it returns the type (R & soda.Annotation)
+        id: { fn: () => soda.generateId("pfam") },         // <- real property
+        start: { fn: (r) => r.chromStart, virtual: true }, // <- getter
+        end: { fn: (r) => r.chromEnd, virtual: true },     // <- getter
       })
     )
     .then((annotations: PfamAnnotation[]) => doSomething(annotations));
+
+Writing a class
+***************
+
+If you want a bit more control over your objects, you can write a class instead.
+That might look something like:
+
+.. code-block:: typescript
+
+    class PfamAnnotation implements soda.Annotation {
+      id: string;
+      start: number;
+      end: number;
+      score: number;
+      strand: string;
+    
+      constructor(record: PfamRecord) {
+        this.id = soda.generateId("pfam");
+        this.start = record.chromStart;
+        this.end = record.chromEnd;
+        this.score = record.score;
+        this.strand = record.strand;
+      }
+    }
+    fetch(
+      "https://api.genome.ucsc.edu/getData/track?genome=hg38;track=ucscGenePfam;chrom=chr1;start=0;end=100000"
+    )
+      .then((response) => response.json())
+      .then((response: UcscResponse) => response.ucscGenePfam)
+      .then((records: PfamRecord[]) => records.map((r) => new PfamAnnotation(r)))
+      .then((annotations: PfamAnnotation[]) => {
+        console.log(annotations);
+        chart.render({ annotations });
+      });
+
 
 ----
 
@@ -298,7 +337,7 @@ BED or GFF3 files
 If the file is BED or GFF3 formatted, you can use SODA's parsers to produce objects.
 For example, let's say you loaded a the following BED data into the browser as a string:
 
-.. code-block:: 
+.. code-block::
 
     chr7    127471196  127472363  Pos1  0  +  127471196  127472363  255,0,0
     chr7    127472363  127473530  Pos2  0  +  127472363  127473530  255,0,0
