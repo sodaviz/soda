@@ -70,6 +70,9 @@ export interface GlyphModifier<A extends Annotation, C extends Chart<any>>
 
 /**
  * The base class that manages the styling and positioning of glyphs.
+ *
+ * IMPORTANT NOTE: the GlyphModifier class is merged with the GlyphModifier interface, which itself extends the
+ * GlyphModifierConfig interface. This allows it to inherit the properties from the both GlyphModifier and GlyphConfig.
  * @internal
  */
 export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
