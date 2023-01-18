@@ -1,6 +1,6 @@
 .PHONY: build
 build:
-	rm -rf build
+	rm -rf dist/
 	npx tsc --build tsconfig.json
 
 bundle:
