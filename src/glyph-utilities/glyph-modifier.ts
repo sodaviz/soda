@@ -4,17 +4,13 @@ import { Chart } from "../charts/chart";
 import { GlyphConfig } from "./glyph-config";
 import { AnnotationDatum } from "./bind";
 import {
+  AnnotationDatumSelection,
   applyPropertyPolicy,
   callbackifyOrDefault,
   GlyphCallback,
-  PropertyRule,
+  GlyphPropertyPolicy,
   resolveGlyphProperty,
 } from "./glyph-property";
-
-export type AnnotationDatumSelection<
-  A extends Annotation,
-  C extends Chart<any>
-> = d3.Selection<any, AnnotationDatum<A, C>, any, any>;
 
 /**
  * An interface that defines the parameters to initialize a GlyphModifier.
@@ -29,14 +25,6 @@ export interface GlyphModifierConfig<
    * A D3 selection of the glyphs that the modifier will manage.
    */
   selection: d3.Selection<any, AnnotationDatum<A, C>, any, any>;
-}
-
-export interface GlyphPropertyPolicy<
-  A extends Annotation,
-  C extends Chart<any>
-> {
-  attributeRuleMap: Map<string, PropertyRule<A, C>[]>;
-  styleRuleMap: Map<string, PropertyRule<A, C>[]>;
 }
 
 export const UserSelectNonePolicy = [

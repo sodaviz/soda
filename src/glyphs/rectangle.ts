@@ -27,6 +27,9 @@ export interface RectangleConfig<A extends Annotation, C extends Chart<any>>
   ry?: GlyphProperty<A, C, number>;
 }
 
+/**
+ * @internal
+ */
 export class RectangleModifier<
   A extends Annotation,
   C extends Chart<any>

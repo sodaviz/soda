@@ -43,6 +43,9 @@ export function getAxis(
   }
 }
 
+/**
+ * @internal
+ */
 export interface AxisConfig<A extends Annotation, C extends Chart<any>>
   extends GlyphConfig<A, C> {
   /**
@@ -105,6 +108,9 @@ export interface AxisConfig<A extends Annotation, C extends Chart<any>>
   labelFillOpacity?: GlyphProperty<A, C, number>;
 }
 
+/**
+ * @internal
+ */
 export class AxisModifier<
   A extends Annotation,
   C extends Chart<any>

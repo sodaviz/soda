@@ -2,8 +2,10 @@ import { Annotation } from "../annotations/annotation";
 import { Chart } from "../charts/chart";
 import { AnnotationDatum } from "./bind";
 import * as d3 from "d3";
-import { GlyphPropertyPolicy } from "./glyph-modifier";
 
+/**
+ * @internal
+ */
 type DemoteGlyphProperties<A extends Annotation, C extends Chart<any>, T> = {
   [prop in keyof T]: T[prop] extends GlyphProperty<A, C, string>
     ? GlyphCallback<A, C, string>
@@ -14,6 +16,9 @@ type DemoteGlyphProperties<A extends Annotation, C extends Chart<any>, T> = {
     : T[prop];
 };
 
+/**
+ * @internal
+ */
 type PromoteGlyphCallbacks<A extends Annotation, C extends Chart<any>, T> = {
   [prop in keyof T]: T[prop] extends GlyphCallback<A, C, string>
     ? GlyphProperty<A, C, string>
@@ -63,6 +68,9 @@ export function callbackify<A extends Annotation, C extends Chart<any>, V>(
   }
 }
 
+/**
+ * @internal
+ */
 export function callbackifyOrDefault<
   A extends Annotation,
   C extends Chart<any>,
@@ -93,6 +101,9 @@ export function resolveGlyphProperty<
   return property;
 }
 
+/**
+ * @internal
+ */
 export interface PropertyRule<A extends Annotation, C extends Chart<any>> {
   key: string;
   property: GlyphProperty<A, C, number | string | boolean> | undefined;
@@ -100,6 +111,7 @@ export interface PropertyRule<A extends Annotation, C extends Chart<any>> {
 
 /**
  * This defines the parameters for a call to the applyStyle() and applyAttribute() functions.
+ * @internal
  */
 export interface PropertyConfig<A extends Annotation, C extends Chart<any>> {
   /**
@@ -154,6 +166,28 @@ export function applyAttribute<A extends Annotation, C extends Chart<any>>(
   }
 }
 
+/**
+ * @internal
+ */
+export type AnnotationDatumSelection<
+  A extends Annotation,
+  C extends Chart<any>
+> = d3.Selection<any, AnnotationDatum<A, C>, any, any>;
+
+/**
+ * @internal
+ */
+export interface GlyphPropertyPolicy<
+  A extends Annotation,
+  C extends Chart<any>
+> {
+  attributeRuleMap: Map<string, PropertyRule<A, C>[]>;
+  styleRuleMap: Map<string, PropertyRule<A, C>[]>;
+}
+
+/**
+ * @internal
+ */
 export interface PolicyApplicationConfig<
   A extends Annotation,
   C extends Chart<any>
@@ -164,6 +198,9 @@ export interface PolicyApplicationConfig<
   context: string;
 }
 
+/**
+ * @internal
+ */
 export function applyPropertyPolicy<A extends Annotation, C extends Chart<any>>(
   config: PolicyApplicationConfig<A, C>
 ) {
