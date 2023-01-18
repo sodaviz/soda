@@ -1,8 +1,11 @@
 import { Chart } from "../charts/chart";
 import * as d3 from "d3";
 import { PlotAnnotation } from "../annotations/plot-annotation";
-import { GlyphProperty, resolveValue } from "../glyph-utilities/glyph-modifier";
 import { AnnotationDatum } from "../glyph-utilities/bind";
+import {
+  GlyphProperty,
+  resolveGlyphProperty,
+} from "../glyph-utilities/glyph-property";
 
 /**
  * This defines the parameters for a call to the setYScales function.
@@ -40,8 +43,8 @@ export function initializePlotGlyphYScales<
       d.a.id,
       d3
         .scaleLinear()
-        .domain(resolveValue(domain, d))
-        .range(resolveValue(range, d))
+        .domain(resolveGlyphProperty(domain, d))
+        .range(resolveGlyphProperty(range, d))
     );
   }
 }

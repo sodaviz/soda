@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import { BindTarget } from "./bind";
 import { Annotation } from "../annotations/annotation";
 import { Chart } from "../charts/chart";
-import { GlyphProperty } from "./glyph-modifier";
+import { GlyphProperty } from "./glyph-property";
 
 export interface GlyphConfig<A extends Annotation, C extends Chart<any>> {
   /**
@@ -112,18 +112,4 @@ export interface GlyphConfig<A extends Annotation, C extends Chart<any>> {
    * @param c
    */
   fillOpacity?: GlyphProperty<A, C, number>;
-  /**
-   * A callback function that will be passed to the GlyphModifier that will manage the glyphs created with this
-   * config. If provided, this callback function will override the GlyphModifier's initialization method, which
-   * typically sets most of the style related properties from the GlyphConfig. Don't use this unless you know what
-   * you're doing.
-   */
-  initializeFn?: (this: any) => void;
-  /**
-   * A callback function that will be passed to the GlyphModifier that will manage the glyphs created with this
-   * config. If provided, this callback function will override the GlyphModifier's zoom method, which typically sets
-   * most of the positioning related properties from the GlyphConfig. Don't use this unless you know what
-   * you're doing.
-   */
-  zoomFn?: (this: any) => void;
 }

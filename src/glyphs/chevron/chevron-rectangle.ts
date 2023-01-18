@@ -1,10 +1,9 @@
 import * as d3 from "d3";
 import { Chart } from "../../charts/chart";
 import { generateId } from "../../utilities/id-generation";
-import { RectangleConfig } from "../rectangle";
+import { RectangleConfig, RectangleModifier } from "../rectangle";
 import { Annotation } from "../../annotations/annotation";
 import { bind } from "../../glyph-utilities/bind";
-import { GlyphModifier } from "../../glyph-utilities/glyph-modifier";
 import { ChevronPatternModifier } from "./chevron-pattern";
 import { ChevronGlyphConfig } from "../chevron";
 
@@ -57,7 +56,7 @@ export function chevronRectangle<A extends Annotation, C extends Chart<any>>(
     selection: patternBinding.merge,
   });
 
-  let rectModifier = new GlyphModifier({
+  let rectModifier = new RectangleModifier({
     ...config,
     selector: rectSelectorInternal,
     selection: rectBinding.merge,
@@ -65,10 +64,8 @@ export function chevronRectangle<A extends Annotation, C extends Chart<any>>(
     strokeColor: config.strokeColor || "black",
   });
 
-  patternModifier.initialize();
-  rectModifier.initialize();
-  config.chart.glyphModifiers.push(patternModifier);
-  config.chart.glyphModifiers.push(rectModifier);
+  config.chart.addGlyphModifier(patternModifier);
+  config.chart.addGlyphModifier(rectModifier);
 
   return outerBinding.g;
 }

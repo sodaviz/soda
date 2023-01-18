@@ -2,17 +2,18 @@ import { Chart } from "../../charts/chart";
 import { generateId } from "../../utilities/id-generation";
 import { Annotation } from "../../annotations/annotation";
 import { bind } from "../../glyph-utilities/bind";
-import { GlyphModifier } from "../../glyph-utilities/glyph-modifier";
 import * as d3 from "d3";
-import { LineModifier } from "../line";
+import { LineConfig, LineModifier } from "../line";
 import { ChevronPatternModifier } from "./chevron-pattern";
 import { ChevronGlyphConfig } from "../chevron";
+import { RectangleModifier } from "../rectangle";
 
 /**
  * An interface that defines the parameters for a call to the chevronLine rendering function.
  */
 export interface ChevronLineConfig<A extends Annotation, C extends Chart<any>>
-  extends ChevronGlyphConfig<A, C> {}
+  extends ChevronGlyphConfig<A, C>,
+    LineConfig<A, C> {}
 
 /**
  * This renders Annotations as lines with chevron arrows in a Chart.
@@ -60,7 +61,7 @@ export function chevronLine<A extends Annotation, C extends Chart<any>>(
     selection: patternBinding.merge,
   });
 
-  let rectModifier = new GlyphModifier({
+  let rectModifier = new RectangleModifier({
     ...config,
     selector: rectSelector,
     selection: rectBinding.merge,

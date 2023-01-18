@@ -6,9 +6,9 @@ import { AnnotationDatum, bind } from "../glyph-utilities/bind";
 import {
   GlyphModifier,
   GlyphModifierConfig,
-  resolveValue,
 } from "../glyph-utilities/glyph-modifier";
 import { GlyphConfig } from "../glyph-utilities/glyph-config";
+import { callbackifyOrDefault } from "../glyph-utilities/glyph-property";
 
 /**
  * An interface that defines the parameters for a call to the sequence rendering function.
@@ -16,19 +16,7 @@ import { GlyphConfig } from "../glyph-utilities/glyph-config";
 export interface SequenceConfig<
   S extends SequenceAnnotation,
   C extends Chart<any>
-> extends GlyphConfig<S, C> {
-  initializeFn?: (this: SequenceModifier<S, C>) => void;
-  zoomFn?: (this: SequenceModifier<S, C>) => void;
-}
-
-/**
- * An interface that defines the parameters to instantiate a SequenceModifier.
- * @internal
- */
-export type SequenceModifierConfig<
-  S extends SequenceAnnotation,
-  C extends Chart<any>
-> = GlyphModifierConfig<S, C> & SequenceConfig<S, C>;
+> extends GlyphConfig<S, C> {}
 
 /**
  * A class that manages the styling and positioning of a group of sequence glyphs.
@@ -38,35 +26,55 @@ export class SequenceModifier<
   S extends SequenceAnnotation,
   C extends Chart<any>
 > extends GlyphModifier<S, C> {
-  fontFamily: string;
   offset: number = 0;
 
-  constructor(config: SequenceModifierConfig<S, C>) {
+  constructor(config: GlyphModifierConfig<S, C> & SequenceConfig<S, C>) {
     super(config);
-    this.strokeColor = config.strokeColor || "none";
-    this.y =
-      config.y ||
-      ((d: AnnotationDatum<S, C>) =>
-        (resolveValue(this.row, d) + 1) * d.c.rowHeight - 2);
-    this.x =
-      config.x ||
-      ((d: AnnotationDatum<S, C>) => d.c.xScale(d.a.start) - this.offset);
 
-    this.fontFamily = "monospace";
+    this.x = callbackifyOrDefault(
+      config.x,
+      (d: AnnotationDatum<S, C>) => d.c.xScale(d.a.start) - this.offset
+    );
+
+    this.initializePolicy.attributeRuleMap.set("group", [
+      { key: "id", property: this.id },
+      { key: "y", property: this.y },
+    ]);
+
+    this.initializePolicy.styleRuleMap.set("group", [
+      { key: "font-family", property: "monospace" },
+      { key: "dominant-baseline", property: "hanging" },
+      { key: "stroke-width", property: config.strokeWidth },
+      { key: "stroke-opacity", property: config.strokeOpacity },
+      { key: "stroke", property: config.strokeColor },
+      { key: "stroke-dash-array", property: config.strokeDashArray },
+      { key: "stroke-dash-offset", property: config.strokeDashOffset },
+      { key: "fill", property: config.fillColor },
+      { key: "fill-opacity", property: config.fillOpacity },
+    ]);
+
+    this.zoomPolicy.attributeRuleMap.set("group", [
+      { key: "x", property: this.x },
+      {
+        key: "textLength",
+        property: (d) =>
+          d.c.xScale(d.a.start + (d.a.end - d.a.start) - 1) -
+          d.c.xScale(d.a.start) +
+          2 * this.offset,
+      },
+    ]);
+
     this.updateOffset();
   }
 
-  defaultInitialize() {
-    super.defaultInitialize();
+  initialize() {
+    super.initialize();
     this.selection.text((d) => d.a.sequence);
-    this.applyFontFamily();
   }
 
-  defaultZoom() {
+  zoom() {
+    super.zoom();
     this.updateOffset();
-    this.applyTextLength();
-    this.applyX();
-    this.applyY();
   }
 
   updateOffset() {
@@ -75,26 +83,12 @@ export class SequenceModifier<
     let width = selection
       .append("text")
       .text("A")
-      .attr("font-family", this.fontFamily)
+      .attr("font-family", "monospace")
       .node()!
       .getComputedTextLength();
 
     selection.remove();
     this.offset = width / 2;
-  }
-
-  applyFontFamily() {
-    this.applyStyle("font-family", this.fontFamily);
-  }
-
-  applyTextLength() {
-    this.applyAttr(
-      "textLength",
-      (d) =>
-        d.c.xScale(d.a.start + (d.a.end - d.a.start) - 1) -
-        d.c.xScale(d.a.start) +
-        2 * this.offset
-    );
   }
 }
 
@@ -118,6 +112,7 @@ export function sequence<S extends SequenceAnnotation, C extends Chart<any>>(
     selector,
     selection: binding.merge,
   });
+
   config.chart.addGlyphModifier(modifier);
 
   return binding.g;

@@ -1,40 +1,31 @@
 import * as d3 from "d3";
 import { Chart } from "../../charts/chart";
 import { Annotation } from "../../annotations/annotation";
-import { AxisType, getAxis } from "../axes";
-import { GlyphConfig } from "../../glyph-utilities/glyph-config";
+import { AxisConfig, AxisModifier, AxisType, getAxis } from "../axes";
 import { generateId } from "../../utilities/id-generation";
 import { bind } from "../../glyph-utilities/bind";
+import { GlyphModifierConfig } from "../../glyph-utilities/glyph-modifier";
 import {
-  GlyphModifier,
-  GlyphModifierConfig,
-  GlyphProperty,
-  resolveValue,
-} from "../../glyph-utilities/glyph-modifier";
+  callbackifyOrDefault,
+  GlyphCallback,
+} from "../../glyph-utilities/glyph-property";
 
 /**
- * @internal
+ * An interface that defines the parameters for a call to the horizontalAxis rendering function.
  */
-const horizontalAxisAxisMap: Map<
-  String,
-  d3.Axis<number | { valueOf(): number }>
-> = new Map();
-/**
- * @internal
- */
-const horizontalAxisScaleMap: Map<
-  String,
-  d3.ScaleLinear<number, number>
-> = new Map();
-
-/**
- * An interface that defines the parameters for instantiating a HorizontalAxisModifier.
- * @internal
- */
-export type HorizontalAxisModifierConfig<
+export interface HorizontalAxisConfig<
   A extends Annotation,
   C extends Chart<any>
-> = GlyphModifierConfig<A, C> & HorizontalAxisConfig<A, C>;
+> extends AxisConfig<A, C> {
+  /**
+   * This determines whether the ticks and labels will be placed on the top or the bottom of the axis.
+   */
+  axisType?: AxisType.Bottom | AxisType.Top;
+  /**
+   * If this is set to true, the axis glyph will not translate or scale during zoom events.
+   */
+  fixed?: boolean;
+}
 
 /**
  * A class that manages the styling and positioning of a group of horizontal axis glyphs.
@@ -43,120 +34,67 @@ export type HorizontalAxisModifierConfig<
 export class HorizontalAxisModifier<
   A extends Annotation,
   C extends Chart<any>
-> extends GlyphModifier<A, C> {
-  domain: GlyphProperty<A, C, [number, number]>;
-  range: GlyphProperty<A, C, [number, number]>;
-  ticks: GlyphProperty<A, C, number>;
-  tickSizeOuter: GlyphProperty<A, C, number>;
+> extends AxisModifier<A, C> {
+  domain: GlyphCallback<A, C, [number, number]>;
+  range: GlyphCallback<A, C, [number, number]>;
+  ticks: GlyphCallback<A, C, number>;
+  tickSizeOuter: GlyphCallback<A, C, number>;
   axisType: AxisType.Bottom | AxisType.Top;
-  scaleToBinHeight: boolean;
 
-  constructor(config: HorizontalAxisModifierConfig<A, C>) {
+  constructor(config: GlyphModifierConfig<A, C> & HorizontalAxisConfig<A, C>) {
     super(config);
+
     if (config.fixed) {
-      this.domain =
-        config.domain ||
-        ((d) => [
-          d.c.xScale.invert(0),
-          d.c.xScale.invert(d.c.viewportWidthPx - 1),
-        ]);
-      this.range = config.range || ((d) => [0, d.c.viewportWidthPx - 1]);
+      this.domain = callbackifyOrDefault(config.domain, (d) => [
+        d.c.xScale.invert(0),
+        d.c.xScale.invert(d.c.viewportWidthPx - 1),
+      ]);
+      this.range = callbackifyOrDefault(config.range, (d) => [
+        0,
+        d.c.viewportWidthPx - 1,
+      ]);
     } else {
-      this.domain =
-        config.domain ||
-        ((d) => [d.a.start, d.a.start + (d.a.end - d.a.start)]);
-      this.range =
-        config.range ||
-        ((d) => [
-          d.c.xScale(d.a.start),
-          d.c.xScale(d.a.start + (d.a.end - d.a.start)),
-        ]);
+      this.domain = callbackifyOrDefault(config.domain, (d) => [
+        d.a.start,
+        d.a.start + (d.a.end - d.a.start),
+      ]);
+      this.range = callbackifyOrDefault(config.range, (d) => [
+        d.c.xScale(d.a.start),
+        d.c.xScale(d.a.start + (d.a.end - d.a.start)),
+      ]);
     }
-    this.strokeColor = config.strokeColor || "none";
-    this.ticks = config.ticks || 5;
-    this.tickSizeOuter = config.tickSizeOuter || 6;
+
     this.axisType = config.axisType || AxisType.Bottom;
-    this.scaleToBinHeight = config.scaleToBinHeight || false;
-    this.applyUserSelect();
+    this.ticks = callbackifyOrDefault(config.ticks, () => 5);
+    this.tickSizeOuter = callbackifyOrDefault(config.tickSizeOuter, () => 6);
+
+    this.initializePolicy.attributeRuleMap.set("group", [
+      { key: "id", property: (d) => d.a.id },
+      {
+        key: "transform",
+        property: (d) => `translate(0, ${this.y(d)})`,
+      },
+    ]);
   }
 
-  defaultZoom(): void {
-    this.selection
-      .attr("transform", (d) => `translate(0, ${resolveValue(this.y, d)})`)
-      .each((d, i, nodes) => {
+  zoom(): void {
+    let axisGroups = this.selectionMap.get("group");
+
+    if (axisGroups != undefined) {
+      axisGroups.each((d, i, nodes) => {
         let xScale = d3
           .scaleLinear()
-          .domain(resolveValue(this.domain, d))
-          .range(resolveValue(this.range, d));
+          .domain(this.domain(d))
+          .range(this.range(d));
 
-        let axis = getAxis(xScale, this.axisType);
-
-        axis
-          .ticks(resolveValue(this.ticks, d))
-          .tickSizeOuter(resolveValue(this.tickSizeOuter, d));
+        let axis = getAxis(xScale, this.axisType)
+          .ticks(this.ticks(d))
+          .tickSizeOuter(this.tickSizeOuter(d));
 
         d3.select(nodes[i]).call(axis);
-
-        horizontalAxisScaleMap.set(d.a.id, xScale);
-        horizontalAxisAxisMap.set(d.a.id, axis);
-
-        if (this.scaleToBinHeight) {
-          let gBound = nodes[i].getBBox();
-          let k = this.chart.rowHeight / gBound.height;
-          d3.select(nodes[i]).attr("transform", `scale(1, ${k})`);
-        }
       });
+    }
   }
-
-  applyUserSelect(): void {
-    this.applyStyle("-webkit-user-select", "none");
-    this.applyStyle("-khtml-user-select", "none");
-    this.applyStyle("-moz-user-select", "none");
-    this.applyStyle("-ms-user-select", "none");
-    this.applyStyle("-o-user-select", "none");
-    this.applyStyle("user-select", "none");
-  }
-}
-
-/**
- * An interface that defines the parameters for a call to the horizontalAxis rendering function.
- */
-export interface HorizontalAxisConfig<
-  A extends Annotation,
-  C extends Chart<any>
-> extends GlyphConfig<A, C> {
-  /**
-   * This defines the domain of the D3 scale used to create the axis glyph.
-   */
-  domain?: GlyphProperty<A, C, [number, number]>;
-  /**
-   * This defines the range of the D3 scale used to create the axis glyph.
-   */
-  range?: GlyphProperty<A, C, [number, number]>;
-  /**
-   * This defines the tick property that will be passed to D3's axis.ticks function. For more information, see
-   * https://github.com/d3/d3-axis#axis_ticks
-   */
-  ticks?: GlyphProperty<A, C, number>;
-  /**
-   * This defines the tick property that will be passed to D3's axis.tickSizeOuter function. For more information, see
-   * https://github.com/d3/d3-axis#axis_tickSizeOuter
-   */
-  tickSizeOuter?: GlyphProperty<A, C, number>;
-  /**
-   * This determines whether the ticks and labels with be placed on the top or the bottom of the axis.
-   */
-  axisType?: AxisType.Bottom | AxisType.Top;
-  /**
-   * If this is set to true, the axis glyph will be forced (by stretching) into the height of a row in the Chart.
-   */
-  scaleToBinHeight?: boolean;
-  /**
-   * If this is set to true, the axis glyph will not translate or scale during zoom events.
-   */
-  fixed?: boolean;
-  initializeFn?: (this: HorizontalAxisModifier<A, C>) => void;
-  zoomFn?: (this: HorizontalAxisModifier<A, C>) => void;
 }
 
 /**

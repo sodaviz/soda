@@ -1,8 +1,8 @@
 import { Annotation } from "../annotations/annotation";
 import { Chart } from "../charts/chart";
-import { GlyphProperty } from "../glyph-utilities/glyph-modifier";
 import { GlyphConfig } from "../glyph-utilities/glyph-config";
 import { Orientation } from "../annotations/orientation";
+import { GlyphProperty } from "../glyph-utilities/glyph-property";
 
 /**
  * An interface that defines the common parameters for calls to chevron glyph rendering functions.

@@ -8,9 +8,8 @@ import { initializePlotGlyphYScales } from "../plots";
 import {
   GlyphModifier,
   GlyphModifierConfig,
-  GlyphProperty,
-  resolveValue,
 } from "../../glyph-utilities/glyph-modifier";
+import { GlyphProperty } from "../../glyph-utilities/glyph-property";
 
 /**
  * @internal
@@ -42,13 +41,25 @@ const defaultLineFn = <A extends PlotAnnotation, C extends Chart<any>>(
 };
 
 /**
- * An interface that defines the parameters for instantiating a LinePlotModifier.
- * @internal
+ * An interface that defines the parameters for a call to the linePlot rendering function.
  */
-export type LinePlotModifierConfig<
-  A extends PlotAnnotation,
-  C extends Chart<any>
-> = GlyphModifierConfig<A, C> & LinePlotConfig<A, C>;
+export interface LinePlotConfig<A extends PlotAnnotation, C extends Chart<any>>
+  extends GlyphConfig<A, C> {
+  /**
+   * The number of bins that the plot will span. This defaults to 1, which forces the plot to fit into one row. If
+   * an argument is supplied, it will cause the plot to grow downward. It will have no effect if a custom lineFunc
+   * is supplied.
+   */
+  rowSpan?: number;
+  /**
+   * This defines the domain of the plot.
+   */
+  domain?: GlyphProperty<A, C, [number, number]>;
+  /**
+   * This defines the range of the plot.
+   */
+  range?: GlyphProperty<A, C, [number, number]>;
+}
 
 /**
  * A class that manages the styling and positioning of a group of line plot glyphs.
@@ -58,57 +69,30 @@ export class LinePlotModifier<
   A extends PlotAnnotation,
   C extends Chart<any>
 > extends GlyphModifier<A, C> {
-  pathData?: GlyphProperty<A, C, string>;
+  d: GlyphProperty<A, C, string> = defaultLineFn;
 
-  constructor(config: LinePlotModifierConfig<A, C>) {
+  constructor(config: GlyphModifierConfig<A, C> & LinePlotConfig<A, C>) {
     super(config);
-    this.pathData = config.pathData || defaultLineFn;
-    this.strokeColor = config.strokeColor || "black";
-    this.fillColor = config.fillColor || "none";
-  }
 
-  defaultZoom() {
-    this.applyY();
-    this.applyD();
-  }
+    this.initializePolicy.attributeRuleMap.set("group", [
+      { key: "id", property: this.id },
+      { key: "transform", property: (d) => `translate(0, ${this.y(d)})` },
+    ]);
 
-  applyD(): void {
-    this.applyAttr("d", this.pathData);
-  }
+    this.initializePolicy.styleRuleMap.set("group", [
+      { key: "stroke-width", property: config.strokeWidth },
+      { key: "stroke-opacity", property: config.strokeOpacity },
+      { key: "stroke", property: config.strokeColor || "black" },
+      { key: "stroke-dash-array", property: config.strokeDashArray },
+      { key: "stroke-dash-offset", property: config.strokeDashOffset },
+      { key: "fill", property: config.fillColor || "none" },
+      { key: "fill-opacity", property: config.fillOpacity },
+    ]);
 
-  applyY() {
-    this.applyAttr(
-      "transform",
-      (d) => `translate(0, ${resolveValue(this.y, d)})`
-    );
+    this.zoomPolicy.attributeRuleMap.set("group", [
+      { key: "d", property: this.d },
+    ]);
   }
-}
-
-/**
- * An interface that defines the parameters for a call to the linePlot rendering function.
- */
-export interface LinePlotConfig<A extends PlotAnnotation, C extends Chart<any>>
-  extends GlyphConfig<A, C> {
-  /**
-   * A callback that returns a string that defines the line's SVG path
-   */
-  pathData?: GlyphProperty<A, C, string>;
-  /**
-   * The number of bins that the plot will span. This defaults to 1, which forces the plot to fit into one row. If
-   * an argument is supplied, it will cause the plot to grow downward. It will have no effect if a custom lineFunc
-   * is supplied.
-   */
-  rowSpan?: number;
-  initializeFn?: (this: LinePlotModifier<A, C>) => void;
-  zoomFn?: (this: LinePlotModifier<A, C>) => void;
-  /**
-   * This defines the domain of the plot.
-   */
-  domain?: GlyphProperty<A, C, [number, number]>;
-  /**
-   * This defines the range of the plot.
-   */
-  range?: GlyphProperty<A, C, [number, number]>;
 }
 
 /**

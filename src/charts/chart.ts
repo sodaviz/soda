@@ -583,6 +583,7 @@ export class Chart<P extends RenderParams> {
    */
   public defaultUpdateLayout<P extends RenderParams>(params: P): void {
     if (params.annotations != undefined) {
+      console.log(params.annotations);
       this.layout = intervalGraphLayout(params.annotations);
     }
   }

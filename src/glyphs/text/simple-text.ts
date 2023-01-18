@@ -4,11 +4,12 @@ import * as d3 from "d3";
 import { generateId } from "../../utilities/id-generation";
 import { bind } from "../../glyph-utilities/bind";
 import { TextConfig, TextModifier } from "../text";
+import { GlyphModifierConfig } from "../../glyph-utilities/glyph-modifier";
 import {
-  GlyphModifierConfig,
+  callbackify,
+  GlyphCallback,
   GlyphProperty,
-  resolveValue,
-} from "../../glyph-utilities/glyph-modifier";
+} from "../../glyph-utilities/glyph-property";
 
 /**
  * An interface that defines the parameters for a call to the text rendering function.
@@ -24,15 +25,6 @@ export interface SimpleTextConfig<A extends Annotation, C extends Chart<any>>
 }
 
 /**
- * An interface that defines the parameters to instantiate a TextModifier.
- * @internal
- */
-export type SimpleTextModifierConfig<
-  A extends Annotation,
-  C extends Chart<any>
-> = GlyphModifierConfig<A, C> & SimpleTextConfig<A, C>;
-
-/**
  * A class that manages the styling and positioning of a group of text glyphs.
  * @internal
  */
@@ -40,25 +32,16 @@ export class SimpleTextModifier<
   A extends Annotation,
   C extends Chart<any>
 > extends TextModifier<A, C> {
-  text: GlyphProperty<A, C, string>;
+  text: GlyphCallback<A, C, string>;
 
-  constructor(config: SimpleTextModifierConfig<A, C>) {
+  constructor(config: GlyphModifierConfig<A, C> & SimpleTextConfig<A, C>) {
     super(config);
-    this.text = config.text;
+    this.text = callbackify(config.text);
   }
 
-  defaultInitialize(): void {
-    super.defaultInitialize();
-    this.applyText();
-  }
-
-  defaultZoom(): void {
-    super.defaultZoom();
-    this.applyText();
-  }
-
-  applyText(): void {
-    this.selection.text((d) => resolveValue(this.text, d));
+  initialize(): void {
+    super.initialize();
+    this.selection.text(this.text);
   }
 }
 
@@ -82,6 +65,7 @@ export function simpleText<A extends Annotation, C extends Chart<any>>(
     selector,
     selection: binding.merge,
   });
+
   config.chart.addGlyphModifier(modifier);
 
   return binding.g;
