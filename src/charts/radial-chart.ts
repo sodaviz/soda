@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { axisRadialOuter } from "../glyphs/radial/radial-axis";
+import { radialAxis } from "../glyphs/radial/radial-axis";
 import {
   Chart,
   ChartConfig,
@@ -129,7 +129,7 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
           d3
             .arc<any, null>()
             .innerRadius(this.innerRadius - 1)
-            .outerRadius(this.innerRadius)
+            .outerRadius(this.outerRadius)
             .startAngle(0)
             .endAngle(2 * Math.PI)(null)!
         );
@@ -137,26 +137,7 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
   }
 
   public addAxis() {
-    this.overflowViewportSelection
-      .selectAll("g.radial-axis")
-      .data(["radial-axis"])
-      .enter()
-      .append("g")
-      .attr("class", "radial-axis");
-
-    this.renderAxis();
-  }
-
-  public renderAxis() {
-    let axis = axisRadialOuter(this.xScale, this.outerRadius);
-
-    this.overflowViewportSelection
-      .selectAll("g.radial-axis")
-      .call(axis)
-      .attr(
-        "transform",
-        `translate(${this.viewportWidthPx / 2}, ${this.viewportWidthPx / 2})`
-      );
+    radialAxis(this.axisConfig);
   }
 
   public squareToDivWidth(): void {
@@ -192,7 +173,6 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
     this.squareToDivWidth();
     this.updateViewportProperties();
     this.fitRadialDimensions();
-    this.renderAxis();
     this.renderTrackOutline();
     this.applyGlyphModifiers();
     this.postResize();
@@ -200,7 +180,6 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
 
   public zoom() {
     super.zoom();
-    this.renderAxis();
     this.renderTrackOutline();
   }
 

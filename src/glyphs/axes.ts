@@ -7,7 +7,6 @@ import {
 } from "../glyph-utilities/glyph-property";
 import { Annotation } from "../annotations/annotation";
 import { Chart } from "../charts/chart";
-import { GlyphConfig } from "../glyph-utilities/glyph-config";
 import {
   GlyphModifier,
   GlyphModifierConfig,

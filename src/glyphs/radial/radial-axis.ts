@@ -27,32 +27,67 @@
 // SOFTWARE.
 
 import * as d3 from "d3";
+import { Annotation } from "../../annotations/annotation";
+import { AxisConfig, AxisModifier, AxisType } from "../axes";
+import { generateId } from "../../utilities/id-generation";
+import { AnnotationDatum, bind } from "../../glyph-utilities/bind";
+import { GlyphModifierConfig } from "../../glyph-utilities/glyph-modifier";
+import {
+  applyPropertyPolicy,
+  callbackifyOrDefault,
+  GlyphCallback,
+  GlyphProperty,
+} from "../../glyph-utilities/glyph-property";
+import { RadialChart } from "../../charts/radial-chart";
 
+/**
+ *
+ * @param x
+ * @internal
+ */
 function identity(x: any) {
   return x;
 }
 
+/**
+ *
+ * @param x
+ * @param y
+ * @internal
+ */
 function translate(x: number, y: number) {
   return "translate(" + x + "," + y + ")";
 }
 
-function radialAxis(
+/**
+ *
+ * @param angleScale
+ * @param radius
+ * @param axisType
+ * @param tickSizeInner
+ * @param tickSizeOuter
+ * @param tickPadding
+ * @internal
+ */
+function _radialAxis(
   angleScale: d3.ScaleLinear<number, number>,
   radius: number,
-  outer?: boolean
+  axisType: AxisType.Bottom | AxisType.Top,
+  tickSizeInner: number,
+  tickSizeOuter: number,
+  tickPadding: number
 ) {
+  let outer = axisType == AxisType.Top;
+
   let tickValues: number[] | null = null;
   let tickFormat: ((domainValue: number, index: number) => string) | null =
     null;
-  let tickSizeInner = 6;
-  let tickSizeOuter = 6;
-  let tickPadding = 12;
 
   function angleTransform(angle: number, radius: number) {
-    return translate(...polarToCart(angle, radius));
+    return translate(...polarToCartesian(angle, radius));
   }
 
-  function polarToCart(angle: number, r: number): [number, number] {
+  function polarToCartesian(angle: number, r: number): [number, number] {
     return [Math.sin(angle) * r, -Math.cos(angle) * r];
   }
 
@@ -109,24 +144,26 @@ function radialAxis(
     function getTickPath(angle: number, r: number) {
       return (
         "M" +
-        polarToCart(angle, r + tickSizeOuter * (outer ? 1 : -1)).join(",") +
+        polarToCartesian(angle, r + tickSizeOuter * (outer ? 1 : -1)).join(
+          ","
+        ) +
         "L" +
-        polarToCart(angle, r).join(",")
+        polarToCartesian(angle, r).join(",")
       );
     }
 
     function getArcPath(startAngle: number, endAngle: number, r: number) {
       return (
         "M" +
-        polarToCart(startAngle, r).join(",") +
+        polarToCartesian(startAngle, r).join(",") +
         // Full-circle
         (Math.abs(endAngle - startAngle) >= 2 * Math.PI
           ? "A" +
             [r, r, 0, 1, 1]
-              .concat(polarToCart(startAngle + Math.PI, r))
+              .concat(polarToCartesian(startAngle + Math.PI, r))
               .join(",") +
             "A" +
-            [r, r, 0, 1, 1].concat(polarToCart(startAngle, r)).join(",")
+            [r, r, 0, 1, 1].concat(polarToCartesian(startAngle, r)).join(",")
           : "") +
         "A" +
         [
@@ -138,7 +175,7 @@ function radialAxis(
           // Sweep (clock-wise) flag
           endAngle > startAngle ? 1 : 0,
         ]
-          .concat(polarToCart(endAngle, r))
+          .concat(polarToCartesian(endAngle, r))
           .join(",")
       );
     }
@@ -160,22 +197,24 @@ function radialAxis(
       .attr(
         "x2",
         (d: number) =>
-          polarToCart(anglePos(d), tickSizeInner)[0] * (outer ? 1 : -1)
+          polarToCartesian(anglePos(d), tickSizeInner)[0] * (outer ? 1 : -1)
       )
       .attr(
         "y2",
         (d: number) =>
-          polarToCart(anglePos(d), tickSizeInner)[1] * (outer ? 1 : -1)
+          polarToCartesian(anglePos(d), tickSizeInner)[1] * (outer ? 1 : -1)
       );
 
     text
       .attr(
         "x",
-        (d: number) => polarToCart(anglePos(d), spacing)[0] * (outer ? 1 : -1)
+        (d: number) =>
+          polarToCartesian(anglePos(d), spacing)[0] * (outer ? 1 : -1)
       )
       .attr(
         "y",
-        (d: number) => polarToCart(anglePos(d), spacing)[1] * (outer ? 1 : -1)
+        (d: number) =>
+          polarToCartesian(anglePos(d), spacing)[1] * (outer ? 1 : -1)
       )
       .text(format);
 
@@ -203,16 +242,124 @@ function radialAxis(
   return axis;
 }
 
-export function axisRadialInner(
-  angleScale: d3.ScaleLinear<number, number>,
-  radius: number
-) {
-  return radialAxis(angleScale, radius, false);
+/**
+ * An interface that defines the parameters for a call to the radialAxis rendering function.
+ */
+export interface RadialAxisConfig<
+  A extends Annotation,
+  C extends RadialChart<any>
+> extends AxisConfig<A, C> {
+  /**
+   * This determines whether the ticks and labels will be placed on the top or the bottom of the axis.
+   */
+  axisType?: GlyphProperty<A, C, AxisType.Bottom | AxisType.Top>;
+  /**
+   * If this is set to true, the axis glyph will not translate or scale during zoom events.
+   */
+  fixed?: boolean;
 }
 
-export function axisRadialOuter(
-  angleScale: d3.ScaleLinear<number, number>,
-  radius: number
-) {
-  return radialAxis(angleScale, radius, true);
+/**
+ * A class that manages the styling and positioning of a group of radial axis glyphs.
+ * @internal
+ */
+export class RadialAxisModifier<
+  A extends Annotation,
+  C extends RadialChart<any>
+> extends AxisModifier<A, C> {
+  axisType: GlyphCallback<A, C, AxisType.Top | AxisType.Bottom>;
+
+  constructor(config: GlyphModifierConfig<A, C> & RadialAxisConfig<A, C>) {
+    super(config);
+
+    if (config.fixed) {
+      this.domain = callbackifyOrDefault(config.domain, (d) => [
+        d.c.xScale.invert(0),
+        d.c.xScale.invert(2 * Math.PI),
+      ]);
+      this.range = callbackifyOrDefault(config.range, () => [0, 2 * Math.PI]);
+    } else {
+      // TODO: implement this :)
+      throw "non-fixed radial axis not implemented";
+    }
+
+    this.axisType = callbackifyOrDefault(config.axisType, () => AxisType.Top);
+
+    this.initializePolicy.attributeRuleMap.set("group", [
+      { key: "id", property: (d) => d.a.id },
+      {
+        key: "transform",
+        property: `translate(${this.chart.viewportWidthPx / 2}, ${
+          this.chart.viewportWidthPx / 2
+        })`,
+      },
+    ]);
+  }
+
+  buildScale(d: AnnotationDatum<A, C>) {
+    return d3.scaleLinear().domain(this.domain(d)).range(this.range(d));
+  }
+
+  zoom() {
+    let axisGroup = this.selectionMap.get("group");
+    if (axisGroup == undefined) {
+      console.error(
+        "group selection undefined in call to zoom(), unable to build axis"
+      );
+      throw "group selection undefined";
+    }
+
+    axisGroup.each((d, i, nodes) => {
+      let axis = _radialAxis(
+        this.buildScale(d),
+        this.chart.outerRadius,
+        this.axisType(d),
+        this.tickSizeOuter(d),
+        this.tickSizeInner(d),
+        this.tickPadding(d)
+      );
+
+      d3.select(nodes[i]).call(axis);
+    });
+
+    this.selectionMap.set("axis-line", this.selection.selectAll("path.domain"));
+    this.selectionMap.set("ticks", this.selection.selectAll("g.tick line"));
+    this.selectionMap.set(
+      "tick-labels",
+      this.selection.selectAll("g.tick text")
+    );
+
+    applyPropertyPolicy({
+      selectionKeys: this.selectionKeys,
+      selectionMap: this.selectionMap,
+      policy: this.zoomPolicy,
+      context: "zoom",
+    });
+  }
+}
+
+/**
+ * This renders Annotations as horizontal axes in a Chart.
+ * @param config
+ */
+export function radialAxis<A extends Annotation, C extends RadialChart<any>>(
+  config: RadialAxisConfig<A, C>
+): d3.Selection<SVGGElement, string, any, any> {
+  let selector = config.selector || generateId("soda-radial-axis-glyph");
+
+  let binding = bind<A, C, SVGGElement>({
+    ...config,
+    selector,
+    elementType: "g",
+  });
+
+  let modifier = new RadialAxisModifier({
+    selector: selector,
+    selection: binding.merge,
+    ...config,
+  });
+
+  config.chart.addGlyphModifier(modifier);
+
+  return binding.g;
 }
