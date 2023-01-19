@@ -1,6 +1,9 @@
 import * as d3 from "d3";
 import { Annotation } from "../annotations/annotation";
-import { horizontalAxis } from "../glyphs/axes/horizontal-axis";
+import {
+  horizontalAxis,
+  HorizontalAxisConfig,
+} from "../glyphs/axes/horizontal-axis";
 import { rectangle } from "../glyphs/rectangle";
 import { BindTarget } from "../glyph-utilities/bind";
 import { GlyphModifier } from "../glyph-utilities/glyph-modifier";
@@ -14,6 +17,7 @@ import {
 } from "../layout/vertical-layout";
 import { intervalGraphLayout } from "../layout/interval-graph-layout";
 import { Transform } from "./transform";
+import { GlyphPropertiesToValues } from "../glyph-utilities/glyph-property";
 
 /**
  * A utility function for setting DOM element properties. If the value passed in is a number <n>, it is transformed
@@ -72,6 +76,44 @@ export interface HighlightConfig {
    */
   opacity?: number;
 }
+
+/**
+ * This interface defines the parameters to style a default axis on a Chart.
+ */
+// this type definition is a bit intense, so let's unpack it:
+//
+// outermost, we have a Partial<T> of the penultimate
+// type, since we want to "undo" the Required<T>
+export type ChartAxisConfig = Partial<
+  // GlyphPropertiesToValues turns every
+  // GlyphProperty<A, C, V> into just a V
+  GlyphPropertiesToValues<
+    // Required<T> makes everything non-nullable, which
+    // is important for GlyphPropertiesToValues to work
+    Required<
+      // We have an Omit<T> to remove the properties that
+      // users shouldn't be messing with on the default axis
+      Omit<
+        HorizontalAxisConfig<Annotation, Chart<RenderParams>>,
+        | "chart"
+        | "annotations"
+        | "selector"
+        | "target"
+        | "x"
+        | "y"
+        | "width"
+        | "height"
+        | "row"
+        | "domain"
+        | "range"
+        | "fixed"
+        | "axisType"
+      >
+    >
+  >
+  // the TypeScript compiler seems to clobber the AxisType enum after shoving it
+  // through the various type defs here, so we just exclude it and re-include it
+> & { axisType?: AxisType.Bottom | AxisType.Top };
 
 /**
  * This describes the parameters for configuring and initializing a Chart.
@@ -146,9 +188,13 @@ export interface ChartConfig<P extends RenderParams> {
    */
   rowOpacity?: number;
   /**
-   * This controls whether or not the Chart will render a horizontal axis.
+   * This sets the styling properties for the default axis produced by addAxis(), which is called in the
+   * default draw() implementation.
+   *
+   * Note: if a custom draw() has been set on the Chart, addAxis() will need to be called manually to produce a
+   * default axis.
    */
-  axisType?: AxisType.Top | AxisType.Bottom;
+  axisConfig?: ChartAxisConfig;
   /**
    * This controls whether or not the Chart will automatically resize itself as it's container changes size. This
    * will cause the Chart to ignore explicit height/width arguments in the config.
@@ -321,6 +367,14 @@ export class Chart<P extends RenderParams> {
    * The stored height of the viewport SVG in pixels.
    */
   viewportHeightPx: number = 0;
+  /**
+   * This sets the styling properties for the default axis produced by addAxis(), which is called in the
+   * default draw() implementation.
+   *
+   * Note: if a custom draw() has been set on the Chart, addAxis() will need to be called manually to produce a
+   * default axis.
+   */
+  axisConfig: HorizontalAxisConfig<any, any>;
   /**
    * This controls whether or not the Chart has automatic resizing enabled.
    */
@@ -516,6 +570,24 @@ export class Chart<P extends RenderParams> {
       config.rowOpacity != undefined ? config.rowOpacity : this.rowOpacity;
     this.addRowStripes();
 
+    let axisConfigDefaults: HorizontalAxisConfig<any, any> = {
+      chart: this,
+      selector: "soda-default-axis",
+      annotations: [{ id: "axis", start: 0, end: this.xScale.range()[1] }],
+      y: -5,
+      fixed: true,
+      target: BindTarget.Overflow,
+      axisType: AxisType.Top,
+    };
+
+    this.axisConfig =
+      config.axisConfig != undefined
+        ? {
+            ...axisConfigDefaults,
+            ...config.axisConfig,
+          }
+        : axisConfigDefaults;
+
     this.resizable = config.resizable || false;
     this.zoomable = config.zoomable || false;
 
@@ -583,7 +655,6 @@ export class Chart<P extends RenderParams> {
    */
   public defaultUpdateLayout<P extends RenderParams>(params: P): void {
     if (params.annotations != undefined) {
-      console.log(params.annotations);
       this.layout = intervalGraphLayout(params.annotations);
     }
   }
@@ -651,15 +722,7 @@ export class Chart<P extends RenderParams> {
    * This adds a horizontal axis glyph to the top of the Chart.
    */
   public addAxis() {
-    horizontalAxis({
-      chart: this,
-      selector: "soda-default-axis",
-      annotations: [{ id: "axis", start: 0, end: this.xScale.range()[1] }],
-      y: -5,
-      fixed: true,
-      axisType: AxisType.Top,
-      target: BindTarget.Overflow,
-    });
+    horizontalAxis(this.axisConfig);
   }
 
   /**

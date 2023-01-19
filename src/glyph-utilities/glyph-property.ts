@@ -1,17 +1,41 @@
 import { Annotation } from "../annotations/annotation";
-import { Chart } from "../charts/chart";
+import { Chart, RenderParams } from "../charts/chart";
 import { AnnotationDatum } from "./bind";
 import * as d3 from "d3";
+import { AxisType } from "../glyphs/axes";
 
 /**
  * @internal
  */
-type DemoteGlyphProperties<A extends Annotation, C extends Chart<any>, T> = {
+export type GlyphPropertiesToValues<T> = {
+  [P in keyof T]: T[P] extends GlyphProperty<
+    Annotation,
+    Chart<RenderParams>,
+    string
+  >
+    ? string
+    : T[P] extends GlyphProperty<Annotation, Chart<RenderParams>, number>
+    ? number
+    : T[P] extends GlyphProperty<Annotation, Chart<RenderParams>, boolean>
+    ? boolean
+    : T[P] extends GlyphProperty<Annotation, Chart<RenderParams>, AxisType>
+    ? AxisType
+    : T[P];
+};
+
+/**
+ * @internal
+ */
+export type GlyphPropertiesToCallbacks<
+  A extends Annotation,
+  C extends Chart<any>,
+  T
+> = {
   [prop in keyof T]: T[prop] extends GlyphProperty<A, C, string>
     ? GlyphCallback<A, C, string>
     : T[prop] extends GlyphProperty<A, C, number>
     ? GlyphCallback<A, C, number>
-    : T[prop] extends GlyphProperty<A, C, number>
+    : T[prop] extends GlyphProperty<A, C, boolean>
     ? GlyphCallback<A, C, boolean>
     : T[prop];
 };
@@ -19,12 +43,16 @@ type DemoteGlyphProperties<A extends Annotation, C extends Chart<any>, T> = {
 /**
  * @internal
  */
-type PromoteGlyphCallbacks<A extends Annotation, C extends Chart<any>, T> = {
+export type GlyphCallbacksToProperties<
+  A extends Annotation,
+  C extends Chart<any>,
+  T
+> = {
   [prop in keyof T]: T[prop] extends GlyphCallback<A, C, string>
     ? GlyphProperty<A, C, string>
     : T[prop] extends GlyphCallback<A, C, number>
     ? GlyphProperty<A, C, number>
-    : T[prop] extends GlyphCallback<A, C, number>
+    : T[prop] extends GlyphCallback<A, C, boolean>
     ? GlyphProperty<A, C, boolean>
     : T[prop];
 };
