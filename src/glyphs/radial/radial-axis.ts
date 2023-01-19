@@ -272,6 +272,9 @@ export class RadialAxisModifier<
   constructor(config: GlyphModifierConfig<A, C> & RadialAxisConfig<A, C>) {
     super(config);
 
+    this.tickSizeOuter = callbackifyOrDefault(config.tickSizeOuter, () => 12);
+    this.tickSizeInner = callbackifyOrDefault(config.tickSizeInner, () => 6);
+
     if (config.fixed) {
       this.domain = callbackifyOrDefault(config.domain, (d) => [
         d.c.xScale.invert(this.chart.range[0]),
@@ -287,11 +290,13 @@ export class RadialAxisModifier<
 
     this.initializePolicy.attributeRuleMap.set("group", [
       { key: "id", property: (d) => d.a.id },
+    ]);
+
+    this.zoomPolicy.attributeRuleMap.set("group", [
       {
         key: "transform",
-        property: `translate(${this.chart.viewportWidthPx / 2}, ${
-          this.chart.viewportWidthPx / 2
-        })`,
+        property: (d) =>
+          `translate(${d.c.viewportWidthPx / 2}, ${d.c.viewportWidthPx / 2})`,
       },
     ]);
   }
