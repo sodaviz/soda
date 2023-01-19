@@ -7,7 +7,6 @@ import {
   bind,
   GlyphModifierConfig,
   GlyphProperty,
-  resolveGlyphProperty,
 } from "../../index";
 import { RadialChart } from "../../charts/radial-chart";
 import { AnnotationDatum } from "../../glyph-utilities/bind";
@@ -22,12 +21,9 @@ export function getDefaultRadialRectanglePathFn<
   return (d: AnnotationDatum<A, C>) =>
     d3
       .arc<any, AnnotationDatum<A, C>>()
-      .innerRadius((d) => d.c.outerRadius - resolveGlyphProperty(modifier.y, d))
+      .innerRadius((d) => d.c.outerRadius - modifier.y(d))
       .outerRadius(
-        (d) =>
-          d.c.outerRadius -
-          (resolveGlyphProperty(modifier.y, d) +
-            resolveGlyphProperty(modifier.height, d))
+        (d) => d.c.outerRadius - (modifier.y(d) + modifier.height(d))
       )
       .startAngle((d) => Math.max(d.c.xScale(d.a.start), 0))
       .endAngle((d) => Math.min(d.c.xScale(d.a.end), 2 * Math.PI))(d) || "";
@@ -63,13 +59,12 @@ export const defaultRadialRectangleVisibilityFn = <
 };
 
 /**
- * An interface that defines the parameters for instantiating a RadialRectangleModifier.
- * @internal
+ * An interface that defines the parameters for a call to the radialRectangle rendering function.
  */
-export type RadialRectangleModifierConfig<
+export interface RadialRectangleConfig<
   A extends Annotation,
   C extends RadialChart<any>
-> = GlyphModifierConfig<A, C> & RectangleConfig<A, C>;
+> extends Omit<RectangleConfig<A, C>, "rx" | "ry"> {}
 
 /**
  * A class that manages the styling and positioning of a group of radial rectangle glyphs.
@@ -79,33 +74,28 @@ export class RadialRectangleModifier<
   A extends Annotation,
   C extends RadialChart<any>
 > extends GlyphModifier<A, C> {
-  pathData: GlyphProperty<A, C, string>;
-  transform: GlyphProperty<A, C, string>;
-  visibility: GlyphProperty<A, C, string>;
-
-  constructor(config: RadialRectangleModifierConfig<A, C>) {
+  constructor(config: GlyphModifierConfig<A, C> & RadialRectangleConfig<A, C>) {
     super(config);
-    this.pathData = getDefaultRadialRectanglePathFn(this);
-    this.transform = defaultRadialRectangleTransformFn;
-    this.visibility = defaultRadialRectangleVisibilityFn;
-  }
 
-  defaultZoom() {
-    this.applyD();
-    this.applyTransform();
-    this.applyVisibility();
-  }
+    this.initializePolicy.attributeRuleMap.set("group", [
+      { key: "id", property: this.id },
+    ]);
 
-  applyD(): void {
-    // this.applyAttr("d", this.pathData);
-  }
+    this.initializePolicy.styleRuleMap.set("group", [
+      { key: "stroke-width", property: config.strokeWidth },
+      { key: "stroke-opacity", property: config.strokeOpacity },
+      { key: "stroke", property: config.strokeColor },
+      { key: "stroke-dash-array", property: config.strokeDashArray },
+      { key: "stroke-dash-offset", property: config.strokeDashOffset },
+      { key: "fill", property: config.fillColor },
+      { key: "fill-opacity", property: config.fillOpacity },
+    ]);
 
-  applyTransform(): void {
-    // this.applyAttr("transform", this.transform);
-  }
-
-  applyVisibility(): void {
-    // this.applyAttr("visibility", this.visibility);
+    this.zoomPolicy.attributeRuleMap.set("group", [
+      { key: "transform", property: defaultRadialRectangleTransformFn },
+      { key: "d", property: getDefaultRadialRectanglePathFn(this) },
+      { key: "visibility", property: defaultRadialRectangleVisibilityFn },
+    ]);
   }
 }
 
@@ -116,7 +106,9 @@ export class RadialRectangleModifier<
 export function radialRectangle<
   A extends Annotation,
   C extends RadialChart<any>
->(config: RectangleConfig<A, C>): d3.Selection<SVGGElement, string, any, any> {
+>(
+  config: RadialRectangleConfig<A, C>
+): d3.Selection<SVGGElement, string, any, any> {
   let selector = config.selector || generateId("soda-radial-rect-glyph");
 
   let binding = bind<A, C, SVGPathElement>({
