@@ -9,7 +9,6 @@ import {
   callbackifyOrDefault,
   GlyphCallback,
   GlyphPropertyPolicy,
-  resolveGlyphProperty,
 } from "./glyph-property";
 
 /**
@@ -79,7 +78,7 @@ export class GlyphModifier<A extends Annotation, C extends Chart<any>> {
     this.row = callbackifyOrDefault(config.row, (d) => d.c.layout.row(d));
     this.y = callbackifyOrDefault(
       config.y,
-      (d) => resolveGlyphProperty(this.row, d) * d.c.rowHeight + 2
+      (d) => this.row(d) * d.c.rowHeight + 2
     );
     this.width = callbackifyOrDefault(
       config.width,

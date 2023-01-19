@@ -9,7 +9,6 @@ import {
   callbackify,
   GlyphCallback,
   GlyphProperty,
-  resolveGlyphProperty,
 } from "../../glyph-utilities/glyph-property";
 
 const textMap: Map<string, string[]> = new Map();
