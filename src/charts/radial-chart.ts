@@ -15,6 +15,7 @@ import { HighlightConfig } from "./chart";
  */
 export interface RadialChartConfig<P extends RenderParams>
   extends ChartConfig<P> {
+  notchAngle?: number;
   /**
    * The "height" of the radial track on which annotations will be rendered. Conceptually, this is equal to to the
    * difference of the radii of two concentric circles that define an annulus.
@@ -26,6 +27,7 @@ export interface RadialChartConfig<P extends RenderParams>
  * This Chart class is designed for rendering features in a circular context, e.g. bacterial genomes.
  */
 export class RadialChart<P extends RenderParams> extends Chart<P> {
+  notchAngle: number;
   /**
    * The "height" of the radial track on which annotations will be rendered. Conceptually, this is equal to to the
    * difference of the radii of two concentric circles that define an annulus.
@@ -50,6 +52,12 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
 
   public constructor(config: RadialChartConfig<P>) {
     super(config);
+
+    // default the notch angle to ~1% of a circle
+    this.notchAngle = config.notchAngle || Math.PI / 200;
+
+    // we can set the range here once and forget about it
+    this.xScale.range([this.notchAngle, 2 * Math.PI - this.notchAngle]);
 
     this.trackHeight = config.trackHeight || this.viewportWidthPx / 4;
 
@@ -112,7 +120,9 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       .data(["track-outline"])
       .enter()
       .append<SVGPathElement>("path")
-      .attr("class", "track-outline");
+      .attr("class", "track-outline")
+      .attr("stroke", "black")
+      .attr("fill", "none");
 
     this.renderTrackOutline();
   }
@@ -130,8 +140,9 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
             .arc<any, null>()
             .innerRadius(this.innerRadius - 1)
             .outerRadius(this.outerRadius)
-            .startAngle(0)
-            .endAngle(2 * Math.PI)(null)!
+            .startAngle(this.range[0])
+            // TODO: why can this return null?
+            .endAngle(this.range[1])(null)!
         );
     }
   }
@@ -252,7 +263,8 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
   }
 
   public updateRange(): void {
-    this.xScale.range([0, 2 * Math.PI]);
+    // this is a no-op for now, but it won't be if we implement
+    // closing/opening of the sector based on zoom level
   }
 
   public highlight(config: HighlightConfig): string {

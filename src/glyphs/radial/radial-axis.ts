@@ -274,10 +274,10 @@ export class RadialAxisModifier<
 
     if (config.fixed) {
       this.domain = callbackifyOrDefault(config.domain, (d) => [
-        d.c.xScale.invert(0),
-        d.c.xScale.invert(2 * Math.PI),
+        d.c.xScale.invert(this.chart.range[0]),
+        d.c.xScale.invert(this.chart.range[1]),
       ]);
-      this.range = callbackifyOrDefault(config.range, () => [0, 2 * Math.PI]);
+      this.range = callbackifyOrDefault(config.range, () => this.chart.range);
     } else {
       // TODO: implement this :)
       throw "non-fixed radial axis not implemented";

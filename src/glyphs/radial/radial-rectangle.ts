@@ -25,8 +25,9 @@ export function getDefaultRadialRectanglePathFn<
       .outerRadius(
         (d) => d.c.outerRadius - (modifier.y(d) + modifier.height(d))
       )
-      .startAngle((d) => Math.max(d.c.xScale(d.a.start), 0))
-      .endAngle((d) => Math.min(d.c.xScale(d.a.end), 2 * Math.PI))(d) || "";
+      // we enforce that the "rectangle" can't be drawn outside of the Chart's range
+      .startAngle((d) => Math.max(d.c.xScale(d.a.start), d.c.range[0]))
+      .endAngle((d) => Math.min(d.c.xScale(d.a.end), d.c.range[1]))(d) || "";
 }
 
 /**
