@@ -3,11 +3,12 @@ import { Chart } from "../../charts/chart";
 import { Annotation } from "../../annotations/annotation";
 import { AxisConfig, AxisModifier, AxisType, getAxis } from "../axes";
 import { generateId } from "../../utilities/id-generation";
-import { bind } from "../../glyph-utilities/bind";
+import { AnnotationDatum, bind } from "../../glyph-utilities/bind";
 import { GlyphModifierConfig } from "../../glyph-utilities/glyph-modifier";
 import {
   callbackifyOrDefault,
   GlyphCallback,
+  GlyphProperty,
 } from "../../glyph-utilities/glyph-property";
 
 /**
@@ -18,7 +19,7 @@ export interface VerticalAxisConfig<A extends Annotation, C extends Chart<any>>
   /**
    * This determines whether the ticks and labels will be placed on the left or the right of the axis.
    */
-  axisType?: AxisType.Left | AxisType.Right;
+  axisType?: GlyphProperty<A, C, AxisType.Left | AxisType.Right>;
   /**
    * The number of bins that the axis will span. This defaults to 1, which forces the axis to fit into one row. If
    * an argument is supplied, it will cause the axis to grow downward. It will have no effect if a custom domain
@@ -35,11 +36,6 @@ export class VerticalAxisModifier<
   A extends Annotation,
   C extends Chart<any>
 > extends AxisModifier<A, C> {
-  domain: GlyphCallback<A, C, [number, number]>;
-  range: GlyphCallback<A, C, [number, number]>;
-  ticks: GlyphCallback<A, C, number>;
-  tickSizeOuter: GlyphCallback<A, C, number>;
-  axisType: AxisType.Left | AxisType.Right;
   rowSpan: number;
 
   constructor(config: GlyphModifierConfig<A, C> & VerticalAxisConfig<A, C>) {
@@ -53,7 +49,7 @@ export class VerticalAxisModifier<
 
     this.ticks = callbackifyOrDefault(config.ticks, () => 5);
     this.tickSizeOuter = callbackifyOrDefault(config.tickSizeOuter, () => 6);
-    this.axisType = config.axisType || AxisType.Left;
+    this.axisType = callbackifyOrDefault(config.axisType, () => AxisType.Left);
 
     this.initializePolicy.attributeRuleMap.set("group", [
       { key: "id", property: (d) => d.a.id },
@@ -67,24 +63,11 @@ export class VerticalAxisModifier<
     ]);
   }
 
-  zoom() {
-    super.zoom();
-    let axisGroups = this.selectionMap.get("group");
-
-    if (axisGroups != undefined) {
-      axisGroups.each((d, i, nodes) => {
-        let yScale = d3
-          .scaleLinear()
-          .domain(this.domain(d).slice().reverse())
-          .range(this.range(d));
-
-        let axis = getAxis(yScale, this.axisType)
-          .ticks(this.ticks(d))
-          .tickSizeOuter(this.tickSizeOuter(d));
-
-        d3.select(nodes[i]).call(axis);
-      });
-    }
+  buildScale(d: AnnotationDatum<A, C>) {
+    return d3
+      .scaleLinear()
+      .domain(this.domain(d).slice().reverse())
+      .range(this.range(d));
   }
 }
 

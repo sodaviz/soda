@@ -1,13 +1,13 @@
 import * as d3 from "d3";
 import { Chart } from "../../charts/chart";
 import { Annotation } from "../../annotations/annotation";
-import { AxisConfig, AxisModifier, AxisType, getAxis } from "../axes";
+import { AxisConfig, AxisModifier, AxisType } from "../axes";
 import { generateId } from "../../utilities/id-generation";
-import { bind } from "../../glyph-utilities/bind";
+import { AnnotationDatum, bind } from "../../glyph-utilities/bind";
 import { GlyphModifierConfig } from "../../glyph-utilities/glyph-modifier";
 import {
   callbackifyOrDefault,
-  GlyphCallback,
+  GlyphProperty,
 } from "../../glyph-utilities/glyph-property";
 
 /**
@@ -20,7 +20,7 @@ export interface HorizontalAxisConfig<
   /**
    * This determines whether the ticks and labels will be placed on the top or the bottom of the axis.
    */
-  axisType?: AxisType.Bottom | AxisType.Top;
+  axisType?: GlyphProperty<A, C, AxisType.Bottom | AxisType.Top>;
   /**
    * If this is set to true, the axis glyph will not translate or scale during zoom events.
    */
@@ -35,12 +35,6 @@ export class HorizontalAxisModifier<
   A extends Annotation,
   C extends Chart<any>
 > extends AxisModifier<A, C> {
-  domain: GlyphCallback<A, C, [number, number]>;
-  range: GlyphCallback<A, C, [number, number]>;
-  ticks: GlyphCallback<A, C, number>;
-  tickSizeOuter: GlyphCallback<A, C, number>;
-  axisType: AxisType.Bottom | AxisType.Top;
-
   constructor(config: GlyphModifierConfig<A, C> & HorizontalAxisConfig<A, C>) {
     super(config);
 
@@ -64,9 +58,10 @@ export class HorizontalAxisModifier<
       ]);
     }
 
-    this.axisType = config.axisType || AxisType.Bottom;
-    this.ticks = callbackifyOrDefault(config.ticks, () => 5);
-    this.tickSizeOuter = callbackifyOrDefault(config.tickSizeOuter, () => 6);
+    this.axisType = callbackifyOrDefault(
+      config.axisType,
+      () => AxisType.Bottom
+    );
 
     this.initializePolicy.attributeRuleMap.set("group", [
       { key: "id", property: (d) => d.a.id },
@@ -77,23 +72,8 @@ export class HorizontalAxisModifier<
     ]);
   }
 
-  zoom(): void {
-    let axisGroups = this.selectionMap.get("group");
-
-    if (axisGroups != undefined) {
-      axisGroups.each((d, i, nodes) => {
-        let xScale = d3
-          .scaleLinear()
-          .domain(this.domain(d))
-          .range(this.range(d));
-
-        let axis = getAxis(xScale, this.axisType)
-          .ticks(this.ticks(d))
-          .tickSizeOuter(this.tickSizeOuter(d));
-
-        d3.select(nodes[i]).call(axis);
-      });
-    }
+  buildScale(d: AnnotationDatum<A, C>) {
+    return d3.scaleLinear().domain(this.domain(d)).range(this.range(d));
   }
 }
 
