@@ -94,7 +94,14 @@ function filterKeysFromQuery(config: GlyphQueryConfig = {}): string[] {
 
   if (config.annotations != undefined) {
     let ids = config.annotations.map((ann) => ann.id);
-    keySplits = keySplits.filter((k) => ids.includes(k[0]));
+    keySplits = keySplits.filter((k) => {
+      for (const id of ids) {
+        if (id == k[0]) {
+          return true;
+        }
+      }
+      return false;
+    });
   }
 
   return keySplits.map(

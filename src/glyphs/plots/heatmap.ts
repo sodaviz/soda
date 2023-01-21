@@ -7,9 +7,12 @@ import { bind } from "../../glyph-utilities/bind";
 import {
   GlyphModifier,
   GlyphModifierConfig,
-  GlyphProperty,
-  resolveValue,
 } from "../../glyph-utilities/glyph-modifier";
+import {
+  callbackifyOrDefault,
+  GlyphCallback,
+  GlyphProperty,
+} from "../../glyph-utilities/glyph-property";
 
 /**
  * An interface that defines the parameters for a call to the heatmap rendering function.
@@ -17,8 +20,6 @@ import {
  */
 export interface HeatmapConfig<A extends PlotAnnotation, C extends Chart<any>>
   extends GlyphConfig<A, C> {
-  initializeFn?: (this: HeatmapModifier<A, C>) => void;
-  zoomFn?: (this: HeatmapModifier<A, C>) => void;
   /**
    * The color of the outline around the entire heatmap glyph.
    */
@@ -39,15 +40,6 @@ export interface HeatmapConfig<A extends PlotAnnotation, C extends Chart<any>>
 }
 
 /**
- * An interface that defines the parameters for instantiating a HeatmapModifier.
- * @internal
- */
-export type HeatmapModifierConfig<
-  A extends PlotAnnotation,
-  C extends Chart<any>
-> = GlyphModifierConfig<A, C> & HeatmapConfig<A, C>;
-
-/**
  * A class that manages the styling and positioning of a group of heatmap glyphs.
  * @internal
  */
@@ -63,23 +55,34 @@ export class HeatmapModifier<
   /**
    * The domain of the heatmap color scale. This defaults to [0, 1].
    */
-  domain: GlyphProperty<A, C, [number, number]>;
+  domain: GlyphCallback<A, C, [number, number]>;
 
-  constructor(config: HeatmapModifierConfig<A, C>) {
+  constructor(config: GlyphModifierConfig<A, C> & HeatmapConfig<A, C>) {
     super(config);
-    this.strokeColor = config.strokeColor || "none";
     this.colorScheme = config.colorScheme || d3.interpolateViridis;
-    this.domain = config.domain || [0, 1];
+    this.domain = callbackifyOrDefault(config.domain, () => [0, 1]);
+
+    this.initializePolicy.attributeRuleMap.set("group", [
+      { key: "id", property: this.id },
+      { key: "transform", property: (d) => `translate(0, ${this.y(d)})` },
+    ]);
+
+    this.initializePolicy.styleRuleMap.set("group", [
+      { key: "stroke-width", property: config.strokeWidth },
+      { key: "stroke-opacity", property: config.strokeOpacity },
+      { key: "stroke", property: config.strokeColor || "none" },
+      { key: "stroke-dash-array", property: config.strokeDashArray },
+      { key: "stroke-dash-offset", property: config.strokeDashOffset },
+      { key: "fill", property: config.fillColor || "black" },
+      { key: "fill-opacity", property: config.fillOpacity },
+    ]);
   }
 
-  defaultInitialize() {
-    super.defaultInitialize();
-    this.selection.selectAll("rect").remove();
-
+  initialize() {
     this.selection.each((d, i, nodes) => {
       let tmpColorScale = d3
         .scaleSequential(this.colorScheme)
-        .domain(resolveValue(this.domain, d));
+        .domain(this.domain(d));
 
       d3.select(nodes[i])
         .selectAll<SVGRectElement, number>("rect")
@@ -88,26 +91,17 @@ export class HeatmapModifier<
         .append("rect")
         .attr("fill", (v) => tmpColorScale(v[1]));
     });
-
-    this.zoom();
+    super.initialize();
   }
 
-  defaultZoom() {
-    this.applyY();
+  zoom() {
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
         .selectAll<SVGRectElement, [number, number]>("rect")
         .attr("x", (v) => this.chart.xScale(d.a.start + v[0]))
         .attr("width", () => this.chart.xScale(1) - this.chart.xScale(0))
-        .attr("height", resolveValue(this.height, d));
+        .attr("height", this.height(d));
     });
-  }
-
-  applyY() {
-    this.applyAttr(
-      "transform",
-      (d) => `translate(0, ${resolveValue(this.y, d)})`
-    );
   }
 }
 

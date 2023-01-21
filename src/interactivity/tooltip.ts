@@ -2,9 +2,12 @@ import * as d3 from "d3";
 import { Annotation } from "../annotations";
 import { Chart } from "../charts/chart";
 import { hoverBehavior } from "./hover";
-import { GlyphProperty, resolveValue } from "../glyph-utilities/glyph-modifier";
 import { AnnotationDatum } from "../glyph-utilities/bind";
 import { InteractionConfig } from "./interaction-config";
+import {
+  GlyphProperty,
+  resolveGlyphProperty,
+} from "../glyph-utilities/glyph-property";
 
 /**
  * @internal
@@ -138,21 +141,21 @@ export function defaultTooltipMouseover<
   let padding = config.padding || 6;
 
   tooltipSelection
-    .style("background-color", resolveValue(backgroundColor, d))
-    .style("border-radius", resolveValue(borderRadius, d) + "px")
-    .style("padding", resolveValue(padding, d) + "px")
+    .style("background-color", resolveGlyphProperty(backgroundColor, d))
+    .style("border-radius", resolveGlyphProperty(borderRadius, d) + "px")
+    .style("padding", resolveGlyphProperty(padding, d) + "px")
     .interrupt()
     .transition()
     .duration(200)
-    .style("opacity", resolveValue(opacity, d));
+    .style("opacity", resolveGlyphProperty(opacity, d));
 
   tooltipSelection
-    .html(resolveValue(config.text, d))
-    .style("color", resolveValue(textColor, d))
-    .style("font-size", resolveValue(fontSize, d))
-    .style("font-weight", resolveValue(fontWeight, d))
-    .style("font-family", resolveValue(fontFamily, d))
-    .style("font-style", resolveValue(fontStyle, d))
+    .html(resolveGlyphProperty(config.text, d))
+    .style("color", resolveGlyphProperty(textColor, d))
+    .style("font-size", resolveGlyphProperty(fontSize, d))
+    .style("font-weight", resolveGlyphProperty(fontWeight, d))
+    .style("font-family", resolveGlyphProperty(fontFamily, d))
+    .style("font-style", resolveGlyphProperty(fontStyle, d))
     .style("left", d3.event.pageX + "px")
     .style("top", d3.event.pageY + 20 + "px");
 }

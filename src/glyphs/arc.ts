@@ -5,12 +5,19 @@ import { GlyphConfig } from "../glyph-utilities/glyph-config";
 import { generateId } from "../utilities/id-generation";
 import { bind } from "../glyph-utilities/bind";
 import {
-  GlyphCallback,
   GlyphModifier,
   GlyphModifierConfig,
-  GlyphProperty,
-  resolveValue,
 } from "../glyph-utilities/glyph-modifier";
+import {
+  GlyphCallback,
+  GlyphProperty,
+} from "../glyph-utilities/glyph-property";
+
+/**
+ * An interface that defines the parameters for a call to the arc rendering function.
+ */
+export interface ArcConfig<A extends Annotation, C extends Chart<any>>
+  extends GlyphConfig<A, C> {}
 
 /**
  * @internal
@@ -20,30 +27,21 @@ import {
  * @param h
  */
 export function buildArcPathDFn<A extends Annotation, C extends Chart<any>>(
-  x: GlyphProperty<A, C, number>,
-  w: GlyphProperty<A, C, number>,
-  y: GlyphProperty<A, C, number>,
-  h: GlyphProperty<A, C, number>
+  x: GlyphCallback<A, C, number>,
+  w: GlyphCallback<A, C, number>,
+  y: GlyphCallback<A, C, number>,
+  h: GlyphCallback<A, C, number>
 ): GlyphCallback<A, C, string> {
   return (d) => {
-    let width = resolveValue(w, d);
-    let x1 = resolveValue(x, d);
-    let y1 = resolveValue(y, d);
+    let width = w(d);
+    let x1 = x(d);
+    let y1 = y(d);
     let x2 = x1 + width / 2;
-    let y2 = y1 - resolveValue(h, d) * 2;
+    let y2 = y1 - h(d) * 2;
     let x3 = x1 + width;
     return `M ${x1},${y1} Q ${x2},${y2} ${x3},${y1}`;
   };
 }
-
-/**
- * An interface that defines the parameters for instantiating an ArcModifier.
- * @internal
- */
-export type ArcModifierConfig<
-  A extends Annotation,
-  C extends Chart<any>
-> = GlyphModifierConfig<A, C> & ArcConfig<A, C>;
 
 /**
  * A class that manages the styling and positioning of a group of arc glyphs.
@@ -53,31 +51,31 @@ export class ArcModifier<
   A extends Annotation,
   C extends Chart<any>
 > extends GlyphModifier<A, C> {
-  d: GlyphProperty<A, C, string | null>;
+  d: GlyphProperty<A, C, string>;
 
-  constructor(config: ArcModifierConfig<A, C>) {
+  constructor(config: GlyphModifierConfig<A, C> & ArcConfig<A, C>) {
     super(config);
-    this.y = (d) => (resolveValue(this.row, d) + 1) * d.c.rowHeight - 2;
+    this.y = (d) => (this.row(d) + 1) * d.c.rowHeight - 2;
     this.d = buildArcPathDFn(this.x, this.width, this.y, this.height);
-    this.fillColor = config.fillColor || "none";
-  }
 
-  defaultZoom(): void {
-    this.setD();
-  }
+    this.initializePolicy.attributeRuleMap.set("group", [
+      { key: "id", property: this.id },
+    ]);
 
-  setD(): void {
-    this.applyAttr("d", this.d);
-  }
-}
+    this.initializePolicy.styleRuleMap.set("group", [
+      { key: "stroke-width", property: config.strokeWidth },
+      { key: "stroke-opacity", property: config.strokeOpacity },
+      { key: "stroke", property: config.strokeColor || "black" },
+      { key: "stroke-dash-array", property: config.strokeDashArray },
+      { key: "stroke-dash-offset", property: config.strokeDashOffset },
+      { key: "fill", property: config.fillColor || "none" },
+      { key: "fill-opacity", property: config.fillOpacity },
+    ]);
 
-/**
- * An interface that defines the parameters for a call to the arc rendering function.
- */
-export interface ArcConfig<A extends Annotation, C extends Chart<any>>
-  extends GlyphConfig<A, C> {
-  initializeFn?: (this: ArcModifier<A, C>) => void;
-  zoomFn?: (this: ArcModifier<A, C>) => void;
+    this.zoomPolicy.attributeRuleMap.set("group", [
+      { key: "d", property: this.d },
+    ]);
+  }
 }
 
 /**

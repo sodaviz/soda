@@ -3,13 +3,12 @@ import { Chart } from "../charts/chart";
 import * as d3 from "d3";
 import { generateId } from "../utilities/id-generation";
 import { GlyphConfig } from "../glyph-utilities/glyph-config";
-import { AnnotationDatum, bind } from "../glyph-utilities/bind";
+import { bind } from "../glyph-utilities/bind";
 import {
   GlyphModifier,
   GlyphModifierConfig,
-  GlyphProperty,
-  resolveValue,
 } from "../glyph-utilities/glyph-modifier";
+import { GlyphProperty } from "../glyph-utilities/glyph-property";
 
 /**
  * An interface that defines the parameters for a call to the line rendering function.
@@ -20,18 +19,7 @@ export interface LineConfig<A extends Annotation, C extends Chart<any>>
   x2?: GlyphProperty<A, C, number>;
   y1?: GlyphProperty<A, C, number>;
   y2?: GlyphProperty<A, C, number>;
-  initializeFn?: (this: LineModifier<A, C>) => void;
-  zoomFn?: (this: LineModifier<A, C>) => void;
 }
-
-/**
- * An interface that defines the parameters to instantiate a LineModifier.
- * @internal
- */
-export type LineModifierConfig<
-  A extends Annotation,
-  C extends Chart<any>
-> = GlyphModifierConfig<A, C> & LineConfig<A, C>;
 
 /**
  * A class that manges the styling and positioning of a group of line glyphs.
@@ -46,43 +34,34 @@ export class LineModifier<
   y1: GlyphProperty<A, C, number>;
   y2: GlyphProperty<A, C, number>;
 
-  public constructor(config: LineModifierConfig<A, C>) {
+  public constructor(config: GlyphModifierConfig<A, C> & LineConfig<A, C>) {
     super(config);
-    this.x1 =
-      config.x1 ||
-      config.x ||
-      ((d: AnnotationDatum<A, C>) => d.c.xScale(d.a.start));
-    this.x2 = config.x2 || ((d: AnnotationDatum<A, C>) => d.c.xScale(d.a.end));
+    this.x1 = config.x1 || config.x || ((d) => d.c.xScale(d.a.start));
+    this.x2 = config.x2 || ((d) => d.c.xScale(d.a.end));
     this.y1 =
-      config.y1 ||
-      config.y ||
-      ((d: AnnotationDatum<A, C>) =>
-        (resolveValue(this.row, d) + 0.5) * d.c.rowHeight);
+      config.y1 || config.y || ((d) => (this.row(d) + 0.5) * d.c.rowHeight);
     this.y2 = config.y2 || this.y1;
-    this.strokeColor = config.strokeColor || "black";
-  }
 
-  defaultZoom() {
-    this.applyX1();
-    this.applyX2();
-    this.applyY1();
-    this.applyY2();
-  }
+    this.initializePolicy.attributeRuleMap.set("group", [
+      { key: "id", property: this.id },
+      { key: "y1", property: this.y1 },
+      { key: "y2", property: this.y2 },
+    ]);
 
-  applyX1(): void {
-    this.applyAttr("x1", this.x1);
-  }
+    this.initializePolicy.styleRuleMap.set("group", [
+      { key: "stroke-width", property: config.strokeWidth },
+      { key: "stroke-opacity", property: config.strokeOpacity },
+      { key: "stroke", property: config.strokeColor || "black" },
+      { key: "stroke-dash-array", property: config.strokeDashArray },
+      { key: "stroke-dash-offset", property: config.strokeDashOffset },
+      { key: "fill", property: config.fillColor },
+      { key: "fill-opacity", property: config.fillOpacity },
+    ]);
 
-  applyX2(): void {
-    this.applyAttr("x2", this.x2);
-  }
-
-  applyY1(): void {
-    this.applyAttr("y1", this.y1);
-  }
-
-  applyY2(): void {
-    this.applyAttr("y2", this.y2);
+    this.zoomPolicy.attributeRuleMap.set("group", [
+      { key: "x1", property: this.x1 },
+      { key: "x2", property: this.x2 },
+    ]);
   }
 }
 
@@ -107,8 +86,7 @@ export function line<A extends Annotation, C extends Chart<any>>(
     selection: binding.merge,
   });
 
-  modifier.initialize();
-  config.chart.glyphModifiers.push(modifier);
+  config.chart.addGlyphModifier(modifier);
 
   return binding.g;
 }

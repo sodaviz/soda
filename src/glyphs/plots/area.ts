@@ -5,12 +5,16 @@ import * as d3 from "d3";
 import {
   GlyphModifier,
   GlyphModifierConfig,
-  GlyphProperty,
-  resolveValue,
 } from "../../glyph-utilities/glyph-modifier";
 import { LinePlotConfig } from "./line-plot";
 import { generateId } from "../../utilities/id-generation";
 import { initializePlotGlyphYScales } from "../plots";
+import {
+  callbackifyOrDefault,
+  GlyphCallback,
+  GlyphProperty,
+  resolveGlyphProperty,
+} from "../../glyph-utilities/glyph-property";
 
 /**
  * A simple enum to define the direction that an area glyph fills in.
@@ -39,7 +43,7 @@ function getDefaultAreaFn<A extends PlotAnnotation, C extends Chart<any>>(
     let curve = d3.curveLinear(buffer);
     curve.lineStart();
 
-    let fillDirection = resolveValue(modifier.fillDirection, d);
+    let fillDirection = resolveGlyphProperty(modifier.fillDirection, d);
     let range = yScale.range();
 
     if (fillDirection == FillDirection.Down) {
@@ -70,15 +74,6 @@ function getDefaultAreaFn<A extends PlotAnnotation, C extends Chart<any>>(
 }
 
 /**
- * An interface that defines the parameters for instantiating an AreaModifier.
- * @internal
- */
-export type AreaModifierConfig<
-  A extends PlotAnnotation,
-  C extends Chart<any>
-> = GlyphModifierConfig<A, C> & AreaConfig<A, C>;
-
-/**
  * A class that manages the styling and positioning of a group of area glyphs.
  * @internal
  */
@@ -86,29 +81,35 @@ export class AreaModifier<
   A extends PlotAnnotation,
   C extends Chart<any>
 > extends GlyphModifier<A, C> {
-  pathData: GlyphProperty<A, C, string>;
-  fillDirection: GlyphProperty<A, C, FillDirection>;
+  d: GlyphProperty<A, C, string>;
+  fillDirection: GlyphCallback<A, C, FillDirection>;
 
-  constructor(config: AreaModifierConfig<A, C>) {
+  constructor(config: GlyphModifierConfig<A, C> & AreaConfig<A, C>) {
     super(config);
-    this.pathData = getDefaultAreaFn(this);
-    this.fillDirection = config.fillDirection || FillDirection.Down;
-  }
-
-  defaultZoom() {
-    this.applyY();
-    this.applyD();
-  }
-
-  applyD(): void {
-    this.applyAttr("d", this.pathData);
-  }
-
-  applyY() {
-    this.applyAttr(
-      "transform",
-      (d) => `translate(0, ${resolveValue(this.y, d)})`
+    this.d = getDefaultAreaFn(this);
+    this.fillDirection = callbackifyOrDefault(
+      config.fillDirection,
+      () => FillDirection.Down
     );
+
+    this.initializePolicy.attributeRuleMap.set("group", [
+      { key: "id", property: this.id },
+      { key: "transform", property: (d) => `translate(0, ${this.y(d)})` },
+    ]);
+
+    this.initializePolicy.styleRuleMap.set("group", [
+      { key: "stroke-width", property: config.strokeWidth },
+      { key: "stroke-opacity", property: config.strokeOpacity },
+      { key: "stroke", property: config.strokeColor || "black" },
+      { key: "stroke-dash-array", property: config.strokeDashArray },
+      { key: "stroke-dash-offset", property: config.strokeDashOffset },
+      { key: "fill", property: config.fillColor || "black" },
+      { key: "fill-opacity", property: config.fillOpacity },
+    ]);
+
+    this.zoomPolicy.attributeRuleMap.set("group", [
+      { key: "d", property: this.d },
+    ]);
   }
 }
 

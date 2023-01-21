@@ -35,7 +35,9 @@ Interfaces
    interfaces/LinePlotConfig
    interfaces/MapVerticalLayout
    interfaces/PlotAnnotation
+   interfaces/RadialAxisConfig
    interfaces/RadialChartConfig
+   interfaces/RadialRectangleConfig
    interfaces/RectangleConfig
    interfaces/RenderParams
    interfaces/SequenceAnnotation

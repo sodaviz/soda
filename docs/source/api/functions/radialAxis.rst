@@ -9,20 +9,20 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _radialRectangle:
+.. _radialAxis:
 
-:trst-function:`radialRectangle`
-================================
+:trst-function:`radialAxis`
+===========================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    function radialRectangle<A extends Annotation, C extends RadialChart>(config: RadialRectangleConfig <A, C>): d3.Selection
+    function radialAxis<A extends Annotation, C extends RadialChart>(config: RadialAxisConfig <A, C>): d3.Selection
 
 .. container:: content
 
-  This renders a list of Annotation objects as rectangles in a RadialChart.
+  This renders Annotations as horizontal axes in a Chart.
 
   **Type parameters**
 
@@ -31,6 +31,6 @@
 
   **Parameters**
 
-  - config: RadialRectangleConfig <A, C>
+  - config: RadialAxisConfig <A, C>
 
   **Returns**: d3.Selection <SVGGElement, string, any, any>

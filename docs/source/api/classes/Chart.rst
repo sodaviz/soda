@@ -206,6 +206,19 @@ _viewportWidth
 
   The stored value of the viewport SVG width property.
 
+axisConfig
+**********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    axisConfig: HorizontalAxisConfig <any, any>
+
+.. container:: content
+
+  This sets the styling properties for the default axis produced by addAxis(), which is called in the default draw() implementation.
+
 containerSelection
 ******************
 

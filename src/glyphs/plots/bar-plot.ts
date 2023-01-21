@@ -8,9 +8,11 @@ import { initializePlotGlyphYScales } from "../plots";
 import {
   GlyphModifier,
   GlyphModifierConfig,
-  GlyphProperty,
-  resolveValue,
 } from "../../glyph-utilities/glyph-modifier";
+import {
+  callbackifyOrDefault,
+  GlyphProperty,
+} from "../../glyph-utilities/glyph-property";
 
 /**
  * @internal
@@ -34,13 +36,25 @@ export const defaultBarHeightFn = <A extends PlotAnnotation>(
 };
 
 /**
- * An interface that defines the parameters for instantiating a BarPlotModifier.
- * @internal
+ * An interface that defines the parameters for a call to the barPlot rendering function.
  */
-export type BarPlotModifierConfig<
-  A extends PlotAnnotation,
-  C extends Chart<any>
-> = GlyphModifierConfig<A, C> & BarPlotConfig<A, C>;
+export interface BarPlotConfig<A extends PlotAnnotation, C extends Chart<any>>
+  extends GlyphConfig<A, C> {
+  /**
+   * The number of bins that the plot will span. This defaults to 1, which forces the plot to fit into one row. If
+   * an argument is supplied, it will cause the plot to grow downward. It will have no effect if a custom lineFunc
+   * is supplied.
+   */
+  rowSpan?: number;
+  /**
+   * This defines the domain of the plot.
+   */
+  domain?: GlyphProperty<A, C, [number, number]>;
+  /**
+   * This defines the range of the plot.
+   */
+  range?: GlyphProperty<A, C, [number, number]>;
+}
 
 /**
  * A class that manages the styling and positioning of a group of bar plot glyphs.
@@ -52,69 +66,61 @@ export class BarPlotModifier<
 > extends GlyphModifier<A, C> {
   barHeightFn: (ann: A, value: number) => number;
 
-  constructor(config: BarPlotModifierConfig<A, C>) {
+  constructor(config: GlyphModifierConfig<A, C> & BarPlotConfig<A, C>) {
     super(config);
-    this.y =
-      config.y != undefined
-        ? config.y
-        : (d: AnnotationDatum<A, C>) =>
-            resolveValue(this.row, d) * d.c.rowHeight - 2;
-    this.strokeColor = config.strokeColor || "none";
-    this.barHeightFn = config.barHeightFn || defaultBarHeightFn;
+    this.y = callbackifyOrDefault(
+      config.y,
+      (d: AnnotationDatum<A, C>) => this.row(d) * d.c.rowHeight - 2
+    );
+
+    this.barHeightFn = defaultBarHeightFn;
+
+    this.initializePolicy.attributeRuleMap.set("group", [
+      { key: "id", property: this.id },
+      { key: "transform", property: (d) => `translate(0, ${this.y(d)})` },
+    ]);
+
+    this.initializePolicy.styleRuleMap.set("group", [
+      { key: "stroke-width", property: config.strokeWidth },
+      { key: "stroke-opacity", property: config.strokeOpacity },
+      { key: "stroke", property: config.strokeColor },
+      { key: "stroke-dash-array", property: config.strokeDashArray },
+      { key: "stroke-dash-offset", property: config.strokeDashOffset },
+      { key: "fill", property: config.fillColor },
+      { key: "fill-opacity", property: config.fillOpacity },
+    ]);
   }
 
-  defaultInitialize() {
-    super.defaultInitialize();
+  initialize() {
+    // I'm not seeing a good reason to save a reference to this selection
+    // because of the weird way that we need to use it (see zoom())
+    // TODO: this could probably be simplified
     this.selection
       .selectAll("rect")
       .data((d) => Array.from(d.a.values.entries()))
       .enter()
       .append("rect");
-    this.zoom();
+
+    this.selection.each((d, i, nodes) => {
+      d3.select(nodes[i])
+        .selectAll<SVGRectElement, [number, number]>("rect")
+        .attr("y", (v) => d.c.rowHeight - this.barHeightFn(d.a, v[1]))
+        .attr("height", (v) => this.barHeightFn(d.a, v[1]));
+    });
+    super.initialize();
   }
 
-  defaultZoom() {
-    this.applyY();
+  zoom() {
+    // for every bar, we need both the AnnotationDatum and the values for x positioning
+    // since the property application system expects an AnnotationDatum to be bound,
+    // it wouldn't work here without some hacking
     this.selection.each((d, i, nodes) => {
       d3.select(nodes[i])
         .selectAll<SVGRectElement, [number, number]>("rect")
         .attr("x", (v) => d.c.xScale(d.a.start + v[0]))
-        .attr("y", (v) => d.c.rowHeight - this.barHeightFn(d.a, v[1]))
-        .attr("width", () => this.chart.xScale(1) - this.chart.xScale(0))
-        .attr("height", (v) => this.barHeightFn(d.a, v[1]));
+        .attr("width", () => this.chart.xScale(1) - this.chart.xScale(0));
     });
   }
-
-  applyY() {
-    this.applyAttr(
-      "transform",
-      (d) => `translate(0, ${resolveValue(this.y, d)})`
-    );
-  }
-}
-
-/**
- * An interface that defines the parameters for a call to the barPlot rendering function.
- */
-export interface BarPlotConfig<A extends PlotAnnotation, C extends Chart<any>>
-  extends GlyphConfig<A, C> {
-  /**
-   * The number of bins that the plot will span. This defaults to 1, which forces the plot to fit into one row. If
-   * an argument is supplied, it will cause the plot to grow downward. It will have no effect if a custom lineFunc
-   * is supplied.
-   */
-  rowSpan?: number;
-  barHeightFn?: (ann: A, value: number) => number;
-  initializeFn?: (this: BarPlotModifier<A, C>) => void;
-  zoomFn?: (this: BarPlotModifier<A, C>) => void;
-  /**
-   * This defines the domain of the plot.
-   */
-  domain?: GlyphProperty<A, C, [number, number]>;
-  /**
-   * This defines the range of the plot.
-   */
-  range?: GlyphProperty<A, C, [number, number]>;
 }
 
 /**

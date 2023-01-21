@@ -1,6 +1,6 @@
 import { Annotation } from "../annotations/annotation";
 import { Chart } from "../charts/chart";
-import { GlyphCallback } from "../glyph-utilities/glyph-modifier";
+import { GlyphCallback } from "../glyph-utilities/glyph-property";
 
 /**
  * An interface that defines the object that Charts use to store the vertical layout of glyphs.

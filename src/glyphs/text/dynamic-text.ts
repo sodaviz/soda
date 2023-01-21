@@ -2,13 +2,14 @@ import { Annotation } from "../../annotations/annotation";
 import { Chart } from "../../charts/chart";
 import * as d3 from "d3";
 import { generateId } from "../../utilities/id-generation";
-import { bind } from "../../glyph-utilities/bind";
-import {
-  GlyphModifierConfig,
-  GlyphProperty,
-  resolveValue,
-} from "../../glyph-utilities/glyph-modifier";
+import { AnnotationDatum, bind } from "../../glyph-utilities/bind";
+import { GlyphModifierConfig } from "../../glyph-utilities/glyph-modifier";
 import { TextConfig, TextModifier } from "../text";
+import {
+  callbackify,
+  GlyphCallback,
+  GlyphProperty,
+} from "../../glyph-utilities/glyph-property";
 
 const textMap: Map<string, string[]> = new Map();
 const thresholdMap: Map<string, number[]> = new Map();
@@ -49,29 +50,11 @@ export function selectText(a: Annotation, c: Chart<any>): string {
 }
 
 /**
- * A utility function that gets the computed size of a string when rendered in the browser.
- * @internal
- * @param text
- */
-function getTextSize(text: string): number {
-  let selection = d3.select("body").append("svg");
-
-  let width = selection
-    .append("text")
-    .attr("class", "tmp-text")
-    .text(text)
-    .node()!
-    .getComputedTextLength();
-
-  selection.remove();
-  return width;
-}
-
-/**
  * A utility function that maps the multiple levels of text detail to Annotations for later use.
  * @internal
  * @param config
  */
+// TODO: this and the maps should just be on the DynamicTextModifier class
 function addToTextMaps<A extends Annotation, C extends Chart<any>>(
   config: DynamicTextModifier<A, C>
 ): void {
@@ -82,35 +65,25 @@ function addToTextMaps<A extends Annotation, C extends Chart<any>>(
     .attr("class", "tmp-text");
 
   for (const a of config.annotations) {
-    let text = resolveValue(config.text, { a, c: config.chart });
+    let datum: AnnotationDatum<A, C> = { a, c: config.chart };
+    let text = config.text(datum);
     textMap.set(a.id, text);
+
     let thresholds = text.map((t) => {
       if (config.fontSize) {
-        tmpTextSelection.style(
-          "font-size",
-          resolveValue(config.fontSize, { a, c: config.chart })
-        );
+        tmpTextSelection.style("font-size", config.fontSize(datum));
       }
 
       if (config.fontFamily) {
-        tmpTextSelection.style(
-          "font-family",
-          resolveValue(config.fontFamily, { a, c: config.chart })
-        );
+        tmpTextSelection.style("font-family", config.fontFamily(datum));
       }
 
       if (config.fontWeight) {
-        tmpTextSelection.style(
-          "font-weight",
-          resolveValue(config.fontWeight, { a, c: config.chart })
-        );
+        tmpTextSelection.style("font-weight", config.fontWeight(datum));
       }
 
       if (config.fontStyle) {
-        tmpTextSelection.style(
-          "font-style",
-          resolveValue(config.fontStyle, { a, c: config.chart })
-        );
+        tmpTextSelection.style("font-style", config.fontStyle(datum));
       }
 
       let textSize = tmpTextSelection.text(t).node()!.getComputedTextLength();
@@ -139,15 +112,6 @@ export interface DynamicTextConfig<A extends Annotation, C extends Chart<any>>
 }
 
 /**
- * An interface that defines the parameters to instantiate a DynamicTextModifier.
- * @internal
- */
-export type DynamicTextModifierConfig<
-  A extends Annotation,
-  C extends Chart<any>
-> = GlyphModifierConfig<A, C> & DynamicTextConfig<A, C>;
-
-/**
  * A class that manages the styling and positioning of a group of dynamic text glyphs.
  * @internal
  */
@@ -155,24 +119,20 @@ export class DynamicTextModifier<
   A extends Annotation,
   C extends Chart<any>
 > extends TextModifier<A, C> {
-  text: GlyphProperty<A, C, string[]>;
-  constructor(config: DynamicTextModifierConfig<A, C>) {
+  text: GlyphCallback<A, C, string[]>;
+
+  constructor(config: GlyphModifierConfig<A, C> & DynamicTextConfig<A, C>) {
     super(config);
-    this.text = config.text;
+    this.text = callbackify(config.text);
     addToTextMaps(this);
   }
 
-  defaultInitialize(): void {
-    super.defaultInitialize();
-    this.applyText();
+  initialize(): void {
+    super.initialize();
   }
 
-  defaultZoom(): void {
-    super.defaultZoom();
-    this.applyText();
-  }
-
-  applyText(): void {
+  zoom(): void {
+    super.zoom();
     this.selection.text((d) => selectText(d.a, d.c));
   }
 }
@@ -197,6 +157,7 @@ export function dynamicText<A extends Annotation, C extends Chart<any>>(
     selector,
     selection: binding.merge,
   });
+
   config.chart.addGlyphModifier(modifier);
 
   return binding.g;

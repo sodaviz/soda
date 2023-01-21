@@ -1,16 +1,16 @@
 import { Annotation } from "../../annotations/annotation";
 import { Chart } from "../../charts/chart";
 import {
-  GlyphCallback,
   GlyphModifier,
   GlyphModifierConfig,
-  GlyphProperty,
-  resolveValue,
 } from "../../glyph-utilities/glyph-modifier";
 import { Orientation } from "../../annotations/orientation";
-import * as d3 from "d3";
-import { AnnotationDatum } from "../../glyph-utilities/bind";
 import { ChevronGlyphConfig } from "../chevron";
+import {
+  applyPropertyPolicy,
+  callbackifyOrDefault,
+  GlyphCallback,
+} from "../../glyph-utilities/glyph-property";
 
 /**
  * @internal
@@ -23,16 +23,16 @@ export function buildChevronPatternPathDFn<
   A extends Annotation,
   C extends Chart<any>
 >(
-  height: GlyphProperty<A, C, number>,
-  chevronHeight: GlyphProperty<A, C, number>,
-  chevronWidth: GlyphProperty<A, C, number>,
-  orientation: GlyphProperty<A, C, Orientation>
+  height: GlyphCallback<A, C, number>,
+  chevronHeight: GlyphCallback<A, C, number>,
+  chevronWidth: GlyphCallback<A, C, number>,
+  orientation: GlyphCallback<A, C, Orientation>
 ): GlyphCallback<A, C, string> {
   return (d) => {
-    let heightValue = resolveValue(height, d);
-    let chevronHeightValue = resolveValue(chevronHeight, d);
-    let chevronWidthValue = resolveValue(chevronWidth, d);
-    let orientationValue = resolveValue(orientation, d);
+    let heightValue = height(d);
+    let chevronHeightValue = chevronHeight(d);
+    let chevronWidthValue = chevronWidth(d);
+    let orientationValue = orientation(d);
     let heightDiff = heightValue - chevronHeightValue;
 
     let x1, x2, x3, y1, y2, y3;
@@ -65,9 +65,9 @@ export function buildChevronPatternPathDFn<
 export function buildChevronPatternXFn<
   A extends Annotation,
   C extends Chart<any>
->(orientation: GlyphProperty<A, C, Orientation>): GlyphCallback<A, C, number> {
+>(orientation: GlyphCallback<A, C, Orientation>): GlyphCallback<A, C, number> {
   return (d) => {
-    let orientationValue = resolveValue(orientation, d);
+    let orientationValue = orientation(d);
     if (orientationValue == Orientation.Forward) {
       return d.c.xScale(d.a.start);
     } else if (orientationValue == Orientation.Reverse) {
@@ -82,156 +82,97 @@ export function buildChevronPatternXFn<
 /**
  * @internal
  */
-export interface ChevronPatternConfig<
-  A extends Annotation,
-  C extends Chart<any>
-> extends ChevronGlyphConfig<A, C> {
-  /**
-   * The semantic view width at which the chevron patterns will be disabled. Above this point, they will look like
-   * regular rectangles or lines.
-   */
-  disableAt?: number;
-  initializeFn?: (this: ChevronPatternModifier<A, C>) => void;
-  zoomFn?: (this: ChevronPatternModifier<A, C>) => void;
-}
-
-/**
- * @internal
- */
-export type ChevronPatternModifierConfig<
-  A extends Annotation,
-  C extends Chart<any>
-> = GlyphModifierConfig<A, C> & ChevronPatternConfig<A, C>;
-
-/**
- * @internal
- */
 export class ChevronPatternModifier<
   A extends Annotation,
   C extends Chart<any>
 > extends GlyphModifier<A, C> {
-  orientation: GlyphProperty<A, C, Orientation>;
-  fillColor: GlyphProperty<A, C, string>;
-  fillOpacity: GlyphProperty<A, C, number>;
-  chevronFillColor: GlyphProperty<A, C, string>;
-  chevronFillOpacity: GlyphProperty<A, C, number>;
-  chevronStrokeColor: GlyphProperty<A, C, string>;
-  chevronStrokeOpacity: GlyphProperty<A, C, number>;
-  chevronSpacing: GlyphProperty<A, C, number>;
-  chevronWidth?: GlyphProperty<A, C, number>;
-  chevronHeight: GlyphProperty<A, C, number>;
-  pathD: GlyphProperty<A, C, string>;
-  disableAt: number;
+  d: GlyphCallback<A, C, string>;
 
-  constructor(config: ChevronPatternModifierConfig<A, C>) {
+  constructor(config: GlyphModifierConfig<A, C> & ChevronGlyphConfig<A, C>) {
     super(config);
-    this.orientation = config.orientation || Orientation.Forward;
-    this.x = config.x || buildChevronPatternXFn(this.orientation);
-    this.height =
-      config.height || ((d: AnnotationDatum<A, C>) => d.c.rowHeight - 4);
-    this.width =
-      config.width ||
-      ((d: AnnotationDatum<A, C>) =>
-        resolveValue(this.height, d) / 2 +
-        resolveValue(this.chevronSpacing, d));
 
-    this.fillColor = config.fillColor || "None";
-    this.fillOpacity = config.fillOpacity || 1.0;
-
-    this.disableAt = config.disableAt || Infinity;
-
-    this.chevronFillColor = config.chevronFillColor || "None";
-    this.chevronFillOpacity = config.chevronFillOpacity || 0;
-
-    this.chevronStrokeColor = config.chevronStrokeColor || "black";
-    this.chevronStrokeOpacity = config.chevronStrokeOpacity || 1;
-
-    this.chevronHeight = config.chevronHeight || this.height;
-    this.chevronWidth =
-      config.chevronWidth ||
-      ((d: AnnotationDatum<A, C>) => resolveValue(this.chevronHeight, d) / 2);
-
-    this.chevronSpacing = config.chevronSpacing || 0;
-
-    this.pathD = buildChevronPatternPathDFn(
-      this.height,
-      this.chevronHeight,
-      this.chevronWidth,
-      this.orientation
+    let orientation = callbackifyOrDefault(
+      config.orientation,
+      () => Orientation.Forward
     );
+    let chevronSpacing = callbackifyOrDefault(config.chevronSpacing, () => 0);
+
+    this.x = callbackifyOrDefault(
+      config.x,
+      buildChevronPatternXFn(orientation)
+    );
+
+    this.width = callbackifyOrDefault(
+      config.width,
+      (d) => this.height(d) / 2 + chevronSpacing(d)
+    );
+
+    let chevronHeight = callbackifyOrDefault(config.chevronHeight, this.height);
+    let chevronWidth = callbackifyOrDefault(
+      config.chevronWidth,
+      (d) => chevronHeight(d) / 2
+    );
+
+    this.d = buildChevronPatternPathDFn(
+      this.height,
+      chevronHeight,
+      chevronWidth,
+      orientation
+    );
+
+    // the group of pattern nodes
+    this.initializePolicy.attributeRuleMap.set("group", [
+      { key: "id", property: this.id },
+      { key: "patternUnits", property: "userSpaceOnUse" },
+      { key: "y", property: this.y },
+      { key: "height", property: this.height },
+      { key: "width", property: this.width },
+    ]);
+
+    // the rectangle that makes up the background
+    this.initializePolicy.attributeRuleMap.set("background", [
+      { key: "x", property: 0 },
+      { key: "y", property: 0 },
+      { key: "height", property: this.height },
+      { key: "width", property: this.width },
+    ]);
+
+    // no stroke on the background, since that's controlled by the
+    // external rectangle that is filled by the pattern
+    this.initializePolicy.styleRuleMap.set("background", [
+      { key: "fill", property: config.fillColor || "none" },
+      { key: "fill-opacity", property: config.fillOpacity },
+    ]);
+
+    // the arrow path, the path definition never changes
+    this.initializePolicy.attributeRuleMap.set("arrow", [
+      { key: "d", property: this.d },
+    ]);
+
+    this.initializePolicy.styleRuleMap.set("arrow", [
+      { key: "fill", property: config.chevronFillColor || "none" },
+      { key: "fill-opacity", property: config.chevronFillOpacity },
+      { key: "stroke", property: config.chevronStrokeColor || "black" },
+      { key: "stroke-opacity", property: config.chevronStrokeOpacity },
+    ]);
+
+    // the only thing we need to do on zoom is move the pattern
+    this.zoomPolicy.attributeRuleMap.set("group", [
+      { key: "x", property: this.x },
+    ]);
   }
 
-  defaultInitialize() {
-    this.applyId();
-    this.applyClass();
-    this.applyAttr("patternUnits", "userSpaceOnUse");
+  initialize() {
+    // this rectangle is the "background" of the pattern
+    this.selectionMap.set("background", this.selection.append("rect"));
+    // this path is what forms the chevron "arrow"
+    this.selectionMap.set("arrow", this.selection.append("path"));
 
-    this.selection
-      .append("rect")
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("width", (d) => resolveValue(this.width, d))
-      .attr("height", (d) => resolveValue(this.height, d));
-
-    this.selection
-      .append("path")
-      .style("stroke-linejoin", "miter")
-      .attr("d", (d) => resolveValue(this.pathD, d));
-
-    this.applyFillColor();
-    this.applyFillOpacity();
-    this.applyChevronFillColor();
-    this.applyChevronFillOpacity();
-    this.applyChevronStrokeColor();
-    this.applyChevronStrokeOpacity();
-    this.zoom();
-  }
-
-  applyFillColor(): void {
-    this.selection.each((d, i, nodes) => {
-      d3.select(nodes[i])
-        .selectAll("rect")
-        .style("fill", resolveValue(this.fillColor, d));
-    });
-  }
-
-  applyFillOpacity(): void {
-    this.selection.each((d, i, nodes) => {
-      d3.select(nodes[i])
-        .selectAll("rect")
-        .attr("fill-opacity", resolveValue(this.fillOpacity, d));
-    });
-  }
-
-  applyChevronStrokeColor(): void {
-    this.selection.each((d, i, nodes) => {
-      d3.select(nodes[i])
-        .selectAll("path")
-        .style("stroke", resolveValue(this.chevronStrokeColor, d));
-    });
-  }
-
-  applyChevronStrokeOpacity(): void {
-    this.selection.each((d, i, nodes) => {
-      d3.select(nodes[i])
-        .selectAll("path")
-        .attr("stroke-opacity", resolveValue(this.chevronStrokeOpacity, d));
-    });
-  }
-
-  applyChevronFillColor(): void {
-    this.selection.each((d, i, nodes) => {
-      d3.select(nodes[i])
-        .selectAll("path")
-        .style("fill", resolveValue(this.chevronFillColor, d));
-    });
-  }
-
-  applyChevronFillOpacity(): void {
-    this.selection.each((d, i, nodes) => {
-      d3.select(nodes[i])
-        .selectAll("path")
-        .attr("fill-opacity", resolveValue(this.chevronFillOpacity, d));
+    applyPropertyPolicy({
+      selectionKeys: this.selectionKeys,
+      selectionMap: this.selectionMap,
+      policy: this.initializePolicy,
+      context: "initialize",
     });
   }
 }

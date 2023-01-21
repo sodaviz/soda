@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { axisRadialOuter } from "../glyphs/radial/radial-axis";
+import { radialAxis } from "../glyphs/radial/radial-axis";
 import {
   Chart,
   ChartConfig,
@@ -16,10 +16,32 @@ import { HighlightConfig } from "./chart";
 export interface RadialChartConfig<P extends RenderParams>
   extends ChartConfig<P> {
   /**
-   * The "height" of the radial track on which annotations will be rendered. Conceptually, this is equal to to the
+   * The angle (in radians) of the "notch" at the top of the radial chart.
+   */
+  notchAngle?: number;
+  /**
+   * The outer radius of the Chart in pixels. If supplied, the outerRadiusRatio will take precedence over this value.
+   *
+   * If the chart is in resizable mode, this value is used to compute the the outerRadiusRatio, which will be used
+   * to resize the outer radius in response to resize events.
+   */
+  outerRadius?: number;
+  /**
+   * The outer radius of the Chart expressed as the ratio (outer radius / viewport width).
+   */
+  outerRadiusRatio?: number;
+  /**
+   * The "height" of the radial track on which annotations will be rendered. This is equal to to the
    * difference of the radii of two concentric circles that define an annulus.
+   *
+   * If the Chart is in resizable mode, this value is used to compute the trackHeightRatio, which will be used to
+   * resize the inner radius in response to resize events.
    */
   trackHeight?: number;
+  /**
+   * The track height expressed as the ratio ( track height / viewport width)
+   */
+  trackHeightRatio?: number;
 }
 
 /**
@@ -27,22 +49,30 @@ export interface RadialChartConfig<P extends RenderParams>
  */
 export class RadialChart<P extends RenderParams> extends Chart<P> {
   /**
+   * The angle (in radians) of the "notch" at the top of the radial chart.
+   */
+  notchAngle: number;
+  /**
    * The "height" of the radial track on which annotations will be rendered. Conceptually, this is equal to to the
    * difference of the radii of two concentric circles that define an annulus.
    */
   trackHeight: number;
   /**
-   * The inner radius of the conceptual annulus that defines the Chart annotation track.
+   * The track height expressed as the ratio ( track height / viewport width)
+   */
+  trackHeightRatio: number;
+  /**
+   * The inner radius of the Chart in pixels.
    */
   innerRadius: number;
   /**
-   * The outer radius of the conceptual annulus that defines the Chart annotation track.
+   * The outer radius of the Chart in pixels.
    */
   outerRadius: number;
   /**
-   * The radius of the circle that defines the axis placement.
+   * The outer radius of the Chart expressed as the ratio (outer radius / viewport width).
    */
-  axisRadius?: number;
+  outerRadiusRatio: number;
   /**
    * A d3 selection to the track outline.
    */
@@ -51,9 +81,20 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
   public constructor(config: RadialChartConfig<P>) {
     super(config);
 
-    this.trackHeight = config.trackHeight || this.viewportWidthPx / 4;
+    // default the notch angle to ~1% of a circle
+    this.notchAngle = config.notchAngle || Math.PI / 200;
 
-    this.outerRadius = this.viewportWidthPx / 2;
+    // we can set the range here once and forget about it
+    this.xScale.range([this.notchAngle, 2 * Math.PI - this.notchAngle]);
+
+    this.trackHeight = config.trackHeight || this.viewportWidthPx / 4;
+    this.trackHeightRatio =
+      config.trackHeightRatio || this.trackHeight / this.viewportWidthPx;
+
+    this.outerRadius = config.outerRadius || this.viewportWidthPx / 2;
+    this.outerRadiusRatio =
+      config.outerRadiusRatio || this.outerRadius / this.viewportWidthPx;
+
     this.innerRadius = this.outerRadius - this.trackHeight;
     this.rowCount = config.rowCount || 1;
     this.rowHeight = this.trackHeight / this.rowCount;
@@ -82,8 +123,11 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
   }
 
   public fitRadialDimensions(): void {
-    this.trackHeight = this.viewportWidthPx / 4;
-    this.outerRadius = this.viewportWidthPx / 2;
+    this.outerRadius = this.viewportWidthPx * this.outerRadiusRatio;
+    // set the inner radius based off of the track height because it's probably
+    // easier to think about the outer radius and the track height, as opposed
+    // to thinking about the outer radius and inner radius
+    this.trackHeight = this.viewportWidthPx * this.trackHeightRatio;
     this.innerRadius = this.outerRadius - this.trackHeight;
     this.rowHeight = this.trackHeight / this.rowCount;
   }
@@ -112,7 +156,9 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
       .data(["track-outline"])
       .enter()
       .append<SVGPathElement>("path")
-      .attr("class", "track-outline");
+      .attr("class", "track-outline")
+      .attr("stroke", "black")
+      .attr("fill", "none");
 
     this.renderTrackOutline();
   }
@@ -129,34 +175,16 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
           d3
             .arc<any, null>()
             .innerRadius(this.innerRadius - 1)
-            .outerRadius(this.innerRadius)
-            .startAngle(0)
-            .endAngle(2 * Math.PI)(null)!
+            .outerRadius(this.outerRadius)
+            .startAngle(this.range[0])
+            // TODO: why can this return null?
+            .endAngle(this.range[1])(null)!
         );
     }
   }
 
   public addAxis() {
-    this.overflowViewportSelection
-      .selectAll("g.radial-axis")
-      .data(["radial-axis"])
-      .enter()
-      .append("g")
-      .attr("class", "radial-axis");
-
-    this.renderAxis();
-  }
-
-  public renderAxis() {
-    let axis = axisRadialOuter(this.xScale, this.outerRadius);
-
-    this.overflowViewportSelection
-      .selectAll("g.radial-axis")
-      .call(axis)
-      .attr(
-        "transform",
-        `translate(${this.viewportWidthPx / 2}, ${this.viewportWidthPx / 2})`
-      );
+    radialAxis(this.axisConfig);
   }
 
   public squareToDivWidth(): void {
@@ -192,7 +220,6 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
     this.squareToDivWidth();
     this.updateViewportProperties();
     this.fitRadialDimensions();
-    this.renderAxis();
     this.renderTrackOutline();
     this.applyGlyphModifiers();
     this.postResize();
@@ -200,7 +227,6 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
 
   public zoom() {
     super.zoom();
-    this.renderAxis();
     this.renderTrackOutline();
   }
 
@@ -273,7 +299,8 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
   }
 
   public updateRange(): void {
-    this.xScale.range([0, 2 * Math.PI]);
+    // this is a no-op for now, but it won't be if we implement
+    // closing/opening of the sector based on zoom level
   }
 
   public highlight(config: HighlightConfig): string {

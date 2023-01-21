@@ -4,8 +4,12 @@ import { GlyphConfig } from "../glyph-utilities/glyph-config";
 import {
   GlyphModifier,
   GlyphModifierConfig,
-  GlyphProperty,
 } from "../glyph-utilities/glyph-modifier";
+import {
+  callbackifyOrDefault,
+  GlyphCallback,
+  GlyphProperty,
+} from "../glyph-utilities/glyph-property";
 
 /**
  * @internal
@@ -31,17 +35,15 @@ export interface TextConfig<A extends Annotation, C extends Chart<any>>
    */
   fontStyle?: GlyphProperty<A, C, string>;
   /**
-   * Where the text is aligned to: start, middle, or end. See:
+   * How the text aligns horizontally: start, middle, or end. See:
    * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor
    */
   textAnchor?: GlyphProperty<A, C, string>;
   /**
-   * How the text glyph is aligned with it's parent. See:
-   * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/alignment-baseline
+   * How the text aligns vertically: auto, middle, hanging.
+   * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/dominant-baseline
    */
-  alignmentBaseline?: GlyphProperty<A, C, string>;
-  initializeFn?: (this: TextModifier<A, C>) => void;
-  zoomFn?: (this: TextModifier<A, C>) => void;
+  dominantBaseline?: GlyphProperty<A, C, string>;
 }
 
 /**
@@ -59,71 +61,49 @@ export class TextModifier<
   A extends Annotation,
   C extends Chart<any>
 > extends GlyphModifier<A, C> {
-  textAnchor: GlyphProperty<A, C, string>;
-  fontSize: GlyphProperty<A, C, number>;
-  fontWeight: GlyphProperty<A, C, string>;
-  fontFamily: GlyphProperty<A, C, string>;
-  fontStyle: GlyphProperty<A, C, string>;
-  alignmentBaseline: GlyphProperty<A, C, string>;
+  textAnchor: GlyphCallback<A, C, string>;
+  fontSize: GlyphCallback<A, C, number>;
+  fontWeight: GlyphCallback<A, C, string>;
+  fontFamily: GlyphCallback<A, C, string>;
+  fontStyle: GlyphCallback<A, C, string>;
 
   constructor(config: TextModifierConfig<A, C>) {
     super(config);
-    this.fillColor = config.fillColor || "black";
-    this.strokeColor = config.strokeColor || "none";
-    this.textAnchor = config.textAnchor || "start";
-    this.fontSize = config.fontSize || 12;
-    this.fontWeight = config.fontWeight || "normal";
-    this.fontFamily = config.fontFamily || "Titillium Web, Arial, sans-serif";
-    this.fontStyle = config.fontStyle || "normal";
-    this.alignmentBaseline = config.alignmentBaseline || "hanging";
-  }
+    this.textAnchor = callbackifyOrDefault(config.textAnchor, () => "start");
+    this.fontSize = callbackifyOrDefault(config.fontSize, () => 12);
+    this.fontWeight = callbackifyOrDefault(config.fontWeight, () => "normal");
+    this.fontFamily = callbackifyOrDefault(
+      config.fontFamily,
+      () => "Titillium Web, Arial, sans-serif"
+    );
+    this.fontStyle = callbackifyOrDefault(config.fontStyle, () => "normal");
 
-  defaultInitialize(): void {
-    super.defaultInitialize();
-    this.applyUserSelect();
-    this.applyTextAnchor();
-    this.applyFontSize();
-    this.applyFontWeight();
-    this.applyFontFamily();
-    this.applyFontStyle();
-    this.applyAlignmentBaseline();
-  }
+    this.initializePolicy.attributeRuleMap.set("group", [
+      { key: "id", property: this.id },
+      { key: "y", property: this.y },
+    ]);
 
-  defaultZoom(): void {
-    this.applyX();
-    this.applyY();
-  }
+    this.initializePolicy.styleRuleMap.set("group", [
+      { key: "font-family", property: this.fontFamily },
+      { key: "text-anchor", property: this.textAnchor },
+      { key: "font-size", property: this.fontSize },
+      { key: "font-weight", property: this.fontWeight },
+      { key: "font-style", property: this.fontStyle },
+      {
+        key: "dominant-baseline",
+        property: config.dominantBaseline || "hanging",
+      },
+      { key: "stroke-width", property: config.strokeWidth },
+      { key: "stroke-opacity", property: config.strokeOpacity },
+      { key: "stroke", property: config.strokeColor },
+      { key: "stroke-dash-array", property: config.strokeDashArray },
+      { key: "stroke-dash-offset", property: config.strokeDashOffset },
+      { key: "fill", property: config.fillColor },
+      { key: "fill-opacity", property: config.fillOpacity },
+    ]);
 
-  applyUserSelect(): void {
-    this.applyStyle("-webkit-user-select", "none");
-    this.applyStyle("-khtml-user-select", "none");
-    this.applyStyle("-moz-user-select", "none");
-    this.applyStyle("-ms-user-select", "none");
-    this.applyStyle("-o-user-select", "none");
-    this.applyStyle("user-select", "none");
-  }
-
-  applyTextAnchor(): void {
-    this.applyStyle("text-anchor", this.textAnchor);
-  }
-
-  applyFontSize(): void {
-    this.applyStyle("font-size", this.fontSize);
-  }
-
-  applyFontWeight(): void {
-    this.applyStyle("font-weight", this.fontWeight);
-  }
-
-  applyFontFamily(): void {
-    this.applyStyle("font-family", this.fontFamily);
-  }
-
-  applyFontStyle(): void {
-    this.applyStyle("font-style", this.fontStyle);
-  }
-
-  applyAlignmentBaseline(): void {
-    this.applyStyle("alignment-baseline", this.alignmentBaseline);
+    this.zoomPolicy.attributeRuleMap.set("group", [
+      { key: "x", property: this.x },
+    ]);
   }
 }

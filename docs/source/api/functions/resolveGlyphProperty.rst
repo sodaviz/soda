@@ -9,16 +9,16 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _resolveValue:
+.. _resolveGlyphProperty:
 
-:trst-function:`resolveValue`
-=============================
+:trst-function:`resolveGlyphProperty`
+=====================================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    function resolveValue<A extends Annotation, C extends Chart, V extends generic>(property: GlyphProperty <A, C, V>, d: AnnotationDatum <A, C>): V
+    function resolveGlyphProperty<A extends Annotation, C extends Chart, V extends generic>(property: GlyphProperty <A, C, V>, d: AnnotationDatum <A, C>): V
 
 .. container:: content
 
