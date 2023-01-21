@@ -9,25 +9,25 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _DynamicTextConfig:
+.. _RadialAxisConfig:
 
-:trst-class:`DynamicTextConfig`
-===============================
+:trst-class:`RadialAxisConfig`
+==============================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    interface DynamicTextConfig<A extends Annotation, C extends Chart>
+    interface RadialAxisConfig<A extends Annotation, C extends RadialChart>
 
 .. container:: content
 
-  An interface that defines the parameters for a call to the dynamicText rendering function.
+  An interface that defines the parameters for a call to the radialAxis rendering function.
 
   **Type parameters**
 
     - A: Annotation
-    - C: Chart
+    - C: RadialChart
 
 Properties
 ----------
@@ -45,6 +45,19 @@ annotations
 
   A list of Annotation objects that will be used to render the glyphs.
 
+axisType
+********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    axisType: undefined | Bottom | Top | GlyphCallback <A, C, Bottom | Top>
+
+.. container:: content
+
+  This determines whether the ticks and labels will be placed on the top or the bottom of the axis.
+
 chart
 *****
 
@@ -57,6 +70,19 @@ chart
 .. container:: content
 
   The Chart object in which the glyphs will be rendered.
+
+domain
+******
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    domain: undefined | None | GlyphCallback <A, C, None>
+
+.. container:: content
+
+  This defines the domain of the D3 scale used to create the axis glyph.
 
 dominantBaseline
 ****************
@@ -96,6 +122,19 @@ fillOpacity
 .. container:: content
 
   This defines the fill opacity of the glyph.
+
+fixed
+*****
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    fixed: undefined | boolean
+
+.. container:: content
+
+  If this is set to true, the axis glyph will not translate or scale during zoom events.
 
 fontFamily
 **********
@@ -161,6 +200,84 @@ height
 .. container:: content
 
   This defines the pixel height of the glyph.
+
+labelFillColor
+**************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    labelFillColor: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  This defines fill color of the tick labels on the axis.
+
+labelFillOpacity
+****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    labelFillOpacity: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  This defines the fill opacity of the labels on the axis.
+
+labelStrokeColor
+****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    labelStrokeColor: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  This defines the stroke color of the tick labels on the axis.
+
+labelStrokeOpacity
+******************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    labelStrokeOpacity: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  This defines the stroke opacity of the labels on the axis.
+
+labelStrokeWidth
+****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    labelStrokeWidth: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  This defines the stroke width of the tick labels on the axis.
+
+range
+*****
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    range: undefined | None | GlyphCallback <A, C, None>
+
+.. container:: content
+
+  This defines the range of the D3 scale used to create the axis glyph.
 
 row
 ***
@@ -292,19 +409,6 @@ target
 
   This determines the parent DOM element in which the glyphs will be rendered. When supplying a BindTarget, the rendering function will find the appropriate parent in the supplied Chart. When supplying a D3 selection, the rendering function will explicitly use the selected element.
 
-text
-****
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    text: GlyphProperty <A, C, string []>
-
-.. container:: content
-
-  A callback to extract a list of text to display from the represented Annotation object. It is a list of text because TextGlyphs can display varying length text depending on how much room is available at the Chart's current zoom level.
-
 textAnchor
 **********
 
@@ -317,6 +421,136 @@ textAnchor
 .. container:: content
 
   How the text aligns horizontally: start, middle, or end. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor
+
+tickFillColor
+*************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tickFillColor: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  This defines the fill color of the tick marks on the axis
+
+tickFillOpacity
+***************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tickFillOpacity: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  This defines the fill opacity of the tick marks on the axis.
+
+tickFormat
+**********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tickFormat: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  This controls the tick count and format of the tick labels. For more information, see: https://github.com/d3/d3-axis#axis_ticks
+
+tickPadding
+***********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tickPadding: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  This controls the distance between the tick marks and tick labels. For more information, see: https://github.com/d3/d3-axis#axis_tickPadding
+
+tickSizeInner
+*************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tickSizeInner: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  This controls the size of the "inner" axis ticks. For more information, see: https://github.com/d3/d3-axis#axis_tickSizeInner
+
+tickSizeOuter
+*************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tickSizeOuter: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  This controls the size of the "outer" axis ticks. For more information, see: https://github.com/d3/d3-axis#axis_tickSizeOuter
+
+tickStrokeColor
+***************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tickStrokeColor: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  This defines the stroke color of the tick marks on the axis.
+
+tickStrokeOpacity
+*****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tickStrokeOpacity: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  This defines the stroke opacity of the tick marks on the axis.
+
+tickStrokeWidth
+***************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tickStrokeWidth: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  This defines the stroke width of the tick marks on the axis.
+
+ticks
+*****
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    ticks: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  This defines the tick property that will be passed to D3's axis.ticks function. For more information, see https://github.com/d3/d3-axis#axis_ticks
 
 width
 *****

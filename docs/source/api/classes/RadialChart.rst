@@ -206,18 +206,18 @@ _viewportWidth
 
   The stored value of the viewport SVG width property.
 
-axisRadius
+axisConfig
 **********
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    axisRadius: undefined | number
+    axisConfig: HorizontalAxisConfig <any, any>
 
 .. container:: content
 
-  The radius of the circle that defines the axis placement.
+  This sets the styling properties for the default axis produced by addAxis(), which is called in the default draw() implementation.
 
 containerSelection
 ******************
@@ -347,7 +347,7 @@ innerRadius
 
 .. container:: content
 
-  The inner radius of the conceptual annulus that defines the Chart annotation track.
+  The inner radius of the Chart in pixels.
 
 layout
 ******
@@ -388,6 +388,19 @@ lowerPadSize
 
   The number of pixels of padding on the bottom of the Chart.
 
+notchAngle
+**********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    notchAngle: number
+
+.. container:: content
+
+  The angle (in radians) of the "notch" at the top of the radial chart.
+
 observers
 *********
 
@@ -412,7 +425,20 @@ outerRadius
 
 .. container:: content
 
-  The outer radius of the conceptual annulus that defines the Chart annotation track.
+  The outer radius of the Chart in pixels.
+
+outerRadiusRatio
+****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    outerRadiusRatio: number
+
+.. container:: content
+
+  The outer radius of the Chart expressed as the ratio (outer radius / viewport width).
 
 overflowViewportSelection
 *************************
@@ -595,6 +621,19 @@ trackHeight
 .. container:: content
 
   The "height" of the radial track on which annotations will be rendered. Conceptually, this is equal to to the difference of the radii of two concentric circles that define an annulus.
+
+trackHeightRatio
+****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    trackHeightRatio: number
+
+.. container:: content
+
+  The track height expressed as the ratio ( track height / viewport width)
 
 trackOutlineSelection
 *********************
@@ -1620,19 +1659,6 @@ render
   **Parameters**
 
   - params: P
-
-  **Returns**: void
-
-renderAxis
-**********
-
-.. container:: collapsible
-
- .. code-block:: typescript
-
-    renderAxis(): void
-
-.. container:: content
 
   **Returns**: void
 

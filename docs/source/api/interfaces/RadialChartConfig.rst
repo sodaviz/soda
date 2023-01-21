@@ -31,18 +31,18 @@
 Properties
 ----------
 
-axisType
-********
+axisConfig
+**********
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    axisType: undefined | Bottom | Top
+    axisConfig: undefined | ChartAxisConfig
 
 .. container:: content
 
-  This controls whether or not the Chart will render a horizontal axis.
+  This sets the styling properties for the default axis produced by addAxis(), which is called in the default draw() implementation.
 
 debugShading
 ************
@@ -200,6 +200,45 @@ lowerPadSize
 
   The number of pixels of padding on the bottom of the Chart.
 
+notchAngle
+**********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    notchAngle: undefined | number
+
+.. container:: content
+
+  The angle (in radians) of the "notch" at the top of the radial chart.
+
+outerRadius
+***********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    outerRadius: undefined | number
+
+.. container:: content
+
+  The outer radius of the Chart in pixels. If supplied, the outerRadiusRatio will take precedence over this value.
+
+outerRadiusRatio
+****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    outerRadiusRatio: undefined | number
+
+.. container:: content
+
+  The outer radius of the Chart expressed as the ratio (outer radius / viewport width).
+
 padSize
 *******
 
@@ -354,7 +393,20 @@ trackHeight
 
 .. container:: content
 
-  The "height" of the radial track on which annotations will be rendered. Conceptually, this is equal to to the difference of the radii of two concentric circles that define an annulus.
+  The "height" of the radial track on which annotations will be rendered. This is equal to to the difference of the radii of two concentric circles that define an annulus.
+
+trackHeightRatio
+****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    trackHeightRatio: undefined | number
+
+.. container:: content
+
+  The track height expressed as the ratio ( track height / viewport width)
 
 updateDimensions
 ****************

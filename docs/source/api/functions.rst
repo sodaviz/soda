@@ -9,8 +9,6 @@ Functions
    functions/arc
    functions/area
    functions/augment
-   functions/axisRadialInner
-   functions/axisRadialOuter
    functions/barPlot
    functions/chevronLine
    functions/chevronRectangle
@@ -37,10 +35,11 @@ Functions
    functions/parseGff3Records
    functions/parseOrientation
    functions/queryGlyphMap
+   functions/radialAxis
    functions/radialRectangle
    functions/rectangle
    functions/removeGlyphsByQuery
-   functions/resolveValue
+   functions/resolveGlyphProperty
    functions/sequence
    functions/setKeySeparator
    functions/simpleText

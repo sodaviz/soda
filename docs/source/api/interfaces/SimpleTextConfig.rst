@@ -32,19 +32,6 @@
 Properties
 ----------
 
-alignmentBaseline
-*****************
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    alignmentBaseline: undefined | string | GlyphCallback <A, C, string>
-
-.. container:: content
-
-  How the text glyph is aligned with it's parent. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/alignment-baseline
-
 annotations
 ***********
 
@@ -71,6 +58,19 @@ chart
 
   The Chart object in which the glyphs will be rendered.
 
+dominantBaseline
+****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    dominantBaseline: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  How the text aligns vertically: auto, middle, hanging. https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/dominant-baseline
+
 fillColor
 *********
 
@@ -82,7 +82,7 @@ fillColor
 
 .. container:: content
 
-  A callback to define the fill color of the glyph.
+  This defines the fill color of the glyph.
 
 fillOpacity
 ***********
@@ -95,7 +95,7 @@ fillOpacity
 
 .. container:: content
 
-  A callback to define the fill opacity of the glyph.
+  This defines the fill opacity of the glyph.
 
 fontFamily
 **********
@@ -160,20 +160,7 @@ height
 
 .. container:: content
 
-  A callback to define the pixel height of the glyph.
-
-initializeFn
-************
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    initializeFn: undefined | (): void
-
-.. container:: content
-
-  
+  This defines the pixel height of the glyph.
 
 row
 ***
@@ -186,7 +173,7 @@ row
 
 .. container:: content
 
-  A callback to define the row that the glyph is placed in.
+  This defines the row that the glyph is placed in.
 
 selector
 ********
@@ -212,7 +199,7 @@ strokeColor
 
 .. container:: content
 
-  A callback to define the color of the border around the glyph.
+  This defines the color of the border around the glyph.
 
 strokeDashArray
 ***************
@@ -225,7 +212,7 @@ strokeDashArray
 
 .. container:: content
 
-  A callback to define the stroke dash array of the glyph. See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dasharray
+  This defines the stroke dash array of the glyph. See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dasharray
 
 strokeDashOffset
 ****************
@@ -238,7 +225,7 @@ strokeDashOffset
 
 .. container:: content
 
-  A callback to define the offset for the stroke dash array (if supplied) of the glyph. See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dashoffset
+  This defines the offset for the stroke dash array (if supplied) of the glyph. See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dashoffset
 
 strokeLineCap
 *************
@@ -251,7 +238,7 @@ strokeLineCap
 
 .. container:: content
 
-  A callback to define the stroke linecap of the glyph. See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linecap
+  This defines the stroke linecap of the glyph. See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linecap
 
 strokeLineJoin
 **************
@@ -264,7 +251,7 @@ strokeLineJoin
 
 .. container:: content
 
-  A callback to define the offset for the stroke linejoin of the glyph. See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linejoin
+  This defines the offset for the stroke linejoin of the glyph. See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linejoin
 
 strokeOpacity
 *************
@@ -277,7 +264,7 @@ strokeOpacity
 
 .. container:: content
 
-  A callback to define the opacity of the border around the glyph.
+  This defines the opacity of the border around the glyph.
 
 strokeWidth
 ***********
@@ -290,7 +277,7 @@ strokeWidth
 
 .. container:: content
 
-  A callback to define the width of the border around the glyph.
+  This defines the width of the border around the glyph.
 
 target
 ******
@@ -329,7 +316,7 @@ textAnchor
 
 .. container:: content
 
-  Where the text is aligned to: start, middle, or end. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor
+  How the text aligns horizontally: start, middle, or end. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor
 
 width
 *****
@@ -342,7 +329,7 @@ width
 
 .. container:: content
 
-  A callback to define the pixel width of the glyph.
+  This defines the pixel width of the glyph.
 
 x
 *
@@ -355,7 +342,7 @@ x
 
 .. container:: content
 
-  A callback to define the pixel x coordinate of the glyph.
+  This defines the pixel x coordinate of the glyph.
 
 y
 *
@@ -368,18 +355,5 @@ y
 
 .. container:: content
 
-  A callback to define the pixel y coordinate of the glyph
-
-zoomFn
-******
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    zoomFn: undefined | (): void
-
-.. container:: content
-
-  
+  This defines the pixel y coordinate of the glyph
 

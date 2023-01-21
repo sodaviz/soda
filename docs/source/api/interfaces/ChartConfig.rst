@@ -31,18 +31,18 @@
 Properties
 ----------
 
-axisType
-********
+axisConfig
+**********
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    axisType: undefined | Bottom | Top
+    axisConfig: undefined | ChartAxisConfig
 
 .. container:: content
 
-  This controls whether or not the Chart will render a horizontal axis.
+  This sets the styling properties for the default axis produced by addAxis(), which is called in the default draw() implementation.
 
 debugShading
 ************

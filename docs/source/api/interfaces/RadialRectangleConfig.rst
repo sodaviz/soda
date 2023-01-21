@@ -9,25 +9,25 @@
 .. role:: trst-type
 .. role:: trst-type-parameter
 
-.. _ArcConfig:
+.. _RadialRectangleConfig:
 
-:trst-class:`ArcConfig`
-=======================
+:trst-class:`RadialRectangleConfig`
+===================================
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    interface ArcConfig<A extends Annotation, C extends Chart>
+    interface RadialRectangleConfig<A extends Annotation, C extends RadialChart>
 
 .. container:: content
 
-  An interface that defines the parameters for a call to the arc rendering function.
+  An interface that defines the parameters for a call to the radialRectangle rendering function.
 
   **Type parameters**
 
     - A: Annotation
-    - C: Chart
+    - C: RadialChart
 
 Properties
 ----------

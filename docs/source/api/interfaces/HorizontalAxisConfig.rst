@@ -52,11 +52,11 @@ axisType
 
   .. code-block:: typescript
 
-    axisType: undefined | Bottom | Top
+    axisType: undefined | Bottom | Top | GlyphCallback <A, C, Bottom | Top>
 
 .. container:: content
 
-  This determines whether the ticks and labels with be placed on the top or the bottom of the axis.
+  This determines whether the ticks and labels will be placed on the top or the bottom of the axis.
 
 chart
 *****
@@ -84,6 +84,19 @@ domain
 
   This defines the domain of the D3 scale used to create the axis glyph.
 
+dominantBaseline
+****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    dominantBaseline: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  How the text aligns vertically: auto, middle, hanging. https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/dominant-baseline
+
 fillColor
 *********
 
@@ -95,7 +108,7 @@ fillColor
 
 .. container:: content
 
-  A callback to define the fill color of the glyph.
+  This defines the fill color of the glyph.
 
 fillOpacity
 ***********
@@ -108,7 +121,7 @@ fillOpacity
 
 .. container:: content
 
-  A callback to define the fill opacity of the glyph.
+  This defines the fill opacity of the glyph.
 
 fixed
 *****
@@ -123,6 +136,58 @@ fixed
 
   If this is set to true, the axis glyph will not translate or scale during zoom events.
 
+fontFamily
+**********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    fontFamily: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  The font family that will be used. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-family
+
+fontSize
+********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    fontSize: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  The font size of the text.
+
+fontStyle
+*********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    fontStyle: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  The font style: normal, italic, or oblique. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-style
+
+fontWeight
+**********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    fontWeight: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  The weight of the font: normal, bold, bolder, lighter. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-weight
+
 height
 ******
 
@@ -134,20 +199,72 @@ height
 
 .. container:: content
 
-  A callback to define the pixel height of the glyph.
+  This defines the pixel height of the glyph.
 
-initializeFn
-************
+labelFillColor
+**************
 
 .. container:: collapsible
 
   .. code-block:: typescript
 
-    initializeFn: undefined | (): void
+    labelFillColor: undefined | string | GlyphCallback <A, C, string>
 
 .. container:: content
 
-  A callback function that will be passed to the GlyphModifier that will manage the glyphs created with this config. If provided, this callback function will override the GlyphModifier's initialization method, which typically sets most of the style related properties from the GlyphConfig. Don't use this unless you know what you're doing.
+  This defines fill color of the tick labels on the axis.
+
+labelFillOpacity
+****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    labelFillOpacity: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  This defines the fill opacity of the labels on the axis.
+
+labelStrokeColor
+****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    labelStrokeColor: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  This defines the stroke color of the tick labels on the axis.
+
+labelStrokeOpacity
+******************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    labelStrokeOpacity: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  This defines the stroke opacity of the labels on the axis.
+
+labelStrokeWidth
+****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    labelStrokeWidth: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  This defines the stroke width of the tick labels on the axis.
 
 range
 *****
@@ -173,20 +290,7 @@ row
 
 .. container:: content
 
-  A callback to define the row that the glyph is placed in.
-
-scaleToBinHeight
-****************
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    scaleToBinHeight: undefined | boolean
-
-.. container:: content
-
-  If this is set to true, the axis glyph will be forced (by stretching) into the height of a row in the Chart.
+  This defines the row that the glyph is placed in.
 
 selector
 ********
@@ -212,7 +316,7 @@ strokeColor
 
 .. container:: content
 
-  A callback to define the color of the border around the glyph.
+  This defines the color of the border around the glyph.
 
 strokeDashArray
 ***************
@@ -225,7 +329,7 @@ strokeDashArray
 
 .. container:: content
 
-  A callback to define the stroke dash array of the glyph. See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dasharray
+  This defines the stroke dash array of the glyph. See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dasharray
 
 strokeDashOffset
 ****************
@@ -238,7 +342,7 @@ strokeDashOffset
 
 .. container:: content
 
-  A callback to define the offset for the stroke dash array (if supplied) of the glyph. See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dashoffset
+  This defines the offset for the stroke dash array (if supplied) of the glyph. See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dashoffset
 
 strokeLineCap
 *************
@@ -251,7 +355,7 @@ strokeLineCap
 
 .. container:: content
 
-  A callback to define the stroke linecap of the glyph. See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linecap
+  This defines the stroke linecap of the glyph. See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linecap
 
 strokeLineJoin
 **************
@@ -264,7 +368,7 @@ strokeLineJoin
 
 .. container:: content
 
-  A callback to define the offset for the stroke linejoin of the glyph. See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linejoin
+  This defines the offset for the stroke linejoin of the glyph. See https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-linejoin
 
 strokeOpacity
 *************
@@ -277,7 +381,7 @@ strokeOpacity
 
 .. container:: content
 
-  A callback to define the opacity of the border around the glyph.
+  This defines the opacity of the border around the glyph.
 
 strokeWidth
 ***********
@@ -290,7 +394,7 @@ strokeWidth
 
 .. container:: content
 
-  A callback to define the width of the border around the glyph.
+  This defines the width of the border around the glyph.
 
 target
 ******
@@ -305,6 +409,84 @@ target
 
   This determines the parent DOM element in which the glyphs will be rendered. When supplying a BindTarget, the rendering function will find the appropriate parent in the supplied Chart. When supplying a D3 selection, the rendering function will explicitly use the selected element.
 
+textAnchor
+**********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    textAnchor: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  How the text aligns horizontally: start, middle, or end. See: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor
+
+tickFillColor
+*************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tickFillColor: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  This defines the fill color of the tick marks on the axis
+
+tickFillOpacity
+***************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tickFillOpacity: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  This defines the fill opacity of the tick marks on the axis.
+
+tickFormat
+**********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tickFormat: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  This controls the tick count and format of the tick labels. For more information, see: https://github.com/d3/d3-axis#axis_ticks
+
+tickPadding
+***********
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tickPadding: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  This controls the distance between the tick marks and tick labels. For more information, see: https://github.com/d3/d3-axis#axis_tickPadding
+
+tickSizeInner
+*************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tickSizeInner: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  This controls the size of the "inner" axis ticks. For more information, see: https://github.com/d3/d3-axis#axis_tickSizeInner
+
 tickSizeOuter
 *************
 
@@ -316,7 +498,46 @@ tickSizeOuter
 
 .. container:: content
 
-  This defines the tick property that will be passed to D3's axis.tickSizeOuter function. For more information, see https://github.com/d3/d3-axis#axis_tickSizeOuter
+  This controls the size of the "outer" axis ticks. For more information, see: https://github.com/d3/d3-axis#axis_tickSizeOuter
+
+tickStrokeColor
+***************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tickStrokeColor: undefined | string | GlyphCallback <A, C, string>
+
+.. container:: content
+
+  This defines the stroke color of the tick marks on the axis.
+
+tickStrokeOpacity
+*****************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tickStrokeOpacity: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  This defines the stroke opacity of the tick marks on the axis.
+
+tickStrokeWidth
+***************
+
+.. container:: collapsible
+
+  .. code-block:: typescript
+
+    tickStrokeWidth: undefined | number | GlyphCallback <A, C, number>
+
+.. container:: content
+
+  This defines the stroke width of the tick marks on the axis.
 
 ticks
 *****
@@ -342,7 +563,7 @@ width
 
 .. container:: content
 
-  A callback to define the pixel width of the glyph.
+  This defines the pixel width of the glyph.
 
 x
 *
@@ -355,7 +576,7 @@ x
 
 .. container:: content
 
-  A callback to define the pixel x coordinate of the glyph.
+  This defines the pixel x coordinate of the glyph.
 
 y
 *
@@ -368,18 +589,5 @@ y
 
 .. container:: content
 
-  A callback to define the pixel y coordinate of the glyph
-
-zoomFn
-******
-
-.. container:: collapsible
-
-  .. code-block:: typescript
-
-    zoomFn: undefined | (): void
-
-.. container:: content
-
-  A callback function that will be passed to the GlyphModifier that will manage the glyphs created with this config. If provided, this callback function will override the GlyphModifier's zoom method, which typically sets most of the positioning related properties from the GlyphConfig. Don't use this unless you know what you're doing.
+  This defines the pixel y coordinate of the glyph
 
