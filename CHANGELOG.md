@@ -15,6 +15,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2023-01-17
+
+### Added
+- Added rx and ry parameters to RectangleConfig 
+- Added more parameters to style axis glyphs
+- Added default axis configuration through ChartConfig.axisConfig parameter
+- Added notchAngle to RadialChart
+- Added trackHeightRatio, outerRadius, and outerRadiusRatio to RadialChartConfig
+
+### Changed
+- Replaced alignmentBaseline with dominantBaseline
+- Replaced ChartConfig.axisType with ChartConfig.axisConfig, which exposes all of the axis styling options
+- Changed axis glyph config AxisType parameter type from AxisType to a GlyphCallback<A, C, AxisType>
+
+### Removed
+- Removed initializeFn and zoomFn parameters from all GlyphConfig
+- Removed barHeightFn parameter from BarPlotConfig
+- Removed scaleToBinHeight parameter from HorizontalAxisConfig
+- Removed axisRadius from RadialChart and RadialChartConfig
+
+
+
 ## [0.12.1] - 2022-08-26
 
 ### Added

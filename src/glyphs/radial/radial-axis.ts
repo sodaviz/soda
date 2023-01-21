@@ -106,6 +106,9 @@ function _radialAxis(
         ? angleScale.tickFormat()
         : identity;
 
+    // values.push(angleScale.domain()[0]);
+    // values.push(angleScale.domain()[1]);
+
     let spacing = Math.max(tickSizeInner, 0) + tickPadding;
     let angleRange = angleScale.range();
     let anglePos = identity(angleScale.copy());
@@ -272,7 +275,7 @@ export class RadialAxisModifier<
   constructor(config: GlyphModifierConfig<A, C> & RadialAxisConfig<A, C>) {
     super(config);
 
-    this.tickSizeOuter = callbackifyOrDefault(config.tickSizeOuter, () => 12);
+    this.tickSizeOuter = callbackifyOrDefault(config.tickSizeOuter, () => 6);
     this.tickSizeInner = callbackifyOrDefault(config.tickSizeInner, () => 6);
 
     if (config.fixed) {

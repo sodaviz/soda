@@ -15,18 +15,42 @@ import { HighlightConfig } from "./chart";
  */
 export interface RadialChartConfig<P extends RenderParams>
   extends ChartConfig<P> {
+  /**
+   * The angle (in radians) of the "notch" at the top of the radial chart.
+   */
   notchAngle?: number;
   /**
-   * The "height" of the radial track on which annotations will be rendered. Conceptually, this is equal to to the
+   * The outer radius of the Chart in pixels. If supplied, the outerRadiusRatio will take precedence over this value.
+   *
+   * If the chart is in resizable mode, this value is used to compute the the outerRadiusRatio, which will be used
+   * to resize the outer radius in response to resize events.
+   */
+  outerRadius?: number;
+  /**
+   * The outer radius of the Chart expressed as the ratio (outer radius / viewport width).
+   */
+  outerRadiusRatio?: number;
+  /**
+   * The "height" of the radial track on which annotations will be rendered. This is equal to to the
    * difference of the radii of two concentric circles that define an annulus.
+   *
+   * If the Chart is in resizable mode, this value is used to compute the trackHeightRatio, which will be used to
+   * resize the inner radius in response to resize events.
    */
   trackHeight?: number;
+  /**
+   * The track height expressed as the ratio ( track height / viewport width)
+   */
+  trackHeightRatio?: number;
 }
 
 /**
  * This Chart class is designed for rendering features in a circular context, e.g. bacterial genomes.
  */
 export class RadialChart<P extends RenderParams> extends Chart<P> {
+  /**
+   * The angle (in radians) of the "notch" at the top of the radial chart.
+   */
   notchAngle: number;
   /**
    * The "height" of the radial track on which annotations will be rendered. Conceptually, this is equal to to the
@@ -34,17 +58,21 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
    */
   trackHeight: number;
   /**
-   * The inner radius of the conceptual annulus that defines the Chart annotation track.
+   * The track height expressed as the ratio ( track height / viewport width)
+   */
+  trackHeightRatio: number;
+  /**
+   * The inner radius of the Chart in pixels.
    */
   innerRadius: number;
   /**
-   * The outer radius of the conceptual annulus that defines the Chart annotation track.
+   * The outer radius of the Chart in pixels.
    */
   outerRadius: number;
   /**
-   * The radius of the circle that defines the axis placement.
+   * The outer radius of the Chart expressed as the ratio (outer radius / viewport width).
    */
-  axisRadius?: number;
+  outerRadiusRatio: number;
   /**
    * A d3 selection to the track outline.
    */
@@ -60,8 +88,13 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
     this.xScale.range([this.notchAngle, 2 * Math.PI - this.notchAngle]);
 
     this.trackHeight = config.trackHeight || this.viewportWidthPx / 4;
+    this.trackHeightRatio =
+      config.trackHeightRatio || this.trackHeight / this.viewportWidthPx;
 
-    this.outerRadius = this.viewportWidthPx / 2;
+    this.outerRadius = config.outerRadius || this.viewportWidthPx / 2;
+    this.outerRadiusRatio =
+      config.outerRadiusRatio || this.outerRadius / this.viewportWidthPx;
+
     this.innerRadius = this.outerRadius - this.trackHeight;
     this.rowCount = config.rowCount || 1;
     this.rowHeight = this.trackHeight / this.rowCount;
@@ -90,8 +123,11 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
   }
 
   public fitRadialDimensions(): void {
-    this.trackHeight = this.viewportWidthPx / 4;
-    this.outerRadius = this.viewportWidthPx / 2;
+    this.outerRadius = this.viewportWidthPx * this.outerRadiusRatio;
+    // set the inner radius based off of the track height because it's probably
+    // easier to think about the outer radius and the track height, as opposed
+    // to thinking about the outer radius and inner radius
+    this.trackHeight = this.viewportWidthPx * this.trackHeightRatio;
     this.innerRadius = this.outerRadius - this.trackHeight;
     this.rowHeight = this.trackHeight / this.rowCount;
   }
