@@ -17,6 +17,7 @@ Interfaces
    interfaces/AugmentParam
    interfaces/BarPlotConfig
    interfaces/BedAnnotation
+   interfaces/ChartAxisConfig
    interfaces/ChartConfig
    interfaces/ChevronGlyphConfig
    interfaces/ChevronLineConfig

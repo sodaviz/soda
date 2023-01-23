@@ -7,5 +7,5 @@ Api
    api/classes
    api/interfaces
    api/functions
-   api/type_aliases
+   api/type-aliases
    api/enumerations

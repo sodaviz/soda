@@ -82,7 +82,8 @@ export class RadialChart<P extends RenderParams> extends Chart<P> {
     super(config);
 
     // default the notch angle to ~1% of a circle
-    this.notchAngle = config.notchAngle || Math.PI / 200;
+    this.notchAngle =
+      config.notchAngle != undefined ? config.notchAngle : Math.PI / 200;
 
     // we can set the range here once and forget about it
     this.xScale.range([this.notchAngle, 2 * Math.PI - this.notchAngle]);

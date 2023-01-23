@@ -77,14 +77,14 @@ export interface HighlightConfig {
   opacity?: number;
 }
 
-/**
- * This interface defines the parameters to style a default axis on a Chart.
- */
 // this type definition is a bit intense, so let's unpack it:
 //
 // outermost, we have a Partial<T> of the penultimate
 // type, since we want to "undo" the Required<T>
-export type ChartAxisConfig = Partial<
+/**
+ * @internal
+ */
+export type _ChartAxisConfig = Partial<
   // GlyphPropertiesToValues turns every
   // GlyphProperty<A, C, V> into just a V
   GlyphPropertiesToValues<
@@ -114,6 +114,11 @@ export type ChartAxisConfig = Partial<
   // the TypeScript compiler seems to clobber the AxisType enum after shoving it
   // through the various type defs here, so we just exclude it and re-include it
 > & { axisType?: AxisType.Bottom | AxisType.Top };
+
+/**
+ * This interface defines the parameters to style a default axis on a Chart.
+ */
+export interface ChartAxisConfig extends _ChartAxisConfig {}
 
 /**
  * This describes the parameters for configuring and initializing a Chart.

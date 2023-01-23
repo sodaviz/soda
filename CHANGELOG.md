@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.1] - 2023-01-17
+
+### Fixed
+- Fixed notch angle 0 bug on RadialChart
+- Fixed type aliases in docs (they were missing)
+
 ## [0.13.0] - 2023-01-17
 
 ### Added
