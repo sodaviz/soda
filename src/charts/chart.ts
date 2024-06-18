@@ -42,7 +42,7 @@ function pixelizeValue(value: string | number | undefined): string | undefined {
  * @internal
  */
 function getSelectionDomRect(
-  selection: d3.Selection<any, any, any, any>
+  selection: d3.Selection<any, any, any, any>,
 ): DOMRect {
   let node = selection.node();
   if (node == null) {
@@ -385,6 +385,10 @@ export class Chart<P extends RenderParams> {
    */
   resizable: boolean;
   /**
+   * If the Chart is resizable, the ResizeObserver that is responsible for observing the Chart.
+   */
+  resizeObserver: ResizeObserver | undefined;
+  /**
    * This controls whether or not the Chart has zooming enabled.
    */
   zoomable: boolean;
@@ -448,7 +452,7 @@ export class Chart<P extends RenderParams> {
    */
   yScale: (this: any, row: number) => number = function (
     this: Chart<P>,
-    row: number
+    row: number,
   ): number {
     return row * this.rowHeight;
   };
@@ -594,6 +598,7 @@ export class Chart<P extends RenderParams> {
         : axisConfigDefaults;
 
     this.resizable = config.resizable || false;
+    this.resizeObserver = undefined;
     this.zoomable = config.zoomable || false;
 
     this.updateLayout = config.updateLayout || this.defaultUpdateLayout;
@@ -1186,7 +1191,7 @@ export class Chart<P extends RenderParams> {
             }
             return true;
           })
-          .on("zoom", () => self.zoom())
+          .on("zoom", () => self.zoom()),
       )
       .on("dblclick.zoom", null);
   }
@@ -1200,7 +1205,7 @@ export class Chart<P extends RenderParams> {
         d3
           .zoom()
           .filter(() => false)
-          .on("zoom", () => {})
+          .on("zoom", () => {}),
       )
       .on("dblclick.zoom", null);
   }
@@ -1239,7 +1244,7 @@ export class Chart<P extends RenderParams> {
    */
   public addGlyphModifier<A extends Annotation, C extends Chart<any>>(
     modifier: GlyphModifier<A, C>,
-    initialize = true
+    initialize = true,
   ): void {
     if (initialize) {
       modifier.initialize();
@@ -1296,17 +1301,17 @@ export class Chart<P extends RenderParams> {
       newDomain = this.domainFromWheelEvent(
         transform,
         source,
-        domainConstraint
+        domainConstraint,
       );
     } else if (source.type == "mousemove") {
       newDomain = this.domainFromMousemoveEvent(
         transform,
         source,
-        domainConstraint
+        domainConstraint,
       );
     } else {
       console.error(
-        `Unhandled event type: ${source.type} in zoom() call on chart: ${this.id}`
+        `Unhandled event type: ${source.type} in zoom() call on chart: ${this.id}`,
       );
     }
 
@@ -1327,7 +1332,7 @@ export class Chart<P extends RenderParams> {
   public domainFromWheelEvent(
     transform: Transform,
     sourceEvent: WheelEvent,
-    domainConstraint: [number, number]
+    domainConstraint: [number, number],
   ): [number, number] {
     let currentDomain = this.xScale.domain();
     let currentDomainWidth = currentDomain[1] - currentDomain[0];
@@ -1367,7 +1372,7 @@ export class Chart<P extends RenderParams> {
   public domainFromMousemoveEvent(
     transform: Transform,
     sourceEvent: WheelEvent,
-    domainConstraint: [number, number]
+    domainConstraint: [number, number],
   ): [number, number] {
     let currentDomain = this.xScale.domain();
     let newDomain: [number, number] = [currentDomain[0], currentDomain[1]];
@@ -1408,20 +1413,20 @@ export class Chart<P extends RenderParams> {
   public configureResize(): void {
     if (this.containerSelection == undefined) {
       console.warn(
-        `No containerSelection defined on chart: ${this.id}, can't run configureResize()`
+        `No containerSelection defined on chart: ${this.id}, can't run configureResize()`,
       );
       return;
     }
-    let resizeObserver = new ResizeObserver(
+    this.resizeObserver = new ResizeObserver(
       (entries: ResizeObserverEntry[]) => {
         for (const entry of entries) {
           if (entry.target == this.containerSelection.node()) {
             this.resize();
           }
         }
-      }
+      },
     );
-    resizeObserver.observe(this.containerSelection.node());
+    this.resizeObserver.observe(this.containerSelection.node());
   }
 
   /**
@@ -1470,6 +1475,18 @@ export class Chart<P extends RenderParams> {
   public clear(): void {
     this.glyphModifiers = [];
     removeGlyphsByQuery({ chart: this });
+  }
+
+  /**
+   * This method destroys the Chart.
+   */
+  public destroy(): void {
+    this.clear();
+    this.divSelection.remove();
+    this.resizeObserver?.disconnect();
+    for (let prop in this) {
+      delete this[prop];
+    }
   }
 
   /**
@@ -1523,7 +1540,7 @@ export class Chart<P extends RenderParams> {
       .attr("x", (config) => this.xScale(config.start) + this.leftPadSize)
       .attr(
         "width",
-        (config) => this.xScale(config.end) - this.xScale(config.start)
+        (config) => this.xScale(config.end) - this.xScale(config.start),
       );
   }
 
@@ -1532,7 +1549,7 @@ export class Chart<P extends RenderParams> {
    * @param annotations
    */
   static getDomainFromAnnotations<P extends RenderParams>(
-    annotations: Annotation[]
+    annotations: Annotation[],
   ): [number, number] {
     if (annotations == undefined || annotations == []) {
       return [0, 1];

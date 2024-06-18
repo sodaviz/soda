@@ -52,8 +52,8 @@ export class LineModifier<
       { key: "stroke-width", property: config.strokeWidth },
       { key: "stroke-opacity", property: config.strokeOpacity },
       { key: "stroke", property: config.strokeColor || "black" },
-      { key: "stroke-dash-array", property: config.strokeDashArray },
-      { key: "stroke-dash-offset", property: config.strokeDashOffset },
+      { key: "stroke-dasharray", property: config.strokeDashArray },
+      { key: "stroke-dashoffset", property: config.strokeDashOffset },
       { key: "fill", property: config.fillColor },
       { key: "fill-opacity", property: config.fillOpacity },
     ]);
