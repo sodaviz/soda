@@ -58,9 +58,16 @@ export function selectText(a: Annotation, c: Chart<any>): string {
 function addToTextMaps<A extends Annotation, C extends Chart<any>>(
   config: DynamicTextModifier<A, C>
 ): void {
-  let tmpTextSelection = d3
+  let tmpSvgSelection = d3
     .select("body")
     .append("svg")
+    .style("position", "absolute")
+    .style("overflow", "clip")
+    .style("visibility", "hidden")
+    .style("top", "100%")
+    .style("left", "100%")
+    .style("z-index", "-100");
+  let tmpTextSelection = tmpSvgSelection
     .append("text")
     .attr("class", "tmp-text");
 
@@ -93,7 +100,7 @@ function addToTextMaps<A extends Annotation, C extends Chart<any>>(
     });
     thresholdMap.set(a.id, thresholds);
   }
-  tmpTextSelection.remove();
+  tmpSvgSelection.remove();
 }
 
 /**
